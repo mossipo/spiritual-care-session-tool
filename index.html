@@ -1,0 +1,1458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spiritual Care Session Tool</title>
+<style>
+  :root{
+    --ink:#21241f;--ink-soft:#50564a;--paper:#f5f2ea;--card:#fffdf8;--rule:#ddd6c5;--rule-soft:#e8e2d4;
+    --accent:#5d6b3f;--accent-deep:#3f4a2b;--amber:#9a7b2e;--flag:#8a3324;--flag-bg:#f3e2dd;--shade:#ede7d8;
+    --shadow:0 1px 2px rgba(33,36,31,.05),0 10px 30px rgba(33,36,31,.06);
+  }
+  *{box-sizing:border-box}html,body{margin:0;padding:0}
+  body{background:var(--paper);color:var(--ink);
+    font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;line-height:1.55;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:900px;margin:0 auto;padding:30px 22px 110px}
+
+  header.mast{border-bottom:2px solid var(--ink);padding-bottom:14px}
+  .eyebrow{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--accent);margin:0 0 6px}
+  h1.title{font-size:31px;line-height:1.08;margin:0;font-weight:600;letter-spacing:-.015em}
+  .subtitle{margin:7px 0 0;color:var(--ink-soft);font-size:15px;font-style:italic}
+  .conf{margin-top:10px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-soft)}
+
+  /* mode gate */
+  .gate{max-width:760px;margin:60px auto;text-align:center}
+  .gate h1{font-size:30px;margin:0 0 8px;color:var(--accent-deep)}
+  .gate p{color:var(--ink-soft);font-size:16px;margin:0 0 34px}
+  .gatecards{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  @media(max-width:640px){.gatecards{grid-template-columns:1fr}}
+  .gatecard{border:1px solid var(--rule);background:var(--card);border-radius:12px;padding:28px 24px;cursor:pointer;
+    text-align:left;transition:border-color .15s,box-shadow .15s,transform .08s;box-shadow:var(--shadow)}
+  .gatecard:hover{border-color:var(--accent);transform:translateY(-2px)}
+  .gatecard .gi{font-size:13px;font-family:ui-monospace,Menlo,Consolas,monospace;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:10px}
+  .gatecard h2{margin:0 0 8px;font-size:21px;color:var(--ink)}
+  .gatecard p{margin:0;font-size:14px;color:var(--ink-soft);line-height:1.5}
+  .gate .resume{margin-top:26px;font-size:13.5px;color:var(--ink-soft)}
+  .gate .resume label{color:var(--accent);text-decoration:underline;cursor:pointer}
+
+  .toolbar{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin:18px 0 0;padding:11px 13px;background:var(--card);border:1px solid var(--rule);border-radius:8px}
+  .toolbar .tb-label{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft);margin-right:auto}
+  button.mini{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;letter-spacing:.05em;text-transform:uppercase;padding:8px 12px;border-radius:6px;cursor:pointer;border:1px solid var(--rule);background:transparent;color:var(--ink)}
+  button.mini:hover{background:var(--shade)}
+  button.mini.home{border-color:var(--accent);color:var(--accent)}
+
+  nav.rail{display:flex;flex-wrap:wrap;gap:0;margin:18px 0 26px;border:1px solid var(--rule);border-radius:9px;overflow:hidden;background:var(--card)}
+  nav.rail button{flex:1 1 auto;min-width:104px;border:0;background:transparent;cursor:pointer;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);padding:11px 7px;border-right:1px solid var(--rule);transition:background .15s,color .15s}
+  nav.rail button:last-child{border-right:0}
+  nav.rail button .num{display:block;font-size:14px;color:var(--accent);font-weight:700;margin-bottom:2px;font-family:inherit}
+  nav.rail button.active{background:var(--ink);color:#fff}
+  nav.rail button.active .num{color:#cdbb6a}
+  nav.rail button.done .num::after{content:" \2713";color:var(--accent)}
+  nav.rail button:hover:not(.active){background:var(--shade)}
+
+  .step{display:none;animation:fade .22s ease}.step.show{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+  .lede{font-size:16px;color:var(--ink-soft);margin:0 0 18px;max-width:64ch}
+  h2.sec{font-size:12.5px;font-family:ui-monospace,Menlo,Consolas,monospace;letter-spacing:.17em;text-transform:uppercase;color:var(--accent);margin:30px 0 4px;padding-bottom:6px;border-bottom:1px solid var(--rule)}
+  h2.sec:first-of-type{margin-top:0}
+  p.note{font-size:13.5px;color:var(--ink-soft);font-style:italic;margin:4px 0 14px;max-width:66ch}
+  .askline{font-size:14px;color:var(--accent-deep);margin:2px 0 10px;font-style:italic}
+  .askline::before{content:"\201C"}.askline::after{content:"\201D"}
+
+  /* instruction panel, collapsible, minister-facing */
+  .howto{border:1px solid var(--rule);background:#f1efe4;border-radius:9px;margin:0 0 20px;overflow:hidden}
+  .howto > summary{cursor:pointer;list-style:none;padding:12px 15px;font-family:ui-monospace,Menlo,Consolas,monospace;
+    font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent-deep);display:flex;align-items:center;gap:8px}
+  .howto > summary::-webkit-details-marker{display:none}
+  .howto > summary::before{content:"\25B8";color:var(--accent);transition:transform .15s}
+  .howto[open] > summary::before{transform:rotate(90deg)}
+  .howto .hbody{padding:2px 16px 15px 16px;font-size:14px;line-height:1.6;color:var(--ink)}
+  .howto .hbody p{margin:8px 0}
+  .howto .hbody b{color:var(--accent-deep)}
+  .howto .hbody ul{margin:8px 0;padding-left:20px}.howto .hbody li{margin:5px 0}
+  .howto .look{font-size:12px;font-family:ui-monospace,Menlo,Consolas,monospace;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);margin-top:10px}
+
+  label.fld{display:block;margin:14px 0}
+  label.fld span.lab{display:block;font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:5px;font-family:ui-monospace,Menlo,Consolas,monospace}
+  input[type=text],input[type=date],textarea,select{width:100%;font-family:inherit;font-size:15px;color:var(--ink);background:var(--card);border:1px solid var(--rule);border-radius:6px;padding:9px 11px}
+  textarea{min-height:70px;resize:vertical;line-height:1.5}
+  input:focus,textarea:focus,select:focus{outline:2px solid var(--accent);outline-offset:0;border-color:var(--accent)}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:14px}.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+  @media(max-width:640px){.row2,.row3{grid-template-columns:1fr}}
+
+  .clist{margin:6px 0 0}
+  .citem{border:1px solid var(--rule);border-radius:8px;margin:7px 0;background:var(--card);overflow:hidden;transition:border-color .15s,box-shadow .15s}
+  .citem.on{border-color:var(--accent);box-shadow:var(--shadow)}
+  .chead{display:flex;align-items:flex-start;gap:11px;padding:11px 13px;cursor:pointer}
+  .chead input{width:18px;height:18px;flex:none;margin-top:2px;accent-color:var(--accent);cursor:pointer}
+  .chead .nm{flex:1;font-size:14.5px}
+  .chead .nm small{display:block;color:var(--ink-soft);font-size:12.5px;font-style:italic;margin-top:2px}
+  .chead .star{color:var(--flag);font-weight:700;font-size:13px;margin-left:3px}
+  .sub{display:none;padding:0 13px 13px 42px;border-top:1px dashed var(--rule-soft);margin-top:-1px}
+  .citem.on .sub{display:block;padding-top:11px}
+  .sub input[type=text]{font-size:13.5px}
+
+  .choices{display:grid;gap:8px;margin:8px 0 4px}
+  .choice{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--rule);border-radius:8px;padding:10px 12px;cursor:pointer;background:var(--card);transition:border-color .15s,background .15s}
+  .choice:hover{background:var(--shade)}
+  .choice.on{border-color:var(--accent);background:#f7f5ec}
+  .choice input{margin-top:3px;accent-color:var(--accent)}
+  .choice .ctxt b{display:block;font-size:14px}
+  .choice .ctxt small{color:var(--ink-soft);font-size:12.5px}
+
+  .triad{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin:6px 0}
+  @media(max-width:640px){.triad{grid-template-columns:1fr}}
+  .triad button{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:10.5px;letter-spacing:.04em;text-transform:uppercase;padding:9px 6px;border-radius:6px;border:1px solid var(--rule);background:var(--card);color:var(--ink-soft);cursor:pointer;transition:all .13s}
+  .triad button:hover{background:var(--shade)}
+  .triad button.sel{border-color:var(--accent);background:var(--accent);color:#fff}
+  .testrow{border:1px solid var(--rule);border-radius:8px;padding:11px 13px;margin:8px 0;background:var(--card)}
+  .testrow .tq{font-size:14.5px;margin:0 0 3px}
+  .testrow .tref{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--accent);margin-bottom:7px}
+
+  .flagcard{border:1px solid var(--flag);background:var(--flag-bg);border-radius:8px;padding:13px 15px;margin:14px 0}
+  .flagcard b{color:var(--flag);font-size:12.5px;letter-spacing:.04em;text-transform:uppercase;font-family:ui-monospace,Menlo,Consolas,monospace}
+  .flagcard p{margin:6px 0 0;font-size:14px}
+  .guard{border:1px solid var(--rule);background:#f7f5ec;border-radius:8px;padding:12px 15px;margin:14px 0;font-size:13.5px}
+  .guard b{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent-deep);display:block;margin-bottom:5px}
+  .nextbox{border:1px solid var(--accent);background:#f1efe4;border-radius:8px;padding:14px 16px;font-size:14.5px;line-height:1.6;color:var(--ink)}
+  .nextbox b{color:var(--accent-deep)}
+  .nextbox .arrow{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);display:block;margin-top:8px}
+
+  .actions{display:flex;justify-content:space-between;gap:12px;margin-top:32px;padding-top:18px;border-top:1px solid var(--rule)}
+  button.btn{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;letter-spacing:.09em;text-transform:uppercase;padding:12px 20px;border-radius:7px;cursor:pointer;border:1px solid var(--ink);background:var(--ink);color:#fff;transition:transform .08s,opacity .15s}
+  button.btn:hover{opacity:.88}button.btn:active{transform:translateY(1px)}
+  button.btn.ghost{background:transparent;color:var(--ink)}button.btn.ghost:hover{background:var(--shade);opacity:1}
+  button.btn:disabled{opacity:.3;cursor:not-allowed}
+
+  .reportwrap{background:var(--card);border:1px solid var(--rule);border-radius:10px;padding:34px 38px;box-shadow:var(--shadow)}
+  @media(max-width:640px){.reportwrap{padding:22px 17px}}
+  .rep-h{border-bottom:2px solid var(--ink);padding-bottom:12px;margin-bottom:16px}
+  .rep-h h2{margin:0;font-size:24px}
+  .rep-meta{font-size:13px;color:var(--ink-soft);margin-top:6px;line-height:1.7}
+  .rep-sec{margin:24px 0}
+  .rep-sec h3{font-size:11.5px;font-family:ui-monospace,Menlo,Consolas,monospace;letter-spacing:.15em;text-transform:uppercase;color:var(--accent);border-bottom:1px solid var(--rule);padding-bottom:5px;margin:0 0 12px}
+  .verdict{border-radius:9px;padding:15px 17px;margin:10px 0;border:1px solid var(--rule)}
+  .verdict .vt{font-weight:700;font-size:16px;margin-bottom:3px}
+  .verdict .vd{font-size:13.5px;color:var(--ink-soft)}
+  .verdict.flesh{background:#eef1e8;border-color:#cdd6b8}.verdict.trauma{background:#eaeef1;border-color:#bcc9d4}
+  .verdict.mh{background:var(--flag-bg);border-color:var(--flag)}.verdict.oppression{background:#f4ecd9;border-color:#dec88f}
+  .verdict.mixed{background:#efeadb;border-color:#d8cda6}
+  .itemline{display:flex;justify-content:space-between;gap:13px;padding:8px 0;border-bottom:1px dotted var(--rule);font-size:14px;align-items:baseline}
+  .itemline:last-child{border-bottom:0}
+  .itemline .il-name{flex:1}
+  .itemline .il-cat{font-size:10.5px;color:var(--ink-soft);font-family:ui-monospace,Menlo,Consolas,monospace;text-transform:uppercase;letter-spacing:.05em}
+  blockquote.scr{margin:9px 0;padding:9px 15px;border-left:3px solid var(--accent);background:#f7f5ec;font-size:14.5px}
+  blockquote.scr cite{display:block;font-style:normal;font-size:11.5px;color:var(--accent);margin-top:4px;font-family:ui-monospace,Menlo,Consolas,monospace;letter-spacing:.05em}
+  .prayer{font-size:14.5px;background:#f7f5ec;border:1px solid var(--rule);border-radius:8px;padding:13px 15px;margin:8px 0}
+  .prayer .pl{font-size:10px;font-family:ui-monospace,Menlo,Consolas,monospace;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);display:block;margin-bottom:6px}
+  ul.clean{margin:8px 0;padding-left:20px}ul.clean li{margin:5px 0;font-size:14.5px}
+  ol.steps{margin:8px 0;padding-left:22px}ol.steps li{margin:7px 0;font-size:14.5px}
+  .empty{color:var(--ink-soft);font-style:italic;font-size:14px}
+  .disclaimerbar{font-size:12px;color:var(--ink-soft);background:var(--shade);border:1px solid var(--rule);border-radius:8px;padding:12px 15px;margin:18px 0 0;line-height:1.6}
+  .printrow{display:flex;gap:12px;flex-wrap:wrap;margin:18px 0 0}
+  .handout-divider{border:0;border-top:2px dashed var(--rule);margin:26px 0 18px}
+  .handout-note{font-size:12px;font-family:ui-monospace,Menlo,Consolas,monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin-bottom:4px}
+
+  /* client mode tinting */
+  body.client{--accent:#4a6b6b;--accent-deep:#2f4a4a}
+  body.client .gatecard,body.client header.mast{}
+
+  /* course of care (session history) */
+  .histpanel{border:1px solid var(--rule);background:var(--card);border-radius:9px;margin:0 0 20px;overflow:hidden}
+  .histpanel .hp-head{padding:11px 15px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent-deep);border-bottom:1px solid var(--rule-soft);background:#f1efe4}
+  .histrow{display:flex;flex-wrap:wrap;gap:6px 16px;padding:10px 15px;border-bottom:1px dotted var(--rule);font-size:13.5px;align-items:baseline}
+  .histrow:last-child{border-bottom:0}
+  .histrow .hn{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);flex:none}
+  .histrow .hd{color:var(--ink-soft);font-size:12.5px}
+  .prior{display:inline-block;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--amber);border:1px dashed var(--amber);border-radius:5px;padding:2px 7px;margin-left:8px;vertical-align:middle}
+
+  /* unsaved-work indicator */
+  #saveBtn.dirty{border-color:var(--amber);color:var(--amber)}
+  #saveBtn.dirty::after{content:" \25CF"}
+
+  /* larger touch targets on tablets and phones */
+  @media(pointer:coarse){
+    .chead input,.choice input{width:22px;height:22px}
+    .chead{padding:13px 15px}
+    .triad button{padding:13px 8px}
+    button.mini{padding:11px 14px}
+  }
+
+  /* ===== genogram ===== */
+  :root{
+    --t-faith:#a8801f;--t-addiction:#c0602f;--t-occult:#6b4c8a;--t-abuse:#8a2b20;--t-sexual:#b84b7d;
+    --t-breakdown:#2c8a8a;--t-death:#4b4b4b;--t-illness:#4e8a4a;--t-mental:#36698c;
+    --r-close:#4f7a3a;--r-distant:#8b8f84;--r-conflict:#b5562f;--r-cutoff:#50564a;--r-abuse:#8a2b20;
+  }
+  .gn-card{background:var(--card);border:1px solid var(--rule);border-radius:10px;overflow:hidden;margin:12px 0 0}
+  .gn-lens{display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding:10px 12px;border-bottom:1px solid var(--rule-soft)}
+  .gn-ll{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft);margin-right:4px}
+  .gn-chip{display:inline-flex;align-items:center;gap:6px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;padding:6px 9px;border-radius:20px;border:1px solid var(--rule);background:transparent;color:var(--ink);cursor:pointer}
+  .gn-chip i{width:9px;height:9px;border-radius:50%;display:inline-block}
+  .gn-chip.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .gn-reltog{margin-left:auto;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;display:inline-flex;gap:6px;align-items:center;color:var(--ink-soft);cursor:pointer}
+  .gn-reltog input{accent-color:var(--accent);width:16px;height:16px}
+  .gn-svg{overflow-x:auto;padding:6px 0}
+  .gn-svg svg{display:block;margin:0 auto}
+  .gn-legend{display:flex;flex-wrap:wrap;gap:6px 16px;padding:9px 12px;border-top:1px solid var(--rule-soft);font-size:11.5px;color:var(--ink-soft);font-family:ui-monospace,Menlo,Consolas,monospace}
+  .gn-legend span{display:inline-flex;align-items:center;gap:6px}
+  .gn-line{fill:none;stroke:var(--ink);stroke-width:1.5}
+  .gn-dash{stroke-dasharray:5 4}
+  .gn-shape{fill:var(--card);stroke:var(--ink);stroke-width:1.7}
+  .gn-ph{stroke-dasharray:4 3;stroke:var(--ink-soft)}
+  .gn-focus{fill:none;stroke:var(--ink);stroke-width:1.2}
+  .gn-sel{fill:none;stroke:var(--accent);stroke-width:2;stroke-dasharray:4 3}
+  .gn-x{stroke:var(--ink);stroke-width:1.5}
+  .gn-name{font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;font-size:12px;fill:var(--ink);text-anchor:middle;paint-order:stroke;stroke:var(--card);stroke-width:4px;stroke-linejoin:round}
+  .gn-yrs{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:9.5px;fill:var(--ink-soft);text-anchor:middle;paint-order:stroke;stroke:var(--card);stroke-width:4px}
+  .gn-gen{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:9px;letter-spacing:.12em;fill:var(--ink-soft);text-transform:uppercase}
+  .gn-q{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;fill:var(--ink-soft);text-anchor:middle}
+  .gn-node.click{cursor:pointer}
+  .gn-node.click:hover .gn-shape{stroke:var(--accent)}
+  .gn-node:focus{outline:none}.gn-node:focus-visible .gn-shape{stroke:var(--accent);stroke-width:3}
+  .gn-tabs{display:inline-flex;border:1px solid var(--rule);border-bottom:0;border-radius:8px 8px 0 0;overflow:hidden;margin-top:14px;max-width:100%}
+  .gn-tabs button{border:0;border-right:1px solid var(--rule);background:var(--shade);color:var(--ink-soft);cursor:pointer;padding:10px 14px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase}
+  .gn-tabs button:last-child{border-right:0}
+  .gn-tabs button.on{background:var(--card);color:var(--accent-deep);font-weight:700}
+  .gn-panel{background:var(--card);border:1px solid var(--rule);border-radius:0 10px 10px 10px;padding:14px 16px;display:grid;gap:12px}
+  .gn-prog{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
+  .gn-bar{height:4px;background:var(--rule-soft);border-radius:2px;overflow:hidden}.gn-bar i{display:block;height:100%;background:var(--accent)}
+  .gn-pblock{border:1px solid var(--rule-soft);border-radius:8px;padding:10px 12px;display:grid;gap:8px}
+  .gn-pblock h4{margin:0;font-size:15px}
+  .gn-pgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .gn-pgrid .full{grid-column:1 / -1}
+  .gn-pgrid label.fld,.gn-pblock label.fld,.gn-panel label.fld{margin:0}
+  .gn-row{display:grid;grid-template-columns:minmax(0,1fr) 120px 76px 34px;gap:6px;align-items:center}
+  .gn-row .wide{grid-column:1 / -1}
+  @media(max-width:640px){.gn-row{grid-template-columns:1fr 1fr 34px}.gn-row .gn-rname{grid-column:1 / -1}}
+  .gn-chips{display:flex;flex-wrap:wrap;gap:5px}
+  .gn-tchip{display:inline-flex;align-items:center;gap:5px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:10.5px;padding:6px 8px;border-radius:14px;border:1px solid var(--rule);background:transparent;color:var(--ink-soft);cursor:pointer}
+  .gn-tchip i{width:8px;height:8px;border-radius:50%;display:inline-block;opacity:.45}
+  .gn-tchip.on{color:var(--ink);border-color:currentColor;font-weight:700}
+  .gn-tchip.on i{opacity:1}
+  .gn-sub{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft)}
+  .gn-btns{display:flex;flex-wrap:wrap;gap:7px}
+  .gn-check{display:inline-flex;gap:7px;align-items:center;font-size:14px;cursor:pointer}
+  .gn-check input{accent-color:var(--accent);width:17px;height:17px}
+  .gn-radios{display:flex;gap:8px;flex-wrap:wrap}
+  .gn-radios label{display:inline-flex;gap:6px;align-items:center;border:1px solid var(--rule);border-radius:7px;padding:7px 11px;cursor:pointer;font-size:14px}
+  .gn-radios input{accent-color:var(--accent)}
+  .gn-x-btn{border:1px solid var(--rule);background:transparent;color:var(--ink-soft);border-radius:6px;width:34px;height:34px;cursor:pointer;font-size:16px;line-height:1}
+  .gn-x-btn:hover{color:var(--flag);border-color:var(--flag)}
+  .gn-nav{display:flex;justify-content:space-between;gap:8px;border-top:1px solid var(--rule-soft);padding-top:12px}
+  .gn-union{border:1px solid var(--rule-soft);border-radius:8px;padding:8px 10px;display:grid;gap:6px;font-size:14px}
+  .gn-confirm{background:var(--flag-bg);border:1px solid var(--flag);border-radius:8px;padding:10px;font-size:13.5px;display:grid;gap:8px}
+  .gn-find{margin-top:14px;background:var(--card);border:1px solid var(--rule);border-radius:10px;padding:14px 16px}
+  .gn-find h3{margin:0 0 8px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--accent)}
+  .gn-fi{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;padding:10px 0;border-bottom:1px dotted var(--rule)}
+  .gn-fdot{width:11px;height:11px;border-radius:50%;margin-top:5px}
+  .gn-fhead{font-weight:700}
+  .gn-badge{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:10px;letter-spacing:.06em;text-transform:uppercase;border:1px solid var(--rule);border-radius:12px;padding:1px 7px;margin-left:6px;color:var(--ink-soft);font-weight:400;white-space:nowrap}
+  .gn-badge.rec{border-color:var(--flag);color:var(--flag)}
+  .gn-badge.bless{border-color:var(--t-faith);color:var(--t-faith)}
+  .gn-who{font-size:13.5px;color:var(--ink-soft)}
+  .gn-guide{font-size:13.5px;grid-column:2;display:grid;gap:6px;justify-items:start}
+  .gn-caution{margin-top:10px;font-size:13px;background:#f1efe4;border-radius:8px;padding:10px 12px;line-height:1.6}
+  .gn-repsvg svg{max-width:100%;height:auto;display:block;margin:6px auto}
+  @media(pointer:coarse){.gn-tchip{padding:9px 10px}.gn-chip{padding:9px 11px}}
+  @media print{.gn-card,.gn-tabs,.gn-panel,.gn-find{display:none!important}}
+
+  @media print{
+    body{background:#fff}
+    nav.rail,.actions,.toolbar,.printrow,header.mast .conf,.howto,.gate,.histpanel{display:none!important}
+    .step{display:none!important}.step.show{display:block!important}
+    .reportwrap{border:0;box-shadow:none;padding:0}.wrap{max-width:100%;padding:0}
+    .print-hide{display:none!important}
+    /* handout-only printing: hide the confidential record, keep the handout */
+    body.print-handout .rep-sec:not(.handout-sec),body.print-handout .rep-h,body.print-handout .handout-divider,body.print-handout .disclaimerbar{display:none!important}
+    body.print-handout .handout-note{display:none!important}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ============ MODE GATE ============ -->
+  <div id="gate" class="gate">
+    <h1>Spiritual Care Session Tool</h1>
+    <p>A pastoral instrument for spiritual care, discernment, and the steps of freedom.<br>Choose how you are using it today.</p>
+    <div class="gatecards">
+      <div class="gatecard" onclick="enterMode('client')">
+        <div class="gi">For the person seeking care</div>
+        <h2>Fill out my intake</h2>
+        <p>A few gentle questions about you and your story, so the person caring for you can begin with some background already in hand. Takes about ten minutes. When you finish, you save a file to hand or send to them.</p>
+      </div>
+      <div class="gatecard" onclick="enterMode('minister')">
+        <div class="gi">For the minister</div>
+        <h2>Open a care session</h2>
+        <p>The full instrument: intake, safety, triage, entry points, the seven tests of discernment, the steps of ministry, and a printable plan with Scripture and prayer to send home.</p>
+      </div>
+    </div>
+    <p class="resume">Returning to a session already started? <label>Load a saved file<input type="file" id="gateLoad" accept=".json" style="display:none" onchange="loadSession(event)"></label> and you will pick up where you left off.</p>
+  </div>
+
+  <!-- ============ APP SHELL (hidden until a mode is chosen) ============ -->
+  <div id="app" style="display:none">
+    <header class="mast">
+      <p class="eyebrow" id="modeEyebrow"></p>
+      <h1 class="title" id="modeTitle"></h1>
+      <p class="subtitle" id="modeSub"></p>
+      <p class="conf">Confidential. Runs entirely on this device. Nothing is saved or sent unless you choose to download it.</p>
+    </header>
+
+    <div class="toolbar">
+      <span class="tb-label" id="tbLabel">Session</span>
+      <button class="mini home" onclick="goHome()">Start screen</button>
+      <button class="mini" onclick="saveSession()" id="saveBtn">Save / download</button>
+      <label class="mini" style="cursor:pointer">Load saved<input type="file" accept=".json" style="display:none" onchange="loadSession(event)"></label>
+      <button class="mini" onclick="newSession()" id="nextSessBtn" style="display:none">New session, same person</button>
+      <button class="mini" onclick="clearAll()">Clear</button>
+    </div>
+
+    <nav class="rail" id="rail"></nav>
+
+    <!-- ===== CLIENT STEPS ===== -->
+    <section class="step" data-mode="client" data-step="0">
+      <p class="lede">Welcome. These questions are just to help the person you are meeting with understand a little about you before you sit down together. There are no right or wrong answers, and you can skip anything you are not ready to write. Take your time.</p>
+      <h2 class="sec">About you</h2>
+      <div class="row2">
+        <label class="fld"><span class="lab">Your name (or initials, if you prefer)</span><input type="text" data-k="c_name"></label>
+        <label class="fld"><span class="lab">Today's date</span><input type="date" data-k="c_date"></label>
+      </div>
+      <h2 class="sec">What brings you in</h2>
+      <p class="askline">In your own words, what made you want to talk with someone?</p>
+      <label class="fld"><textarea data-k="c_reason" placeholder="Whatever is on your heart. A sentence or two is plenty."></textarea></label>
+      <label class="fld"><span class="lab">How long has this been weighing on you?</span><input type="text" data-k="c_howlong"></label>
+    </section>
+
+    <section class="step" data-mode="client" data-step="1">
+      <h2 class="sec">Your family and upbringing</h2>
+      <p class="note">This helps the person you meet with understand where you have come from. Share what you are comfortable sharing.</p>
+      <p class="askline">Who raised you, and what was home like growing up?</p>
+      <label class="fld"><textarea data-k="c_family"></textarea></label>
+      <p class="askline">What are some good memories, times you felt loved or safe?</p>
+      <label class="fld"><textarea data-k="c_joy"></textarea></label>
+      <p class="askline">What were the harder parts, things that hurt or still weigh on you?</p>
+      <label class="fld"><textarea data-k="c_pain" placeholder="Only what you are ready to write. You can leave this for the conversation if you prefer."></textarea></label>
+    </section>
+
+    <section class="step" data-mode="client" data-step="2">
+      <h2 class="sec">Your faith and spiritual life</h2>
+      <p class="askline">What has faith looked like in your life, and in your family?</p>
+      <label class="fld"><textarea data-k="c_faith"></textarea></label>
+      <div class="row2">
+        <label class="fld"><span class="lab">When do you feel closest to God?</span><textarea data-k="c_close"></textarea></label>
+        <label class="fld"><span class="lab">When do you feel farthest from God?</span><textarea data-k="c_far"></textarea></label>
+      </div>
+      <label class="fld"><span class="lab">Is there anything you especially hope for from this time together?</span><textarea data-k="c_hope"></textarea></label>
+    </section>
+
+    <section class="step" data-mode="client" data-step="3">
+      <p class="lede">Thank you for taking the time. When you are ready, save your answers below and hand or send the file to the person you are meeting with. Nothing here is sent anywhere on its own.</p>
+      <div class="guard"><b>One gentle note</b>If you are in any danger right now, or thinking of harming yourself, please do not wait for an appointment. Reach out to someone you trust today, or call or text 988 (Canada and US) to talk with someone right away. You matter, and help is there.</div>
+      <div class="printrow">
+        <button class="btn" onclick="saveSession()">Save my answers to a file</button>
+      </div>
+      <p class="note" style="margin-top:14px">After you click save, a file will download to your device. Send that file to the person caring for you, or bring it with you.</p>
+    </section>
+
+    <!-- ===== MINISTER STEPS ===== -->
+
+    <!-- 0 INTAKE -->
+    <section class="step" data-mode="minister" data-step="0">
+      <details class="howto"><summary>How to use this section</summary><div class="hbody">
+        <p>This is the listening stage. Your aim is not to fill every box but to let the person tell their story while you capture what matters. Warmth first, information second.</p>
+        <p>The lines in italics and quotation marks are questions you can ask aloud. Use them or your own. If the person filled out a self-intake form, load it from the toolbar above and these boxes will already hold their words; your job then is to listen for what is underneath them.</p>
+        <p class="look">What to look for: the wound beneath the presenting problem, the spiritual climate they grew up in, and where they sense God is near or far. Those three often matter more than the facts.</p>
+        <p><b>Family genogram:</b> further down this tab you can draw the family across three generations, mark patterns on each person, and see where they repeat. It carries forward with the file to every later session.</p>
+        <p><b>Walking with someone over weeks:</b> load their last session file, review it, then press <b>New session, same person</b> in the toolbar. The prior session is archived inside the same file as a course of care, their background and flagged doors carry forward, and the session work (safety, triage, tests, ministry) resets fresh. Keep saving to one file per person and the whole journey stays together.</p>
+      </div></details>
+      <div id="histMount"></div>
+      <p class="lede">Build rapport first. Let them tell their story before you reach for a category.</p>
+      <h2 class="sec">Session identification</h2>
+      <div class="row2">
+        <label class="fld"><span class="lab">Participant (initials or code)</span><input type="text" data-k="p_name"></label>
+        <label class="fld"><span class="lab">Date</span><input type="date" data-k="p_date"></label>
+      </div>
+      <div class="row3">
+        <label class="fld"><span class="lab">Session number</span><select data-k="p_session"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6+</option></select></label>
+        <label class="fld"><span class="lab">Lead minister</span><input type="text" data-k="p_pastor"></label>
+        <label class="fld"><span class="lab">Others present (do not minister alone)</span><input type="text" data-k="p_team"></label>
+      </div>
+      <h2 class="sec">Reason for visit</h2>
+      <p class="askline">Tell me what brought you in today.</p>
+      <label class="fld"><textarea data-k="i_reason"></textarea></label>
+      <h2 class="sec">Family of origin and upbringing</h2>
+      <p class="askline">Tell me about your family. Who raised you, and what was home like?</p>
+      <label class="fld"><span class="lab">Structure and atmosphere</span><textarea data-k="i_family"></textarea></label>
+      <p class="askline">What were the areas full of joy?</p>
+      <label class="fld"><span class="lab">Joy and strength</span><textarea data-k="i_joy"></textarea></label>
+      <p class="askline">What were the harder areas?</p>
+      <label class="fld"><span class="lab">Hardship and wounds</span><textarea data-k="i_pain"></textarea></label>
+      <label class="fld"><span class="lab">Generational patterns noticed</span><textarea data-k="i_gen"></textarea></label>
+      <p class="askline">What was faith like in your family? Any occult or false-religion involvement?</p>
+      <label class="fld"><span class="lab">Spiritual history</span><textarea data-k="i_spirhist"></textarea></label>
+      <h2 class="sec">Family genogram</h2>
+      <details class="howto"><summary>How to use the genogram</summary><div class="hbody">
+        <p>A genogram is a family diagram across at least three generations. It shows at a glance where patterns repeat: down the line from grandparent to parent, sideways from aunt to aunt or cousin to cousin, and sometimes skipping a generation.</p>
+        <p><b>Guided questions</b> walks you through the family one question at a time, in words you can ask aloud. <b>Edit a person</b> opens when you tap anyone on the diagram, so you can correct details or add relatives the questions did not cover: great-grandparents, aunts, cousins, remarriages, or adopted children.</p>
+        <p>Mark patterns with the coloured chips on each person. The findings below the diagram count <b>blood relatives only</b>; people who married in are shown but not counted in this person's line (they are part of their children's line). You are looking for patterns, not one-off sins.</p>
+        <p>When a pattern repeats across generations, the findings offer a button to mark the matching Generational Door. Nothing is marked unless you press it.</p>
+        <p class="look">Remember: this is not about judging family members. It is about the pattern ending here. Stop for listening prayer at the last question before praying over anything you have found.</p>
+      </div></details>
+      <p class="note">Draw the family, mark the patterns, then listen together before praying. The genogram saves with this file and carries forward to every session with this person.</p>
+      <div class="gn-card">
+        <div class="gn-lens" id="gnLens"></div>
+        <div class="gn-svg" id="gnSvg"></div>
+        <div class="gn-legend" id="gnLegend"></div>
+      </div>
+      <div class="gn-tabs" role="tablist" aria-label="Genogram editor"><button type="button" data-gmode="ask" role="tab">Guided questions</button><button type="button" data-gmode="edit" role="tab">Edit a person</button></div>
+      <div class="gn-panel" id="gnPanel"></div>
+      <div class="gn-find" id="gnFind"></div>
+
+      <h2 class="sec">Current spiritual status</h2>
+      <div class="row2">
+        <label class="fld"><span class="lab">Conversion or commitment</span><select data-k="i_conv"><option value="">Select</option><option>Born again (clear testimony)</option><option>Cultural Christian</option><option>Seeking or exploring</option><option>Unclear</option></select></label>
+        <label class="fld"><span class="lab">Spiritual practices</span><select data-k="i_practice"><option value="">Select</option><option>Daily prayer and Scripture</option><option>Occasional</option><option>Minimal or none</option><option>Blocked (may indicate oppression)</option></select></label>
+      </div>
+      <div class="row2">
+        <label class="fld"><span class="lab">Closest to God when (consolation)</span><textarea data-k="i_consol"></textarea></label>
+        <label class="fld"><span class="lab">Farthest from God when (desolation)</span><textarea data-k="i_desol"></textarea></label>
+      </div>
+      <label class="fld"><span class="lab">Spiritual maturity read</span><select data-k="i_maturity"><option value="">Select</option><option>Maturing believer</option><option>Developing believer</option><option>Struggling believer</option><option>Seeking or exploring</option></select></label>
+    </section>
+
+    <!-- 1 SAFETY -->
+    <section class="step" data-mode="minister" data-step="1">
+      <details class="howto"><summary>How to use this section</summary><div class="hbody">
+        <p>This comes before anything else for a reason. Spiritual care never substitutes for safety. None of these items means a person needs deliverance; each means a person may need protection, medical help, or a professional, first.</p>
+        <p><b>If you tick any item,</b> the printed plan will lead with a referral note ahead of everything else. Referring is not failure; it is wisdom. Ministering past your competence can cause harm.</p>
+        <p class="look">What to look for: any present danger to the person or others. When in doubt, ask plainly and gently, and believe what you are told.</p>
+      </div></details>
+      <p class="lede">First, always. Read the list and mark anything true right now.</p>
+      <div class="flagcard"><b>Why this comes first</b><p>If any item is marked, the plan leads with a referral note. Where there is immediate danger, contact emergency services rather than continuing.</p></div>
+      <h2 class="sec">Risk and safety screen</h2>
+      <p class="askline">Any thoughts of harming yourself or others? Is anyone unsafe at home? Substances or addictions right now?</p>
+      <div id="safetyList" class="clist"></div>
+      <label class="fld" style="margin-top:16px"><span class="lab">Notes, context, or referral already made</span><textarea data-k="s_notes"></textarea></label>
+      <h2 class="sec">Your referral resources</h2>
+      <p class="note">Fill these in once with the counsellors, agencies, and crisis lines you actually refer to in your area. They save with the file, carry forward from session to session, and appear automatically in the plan whenever a safety flag is set. The crisis line also prints on the take-home handout.</p>
+      <div class="row2">
+        <label class="fld"><span class="lab">Local crisis line (beyond 988)</span><input type="text" data-k="r_crisis" placeholder="Name and number"></label>
+        <label class="fld"><span class="lab">Counsellor or mental-health agency you refer to</span><input type="text" data-k="r_counsel" placeholder="Name and contact"></label>
+      </div>
+      <label class="fld"><span class="lab">Other resources (shelter, addictions, victim services)</span><textarea data-k="r_other"></textarea></label>
+    </section>
+
+    <!-- 2 TRIAGE -->
+    <section class="step" data-mode="minister" data-step="2">
+      <details class="howto"><summary>How to use this section</summary><div class="hbody">
+        <p>This is a thinking stage, not an action stage. You are naming what you are actually dealing with so the rest of the session knows its road. The single discipline this teaches is the most important one in the whole tool: do not treat an ordinary struggle as a demon, and do not miss a real one.</p>
+        <p><b>Step 1</b> lets you mark more than one kind of problem, because most situations are layered. <b>Step 2</b> asks one question only: if a spirit may be involved, how deep does it go. A believer cannot be possessed, but can be oppressed or hold a foothold in one area. A person is more than one room.</p>
+        <p>The clue list that opens under the third box is exactly that, clues, not proof. They tell you to look closer, not to conclude.</p>
+        <p class="look">What to look for: honesty over speed. Most problems are ordinary or rooted in a wound. The genuinely demonic is the rarer case, and the tool is built to keep it that way.</p>
+      </div></details>
+      <p class="lede">Name what you are actually looking at, so the rest of the session knows which road it is on. Nothing happens mechanically here; what you mark shapes the plan at the end.</p>
+      <div class="guard"><b>Hold the tension</b>Do not quench the Spirit (1 Thess 5:19), but do test the spirits (1 John 4:1). Not every problem is a demon, and not every smooth surface is clean. The fruit test takes weeks and months, not minutes.</div>
+      <h2 class="sec">Step 1. What kind of problem is this?</h2>
+      <p class="note">A presenting problem can sit in more than one of these at once. Tick all that genuinely apply. Ticking the third opens a short list of clues.</p>
+      <div id="triageList" class="clist"></div>
+      <h2 class="sec">Step 2. If a spirit may be involved, how deep?</h2>
+      <p class="note">Only one answer here. If Step 1 had no demonic element, choose the first option and move on.</p>
+      <div class="choices" data-radio="t_posopp">
+        <label class="choice"><input type="radio" name="t_posopp" value="No demonic element discerned"><span class="ctxt"><b>No demonic element discerned</b><small>This is care, healing, or discipleship. No deliverance.</small></span></label>
+        <label class="choice"><input type="radio" name="t_posopp" value="Oppression / foothold in an area"><span class="ctxt"><b>Oppression or foothold</b><small>An area of the life, not the whole person. Most common in believers.</small></span></label>
+        <label class="choice"><input type="radio" name="t_posopp" value="Heavy bondage, gather a team, do not rush"><span class="ctxt"><b>Heavy bondage</b><small>Gather a team. Do not rush. May need prayer and fasting (Mark 9:29).</small></span></label>
+        <label class="choice"><input type="radio" name="t_posopp" value="Uncertain, observe fruit over time"><span class="ctxt"><b>Uncertain</b><small>Observe fruit over time before concluding anything.</small></span></label>
+      </div>
+      <h2 class="sec">So what happens next?</h2>
+      <div id="triageNext" class="nextbox">Make your marks above, and this will tell you what the rest of the session looks like.</div>
+    </section>
+
+    <!-- 3 DOORS -->
+    <section class="step" data-mode="minister" data-step="3">
+      <details class="howto"><summary>How to use this section</summary><div class="hbody">
+        <p>These are entry points, places where the enemy may have gained access. They are doors, not a diagnosis. A long list of marks does not mean a heavy case; the discernment stage decides what any of it means.</p>
+        <p>Mark only what genuinely applies, and use the note line under each to record specifics, names, or how long. The asterisk marks a door that can open from a single occurrence, so it deserves attention even if it happened once.</p>
+        <p>The <b>Wounds</b> group is different in kind. Those are things done to the person, not sins they committed. They call for healing, not confession, and the plan will treat them that way.</p>
+        <p>The <b>Generational Doors</b> can be marked straight from the genogram on the Intake tab. Count blood relatives only, and look for patterns rather than one-off sins.</p>
+        <p class="look">What to look for: patterns that line up with the wounds and the family history you already heard. A door rarely stands alone.</p>
+      </div></details>
+      <p class="lede">Entry points, not a verdict. Five kinds of door: occult, sexual, persistent sin, generational, and the wounds done to a person. An asterisk (<span style="color:var(--flag);font-weight:700">*</span>) marks a door that can open from a single occurrence. Check only what applies.</p>
+      <div id="invMount"></div>
+    </section>
+
+    <!-- 4 DISCERNMENT -->
+    <section class="step" data-mode="minister" data-step="4">
+      <details class="howto"><summary>How to use this section</summary><div class="hbody">
+        <p>This is the heart of the discernment, the seven tests. The governing principle is that the form of a thing is not its identity. Saul prophesied under both the Holy Spirit and an evil spirit. Demons quote true theology. So you test the source, not the spectacle.</p>
+        <p>Each test is a question with a Scripture reference and three buttons: passes, concern, or fails. Tap the one that fits. Some tests are marked <b>over time</b>, the fruit and life-trajectory tests, because they cannot be judged honestly in one sitting. Leave those for later sessions.</p>
+        <p>Below the tests, three quick reads narrow your conclusion, and your <b>pastoral assessment</b> is the single most important choice in the tool. It decides the shape of the plan: repentance, healing, professional help, deliverance, or a mix.</p>
+        <p class="look">What to look for: convergence. One unusual sign proves little. A pattern across several tests, confirmed over time and weighed with others, is what discernment rests on.</p>
+      </div></details>
+      <p class="lede">The seven tests. The form of a thing is not its identity. Test the source, not the spectacle.</p>
+      <div class="guard"><b>Tests over time vs. tests in the room</b>The Christological, Scripture, self-control, and edification tests can be applied now. The fruit and life-trajectory tests need weeks and months. Mark what you can; leave the rest for follow-up.</div>
+      <h2 class="sec">The seven tests</h2>
+      <div id="testList"></div>
+      <h2 class="sec">Consolation or desolation read</h2>
+      <p class="askline">When you sit with this, do you sense peace, or heaviness and confusion?</p>
+      <label class="fld"><textarea data-k="d_ignatian"></textarea></label>
+      <h2 class="sec">Rebellion or captivity?</h2>
+      <div class="choices" data-radio="d_rebcap">
+        <label class="choice"><input type="radio" name="d_rebcap" value="Rebellion (sin, repentance)"><span class="ctxt"><b>Rebellion</b><small>Sin. The road in is repentance and faith.</small></span></label>
+        <label class="choice"><input type="radio" name="d_rebcap" value="Captivity (oppression, deliverance with team)"><span class="ctxt"><b>Captivity</b><small>Oppression. The road in is deliverance with a team.</small></span></label>
+        <label class="choice"><input type="radio" name="d_rebcap" value="Both or mixed"><span class="ctxt"><b>Both or mixed</b><small>Repentance and deliverance together.</small></span></label>
+      </div>
+      <h2 class="sec">Your pastoral assessment</h2>
+      <div class="choices" data-radio="d_assess">
+        <label class="choice"><input type="radio" name="d_assess" value="flesh"><span class="ctxt"><b>Sin or flesh</b><small>Repentance and discipleship.</small></span></label>
+        <label class="choice"><input type="radio" name="d_assess" value="trauma"><span class="ctxt"><b>Trauma or grief</b><small>Healing prayer and pastoral care. Lead with healing, not confession of sin.</small></span></label>
+        <label class="choice"><input type="radio" name="d_assess" value="mh"><span class="ctxt"><b>Mental-health concern</b><small>Professional help plus pastoral support.</small></span></label>
+        <label class="choice"><input type="radio" name="d_assess" value="oppression"><span class="ctxt"><b>Oppression</b><small>Deliverance prayer with a team, not rushed.</small></span></label>
+        <label class="choice"><input type="radio" name="d_assess" value="mixed"><span class="ctxt"><b>Mixed</b><small>More than one of the above.</small></span></label>
+      </div>
+      <label class="fld" style="margin-top:14px"><span class="lab">Why? What fruit and evidence led you here?</span><textarea data-k="d_why"></textarea></label>
+      <label class="fld"><span class="lab">Readiness and willingness (deliverance requires consent; never rush)</span><select data-k="d_ready"><option value="">Select</option><option>Ready and willing</option><option>Willing but it is hard</option><option>Hesitant</option><option>Needs more time</option><option>Resistant</option></select></label>
+    </section>
+
+    <!-- 5 MINISTRY -->
+    <section class="step" data-mode="minister" data-step="5">
+      <details class="howto"><summary>How to use this section</summary><div class="hbody">
+        <p>Come here only when you have genuinely discerned a demonic element and the person is willing. This is not a formula to rush; it is a path to walk with them. If your assessment was sin, trauma, or a mental-health concern, you can skip this stage entirely.</p>
+        <p>The five steps are a sequence: establish authority, address the spirit rather than the person, break the agreements that gave it ground, command release, and then fill the house. Tick each as you do it so the encounter is recorded.</p>
+        <p><b>Filling is not optional.</b> Cleansing without filling leaves a swept, empty house that ends worse (Luke 11:24-26). Deliverance opens a door; discipleship decides what walks through it.</p>
+        <p class="look">What to look for: the guardrails below, which are easy to forget in the moment. Command, do not converse. No theatrics. Protect dignity. Never alone.</p>
+      </div></details>
+      <p class="lede">When you discern a demonic element and the person is willing, this is the five-step pattern. Walk it; do not rush it. The house must be filled.</p>
+      <div class="flagcard"><b>What not to do</b><p>No drama or theatrics. No extended conversation with a spirit; command, do not converse. Not in public; protect dignity. Never alone; minister as a team. Do not assume every problem is demonic, and do not create fear or fascination with demons.</p></div>
+      <h2 class="sec">Listen before you pray</h2>
+      <p class="note">Stop for listening prayer before ministering. Ask the Holy Spirit to bring to mind anything you need to know; He knows what the person may have forgotten.</p>
+      <label class="fld"><span class="lab">What the Spirit brought to mind</span><textarea data-k="m_listen"></textarea></label>
+      <h2 class="sec">The five steps, record what was done</h2>
+      <div id="ministryList"></div>
+      <h2 class="sec">Fill the house</h2>
+      <p class="note">Luke 11:24-26. Name the filling.</p>
+      <label class="fld"><span class="lab">Holy Spirit filling prayed?</span><select data-k="m_fill"><option value="">Select</option><option>Yes</option><option>Began, to continue</option><option>Not yet</option></select></label>
+      <div class="row2">
+        <label class="fld"><span class="lab">Daily Scripture or devotion plan</span><input type="text" data-k="m_word"></label>
+        <label class="fld"><span class="lab">Accountability or community</span><input type="text" data-k="m_accountable"></label>
+      </div>
+      <label class="fld"><span class="lab">Concrete next step and report-back date</span><input type="text" data-k="m_next"></label>
+      <h2 class="sec">Between-session walk (homework)</h2>
+      <p class="note">One line per assignment. These print on the take-home handout as "Your steps this week," so write them to the person, plainly. Keep it small enough to actually do: one passage, one prayer habit, one act of obedience.</p>
+      <label class="fld"><span class="lab">Assignments, one per line</span><textarea data-k="m_homework" placeholder="Read Psalm 34 each morning&#10;Pray the daily prayer on your handout&#10;Tell one trusted person what we prayed about"></textarea></label>
+      <div class="row2">
+        <label class="fld"><span class="lab">Check-in date (next session or phone call)</span><input type="date" data-k="m_checkin"></label>
+        <label class="fld"><span class="lab">Anything still open for next session</span><input type="text" data-k="m_open"></label>
+      </div>
+    </section>
+
+    <!-- 6 PLAN -->
+    <section class="step" data-mode="minister" data-step="6">
+      <details class="howto"><summary>How to use this section</summary><div class="hbody">
+        <p>Everything you entered is assembled here into one ordered plan: the picture, the triage, the discernment, the doors, the Scripture and prayers for the road in, the ministry record if any, and the follow-up. Safety leads if any flag was set.</p>
+        <p>The lower part is a <b>handout</b>, Scripture and prayers gathered for the person to take home. You can print the whole plan for your file, or print just the handout for them. Read any prayer before you pray it; make it yours.</p>
+        <p>To edit anything, step back to its tab, change it, and the plan rebuilds.</p>
+      </div></details>
+      <p class="lede">Review the plan. Print the full record for your confidential file, or print only the handout for the person. The two never mix: the handout carries no session notes, flags, or assessments.</p>
+      <div class="printrow">
+        <button class="btn" onclick="printFull()">Print full plan (your file)</button>
+        <button class="btn" onclick="printHandout()">Print handout only (for them)</button>
+        <button class="btn ghost" onclick="buildReport()">Refresh</button>
+      </div>
+      <div id="report" class="reportwrap" style="margin-top:18px"></div>
+    </section>
+
+    <div class="actions">
+      <button class="btn ghost" id="prevBtn" onclick="go(-1)">Back</button>
+      <button class="btn" id="nextBtn" onclick="go(1)">Continue</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================== DATA ============================== */
+const SAFETY=[
+  "Suicidal ideation, plans, or attempts","Death wish (wants to die)","Self-harm or cutting",
+  "Violence toward self or others","Hearing voices, hallucinations, or irrational paranoia (assess with a professional first)",
+  "Persistent hopelessness, worthlessness, helplessness","Someone unsafe at home","Active substance dependency right now"
+];
+const TRIAGE=[
+  {t:"Natural illness or ordinary struggle",d:"Physical, emotional, situational. Most things live here."},
+  {t:"Spiritual root",d:"Trauma, unforgiveness, a generational pattern, a wound under the surface."},
+  {t:"Demonic oppression",d:"A spirit exploiting a foothold. The indicators below are clues, not proof."}
+];
+const OPP_INDICATORS=[
+  "Chronic condition that defies explanation","Sudden onset with no natural cause",
+  "Symptoms manifest during prayer or worship","Pattern of self-destructive behaviour",
+  "Family history of similar affliction (generational)","Reports sensing a presence or hearing voices",
+  "Condition worsens as spiritual disciplines increase"
+];
+const CATS=[
+  { id:"occult", title:"Occult and False-Spiritual Doors", items:[
+    "Witchcraft of any form","Curses, cursing others or feeling cursed","Ouija board or contacting the dead",
+    "Tarot, fortune telling, palm reading","Astrology, horoscopes, zodiac","Crystals, charms, amulets",
+    "New Age, energy healing, Reiki","Freemasonry or secret societies",{t:"Seance, mediums, channeling",star:true},
+    {t:"Satanism",star:true},"Wicca or witchcraft practice","Divination of any kind","Astral projection, out-of-body",
+    "Occult books, music, movies, games that drew you in",{t:"Covenants, vows, oaths, or pacts to a spirit or deity",star:true},
+    {t:"Summoning spirits or the dead",star:true},"Objects kept from non-Christian religious use (idols, fetish objects)",
+    "Ancestral spiritual practice or covenant in the line"
+  ]},
+  { id:"sexual", title:"Sexual Doors", note:"Distinguish carefully what they did from what was done to them. Survivors receive healing, not confession of sin.", items:[
+    "Pornography","Lust as a pattern",{t:"Adultery",star:true},{t:"Fornication",star:true},
+    {t:"Incest, victim or perpetrator",star:true},{t:"Sexual abuse experienced",star:true},
+    {t:"Sexual abuse perpetrated",star:true},{t:"Rape, or raped",star:true},"Prostitution","Voyeurism or exhibitionism",
+    {t:"Bestiality",star:true},"Ungodly soul ties from past sexual relationships",
+    "Sexual experience with a presence in dreams or at night"
+  ]},
+  { id:"persistent", title:"Persistent Sin and Footholds", note:"Eph 4:26-27, unresolved sin gives the enemy a place. Addressed by repentance first.", items:[
+    "Unforgiveness or bitterness held",{t:"A vow or word-curse spoken over self",star:true},"Pride","Rage or uncontrolled anger",
+    "Fear that controls","Rebellion against God or authority","Addiction (substance)",
+    "Addiction (behavioural: gambling, spending, internet, sexual)","Idolatry, something put in God's place",
+    "Deceit or lying as a pattern","Hatred","Occult-adjacent media that shaped behaviour"
+  ]},
+  { id:"generational", title:"Generational Doors", note:"Count blood relatives only, not in-laws, and look for patterns rather than one-off sins: down the line, sideways (aunt to aunt, cousin to cousin), or skipping a generation. The genogram on the Intake tab can mark these for you. Guilt is not inherited (Ezek 18:20), but effects can carry on where a pattern is repeated (Ex 20:5).", items:[
+    "Occult in the family line","Addiction in the family line","Criminal acts in the line","Sexual sin in the line",
+    "Unbiblical religion or practice in the line",{t:"Incest in the line",star:true},"Divorce or family fracture",
+    "Abortion in the line","Rejection, orphaned, abandoned, given up","Trauma in the line",
+    "Pattern of accidents, sickness, miscarriage, financial crises, or premature death","Abuse in the line (any kind)"
+  ]},
+  { id:"wounds", title:"Wounds Done To Us", note:"Not the person's sin. Points of injury where lies were planted. Handle with healing prayer.", items:[
+    "Physical abuse experienced","Emotional or verbal abuse experienced","Spiritual abuse (by church or leaders)",
+    "Abandonment or rejection","Severe loss or grief","Betrayal by someone trusted",
+    "A lie believed about self (worthless, unlovable, I can't, it's my fault)","Trafficking, trafficked"
+  ]}
+];
+const TESTS=[
+  {id:"christ",q:"Does this confess Jesus Christ come in the flesh, the true incarnate, crucified and risen Lord?",ref:"1 John 4:1-3",over:false},
+  {id:"scripture",q:"Does it conform to Scripture, or add to, twist, or contradict it? Demons can quote truth.",ref:"Isaiah 8:20; Acts 16:16-18",over:false},
+  {id:"selfcontrol",q:"Is the person's will intact? The Spirit does not override the will. Loss of self-control is a flag.",ref:"1 Cor 14:32; Gal 5:23",over:false},
+  {id:"edify",q:"Does it build up the body in love, or produce confusion, division, fascination, or fear?",ref:"1 Cor 14:26,33",over:false},
+  {id:"body",q:"Has it been weighed by others who discern? Discernment is not a solo act.",ref:"1 Cor 14:29",over:false},
+  {id:"fruit",q:"What is it producing over time, love, holiness, humility, or pride, strife, moral failure?",ref:"Matt 7:15-20; Gal 5:19-23",over:true},
+  {id:"trajectory",q:"Over time, is the life bending toward Christ or away from Him?",ref:"Matt 7:16-20",over:true}
+];
+const MINISTRY=[
+  {id:"authority",t:"1. Establish authority",d:"Authority is in Jesus' name (Luke 10:19); greater is He who is in you (1 John 4:4). No fear, no begging."},
+  {id:"address",t:"2. Address the spirit, not the person",d:"Command, do not converse. Keep the focus on Jesus' authority, never on the person's dignity."},
+  {id:"break",t:"3. Break agreements",d:"Lead them to renounce the lies and break agreement with fear, shame, rejection. Forgiveness releases footholds (Eph 4:26-27)."},
+  {id:"release",t:"4. Command release",d:"Short, authoritative, confident, in Jesus' name. Do not plead."},
+  {id:"fill",t:"5. Fill the house",d:"Pray for the Holy Spirit to fill; establish disciplines; connect to community (Luke 11:24-26)."}
+];
+const LIB={
+  occult:{scriptures:[
+      {t:"You shall have no other gods before me.",r:"Exodus 20:3"},
+      {t:"Many who had practised magic arts brought their books together and burned them in front of everyone.",r:"Acts 19:19"},
+      {t:"The one who is in you is greater than the one who is in the world.",r:"1 John 4:4"}],
+    prayer:"In the name of Jesus Christ, I renounce every occult practice and every covenant, vow, or word spoken to any spirit other than the living God. I confess it as sin and I turn from it. Lord Jesus, cancel every claim the enemy made through it, and fill the place it held with Your Holy Spirit.",
+    steps:["Identify and destroy any objects tied to the practice (Acts 19).","Renounce specifically, by name where known.","Fill: daily Scripture and worship the first week; connect to community."]},
+  sexual:{scriptures:[
+      {t:"Flee from sexual immorality. You were bought at a price; therefore honour God with your body.",r:"1 Corinthians 6:18-20"},
+      {t:"Create in me a pure heart, O God, and renew a steadfast spirit within me.",r:"Psalm 51:10"}],
+    prayer:"Lord Jesus, I confess sexual sin and renounce every ungodly soul tie formed outside Your design. Where I sinned, forgive me. Where I was sinned against, heal me and lift the shame that was never mine to carry. Cut every bond that is not of You.",
+    steps:["Separate confession (what they did) from healing (what was done to them).","Break named soul ties gently, only with consent.","Fill: accountability and practical safeguards."]},
+  persistent:{scriptures:[
+      {t:"Be angry and do not sin, and give no opportunity to the devil.",r:"Ephesians 4:26-27"},
+      {t:"If we confess our sins, he is faithful and just and will forgive us and cleanse us from all unrighteousness.",r:"1 John 1:9"},
+      {t:"It is for freedom that Christ has set us free. Stand firm.",r:"Galatians 5:1"}],
+    prayer:"Father, I bring this pattern into the light. I confess it, I renounce its hold, and I close the door I have left open. Fill the space with Your Spirit and give me people to walk this out with.",
+    steps:["Repentance first; this is a foothold, not necessarily a spirit.","Renounce agreement with the sin and any lie beneath it.","Fill: discipline plus accountability; address the wound it medicates."]},
+  generational:{scriptures:[
+      {t:"Christ redeemed us from the curse of the law by becoming a curse for us.",r:"Galatians 3:13"},
+      {t:"...showing love to a thousand generations of those who love me and keep my commandments.",r:"Exodus 20:6"},
+      {t:"The child will not share the guilt of the parent, nor will the parent share the guilt of the child.",r:"Ezekiel 18:20"},
+      {t:"But if they will confess their sins and the sins of their ancestors... I will remember my covenant with Jacob and my covenant with Isaac and my covenant with Abraham.",r:"Leviticus 26:40,42"},
+      {t:"We acknowledge our wickedness, LORD, and the guilt of our ancestors; we have indeed sinned against you.",r:"Jeremiah 14:20"},
+      {t:"Do not hold against us the sins of past generations; may your mercy come quickly to meet us.",r:"Psalm 79:8"}],
+    prayer:"Lord Jesus Christ, by a decision of my will I forgive those in my family line whose sins have affected me, and I release them to You. I confess before You the sins of my fathers and mothers in this area [name the pattern]. I do not excuse them, and I do not judge them; I agree with You about what happened. I repent of the ways I have walked in the same pattern myself. In Your name I break the power of this pattern over my life and over my children, because You became a curse for me on the cross. Let it end with me, and let Your blessing run to a thousand generations. Fill me with Your Holy Spirit.",
+    steps:["Forgive the line first: release by name those whose sin affected the person.","Confess the sins of the line (Lev 26:40; Jer 14:20). Confessing is agreeing with God about what happened, not judging family members.","Repent of the person's own share in the pattern.","Break the pattern in Jesus' name (Gal 3:13), for the person and for their children.","Take authority over any spirit that gained a foothold, only where one has been discerned.","Stop for listening prayer before and after, and record what the Spirit brings to mind.","Expect more than one session. Generational work is often repeated, like a tree that takes more than one blow to fall."]},
+  wounds:{scriptures:[
+      {t:"The LORD is close to the broken-hearted and saves those who are crushed in spirit.",r:"Psalm 34:18"},
+      {t:"He has sent me to bind up the broken-hearted, to proclaim freedom for the captives.",r:"Isaiah 61:1"},
+      {t:"Then you will know the truth, and the truth will set you free.",r:"John 8:32"}],
+    prayer:"Lord Jesus, You were wounded for my healing. Come to the place where I was hurt and the lie was planted. Speak Your truth where the lie has spoken, and let me hear what You say about me. Heal what was broken and lift what was never mine to carry.",
+    steps:["Healing prayer, not confession; the wound is not their sin.","Invite Jesus into the memory; let Him replace the lie with truth.","Renounce the specific lie believed; replace with a truth verse."]}
+};
+const FORGIVE={scriptures:[
+    {t:"Love your enemies, do good to those who hate you, bless those who curse you, pray for those who mistreat you.",r:"Luke 6:27-28"},
+    {t:"Forgive as the Lord forgave you.",r:"Colossians 3:13"}],
+  prayer:"Lord, by an act of my will I choose to forgive [name], not excusing what was done, but releasing them to You. I let go of the debt. Heal the wound underneath, and where trust must be rebuilt, give wisdom for that in its own time."};
+
+// Take-home encouragement passages, always offered on the handout
+const HANDOUT_ALWAYS=[
+  {t:"The LORD is my shepherd; I shall not want.",r:"Psalm 23:1"},
+  {t:"Cast all your anxiety on him because he cares for you.",r:"1 Peter 5:7"},
+  {t:"Have I not commanded you? Be strong and courageous. Do not be afraid; for the LORD your God will be with you wherever you go.",r:"Joshua 1:9"},
+  {t:"Come to me, all you who are weary and burdened, and I will give you rest.",r:"Matthew 11:28"}
+];
+const HANDOUT_PRAYER="Father, thank You that You are near to me. Walk with me this week. When fear or the old pattern rises, remind me whose I am. Fill me with Your Spirit, give me people to lean on, and let me take one small step of obedience at a time. In Jesus' name, amen.";
+
+/* ============================== STATE ============================== */
+const MIN_STEPS=["Intake","Safety","Triage","Doors","Discernment","Ministry","Plan"];
+const CLIENT_STEPS=["About You","Family","Faith","Finish"];
+let mode=null, cur=0, dirty=false;
+const data={mode:null,safety:{},triage:{},opp:{},inv:{},tests:{},ministry:{},history:[]};
+
+function steps(){return mode==='client'?CLIENT_STEPS:MIN_STEPS;}
+
+/* unsaved-work protection: nothing is stored on the device, so warn before losing work */
+function markDirty(){dirty=true;const b=document.getElementById('saveBtn');if(b)b.classList.add('dirty');}
+function markClean(){dirty=false;const b=document.getElementById('saveBtn');if(b)b.classList.remove('dirty');}
+window.addEventListener('beforeunload',e=>{if(dirty){e.preventDefault();e.returnValue='';}});
+
+function enterMode(m){
+  mode=m; data.mode=m; cur=0;
+  document.getElementById('gate').style.display='none';
+  document.getElementById('app').style.display='block';
+  document.body.classList.toggle('client',m==='client');
+  const eb=document.getElementById('modeEyebrow'), tt=document.getElementById('modeTitle'), sb=document.getElementById('modeSub'), tl=document.getElementById('tbLabel');
+  if(m==='client'){eb.textContent='Spiritual Care Session Tool';tt.textContent='Your Intake';sb.textContent='A few questions about you and your story.';tl.textContent='Your answers';document.getElementById('saveBtn').textContent='Save my answers';}
+  else{eb.textContent='Spiritual Care Session Tool';tt.textContent='Care Session';sb.textContent='Intake, discernment, and the steps of freedom.';tl.textContent='Session';document.getElementById('saveBtn').textContent='Save / download';}
+  document.getElementById('nextSessBtn').style.display=(m==='minister')?'':'none';
+  renderHist();
+  if(m==='minister')gnRender();
+  showStep();
+}
+function goHome(){
+  if(confirm('Return to the start screen? Anything not saved will stay in memory only until you clear or close.')){
+    document.getElementById('app').style.display='none';
+    document.getElementById('gate').style.display='block';
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+}
+
+function railRender(){
+  document.getElementById('rail').innerHTML=steps().map((s,i)=>
+    `<button class="${i===cur?'active':''} ${i<cur?'done':''}" onclick="jump(${i})"><span class="num">${i+1}</span>${s}</button>`).join('');
+}
+function showStep(){
+  document.querySelectorAll('.step').forEach(el=>el.classList.remove('show'));
+  const sel=document.querySelector(`.step[data-mode="${mode}"][data-step="${cur}"]`);
+  if(sel) sel.classList.add('show');
+  document.getElementById('prevBtn').disabled=cur===0;
+  const last=steps().length-1;
+  document.getElementById('nextBtn').style.visibility=cur===last?'hidden':'visible';
+  railRender();
+  if(mode==='minister'&&cur===6) buildReport();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function go(d){const n=cur+d;if(n<0||n>=steps().length)return;cur=n;showStep();}
+function jump(i){cur=i;showStep();}
+
+/* render dynamic lists */
+function renderSafety(){document.getElementById('safetyList').innerHTML=SAFETY.map((s,i)=>`<div class="citem" id="safe_${i}"><label class="chead"><input type="checkbox" onchange="tog('safety',${i},this.checked,'safe_${i}')"><span class="nm">${s}</span></label></div>`).join('');}
+function renderTriage(){
+  document.getElementById('triageList').innerHTML=TRIAGE.map((x,i)=>`<div class="citem" id="tri_${i}"><label class="chead"><input type="checkbox" onchange="togTri(${i},this.checked)"><span class="nm">${x.t}<small>${x.d}</small></span></label>${i===2?`<div class="sub" id="oppsub">${OPP_INDICATORS.map((o,j)=>`<label style="display:flex;gap:9px;align-items:flex-start;margin:6px 0;font-size:13.5px;cursor:pointer"><input type="checkbox" style="margin-top:3px;accent-color:var(--accent)" onchange="togOpp(${j},this.checked)">${o}</label>`).join('')}</div>`:''}</div>`).join('');
+}
+function togTri(i,on){data.triage[i]=on;markDirty();document.getElementById('tri_'+i).classList.toggle('on',on);updateNext();}
+function togOpp(j,on){data.opp[j]=on;markDirty();}
+function updateNext(){
+  const box=document.getElementById('triageNext'); if(!box)return;
+  const opp=data.t_posopp||''; const kinds=[];
+  if(data.triage[0])kinds.push('an ordinary struggle');
+  if(data.triage[1])kinds.push('a spiritual root');
+  if(data.triage[2])kinds.push('a possible demonic element');
+  if(!kinds.length&&!opp){box.innerHTML='Make your marks above, and this will tell you what the rest of the session looks like.';return;}
+  let msg='';
+  if(kinds.length)msg+='You have named this as <b>'+kinds.join('</b>, <b>')+'</b>. ';
+  if(opp.startsWith('No demonic')){msg+='This is a <b>care and discipleship</b> road. The Ministry stage will not apply. Move through Doors and Discernment looking for wounds to heal and sin to repent of, then land on a gentle plan.';msg+='<span class="arrow">Next: Doors, Discernment, Plan. Skip Ministry.</span>';}
+  else if(opp.startsWith('Oppression')){msg+='This is an <b>oppression or foothold</b> road. A person is more than one room; you are dealing with an area, not the whole person. The Ministry stage will be in play later, but only after repentance and healing prepare the ground.';msg+='<span class="arrow">Next: Doors, Discernment, Ministry, fill the house.</span>';}
+  else if(opp.startsWith('Heavy')){msg+='This is a <b>heavy bondage</b> road. Do not rush, and do not do this alone. Gather a team before the Ministry stage, and consider prayer and fasting (Mark 9:29).';msg+='<span class="arrow">Next: gather a team. Then Doors, Discernment, Ministry, unhurried.</span>';}
+  else if(opp.startsWith('Uncertain')){msg+='You are <b>uncertain</b>, which is an honest and safe place to be. Do not conclude anything today. Work through Doors and Discernment, lean on the seven tests, and watch the fruit over the coming weeks.';msg+='<span class="arrow">Next: Doors, Discernment. Let time and fruit decide before any Ministry.</span>';}
+  else{if(data.triage[2])msg+='You have flagged a possible demonic element. <b>Make a choice in Step 2</b> so the tool knows how deep, and how careful to be.';else msg+='No demonic element is marked. If that is your read, choose <b>"No demonic element discerned"</b> in Step 2, and this will be a care and discipleship road.';}
+  box.innerHTML=msg;
+}
+function itext(it){return typeof it==='string'?it:it.t;}
+function istar(it){return typeof it==='object'&&it.star;}
+function renderInv(){
+  document.getElementById('invMount').innerHTML=CATS.map(cat=>{
+    const note=cat.note?`<p class="note">${cat.note}</p>`:'';
+    const rows=cat.items.map((it,idx)=>{const nm=itext(it),star=istar(it)?'<span class="star">&lowast;</span>':'';
+      return `<div class="citem" id="inv_${cat.id}_${idx}"><label class="chead"><input type="checkbox" onchange="togInv('${cat.id}',${idx},this.checked)"><span class="nm">${nm}${star}</span></label><div class="sub"><label class="fld" style="margin:0"><span class="lab">Note (specifics, names, how long)</span><input type="text" oninput="invNote('${cat.id}',${idx},this.value)"></label></div></div>`;}).join('');
+    return `<h2 class="sec">${cat.title}</h2>${note}<div class="clist">${rows}</div>`;}).join('');
+}
+function ensureInv(cid,idx){data.inv[cid]=data.inv[cid]||{};data.inv[cid][idx]=data.inv[cid][idx]||{on:false,note:""};return data.inv[cid][idx];}
+function togInv(cid,idx,on){ensureInv(cid,idx).on=on;markDirty();document.getElementById(`inv_${cid}_${idx}`).classList.toggle('on',on);}
+function invNote(cid,idx,v){ensureInv(cid,idx).note=v;markDirty();}
+function renderTests(){
+  document.getElementById('testList').innerHTML=TESTS.map(t=>{
+    const tag=t.over?' <span style="font-family:ui-monospace;font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--amber)">[over time]</span>':'';
+    return `<div class="testrow"><p class="tq">${t.q}${tag}</p><div class="tref">${t.ref}</div><div class="triad" id="test_${t.id}"><button onclick="setTest('${t.id}','pass',this)">Passes</button><button onclick="setTest('${t.id}','concern',this)">Concern</button><button onclick="setTest('${t.id}','fail',this)">Fails</button></div></div>`;}).join('');
+}
+function setTest(id,val,btn){data.tests[id]=val;markDirty();const grp=document.getElementById('test_'+id);grp.querySelectorAll('button').forEach(b=>b.classList.remove('sel'));btn.classList.add('sel');}
+function renderMinistry(){document.getElementById('ministryList').innerHTML=MINISTRY.map(m=>`<div class="citem" id="min_${m.id}"><label class="chead"><input type="checkbox" onchange="tog('ministry','${m.id}',this.checked,'min_${m.id}')"><span class="nm">${m.t}<small>${m.d}</small></span></label></div>`).join('');}
+function tog(bucket,key,on,elid){data[bucket][key]=on;markDirty();document.getElementById(elid).classList.toggle('on',on);}
+
+/* ============================== COURSE OF CARE (MULTI-SESSION) ============================== */
+function snapshotSession(){
+  const flaggedNames=[];
+  CATS.forEach(cat=>{const c=data.inv[cat.id];if(!c)return;Object.keys(c).forEach(idx=>{if(c[idx].on)flaggedNames.push(itext(cat.items[idx]));});});
+  return {
+    session:data.p_session||'',date:data.p_date||'',assess:data.d_assess||'',posopp:data.t_posopp||'',
+    rebcap:data.d_rebcap||'',why:data.d_why||'',ready:data.d_ready||'',
+    tests:Object.assign({},data.tests),flagged:flaggedNames,
+    fill:data.m_fill||'',next:data.m_next||'',homework:data.m_homework||'',checkin:data.m_checkin||'',open:data.m_open||'',
+    safetyFlagged:SAFETY.some((s,i)=>data.safety[i]),notes:data.s_notes||''
+  };
+}
+function newSession(){
+  if(!confirm('Archive this session into the course of care and start the next session with the same person? Background, doors, and resources carry forward; session work resets.'))return;
+  data.history=data.history||[];
+  data.history.push(snapshotSession());
+  // reset session-specific work; keep identity, intake background, doors, resources, history
+  data.safety={};data.triage={};data.opp={};data.tests={};data.ministry={};
+  ['s_notes','t_posopp','d_ignatian','d_rebcap','d_assess','d_why','d_ready',
+   'm_fill','m_word','m_accountable','m_next','m_homework','m_checkin','m_open','m_listen','i_reason'].forEach(k=>delete data[k]);
+  const sessOrder=['1','2','3','4','5','6+'];
+  const curIdx=sessOrder.indexOf(String(data.p_session||'1'));
+  data.p_session=sessOrder[Math.min(curIdx+1,sessOrder.length-1)];
+  data.p_date=new Date().toISOString().slice(0,10);
+  // reset the DOM for the cleared parts
+  document.querySelectorAll('#safetyList input,#triageList input,#ministryList input').forEach(b=>{b.checked=false;});
+  document.querySelectorAll('#safetyList .citem,#triageList .citem,#ministryList .citem').forEach(c=>c.classList.remove('on'));
+  document.querySelectorAll('.triad button').forEach(b=>b.classList.remove('sel'));
+  document.querySelectorAll('[data-radio] .choice').forEach(c=>c.classList.remove('on'));
+  document.querySelectorAll('[data-radio] input[type=radio]').forEach(r=>r.checked=false);
+  ['s_notes','t_posopp','d_ignatian','d_why','m_word','m_accountable','m_next','m_homework','m_checkin','m_open','m_listen','i_reason'].forEach(k=>{const el=document.querySelector(`[data-k="${k}"]`);if(el)el.value='';});
+  const sel=document.querySelector('[data-k="p_session"]');if(sel)sel.value=data.p_session;
+  const dt=document.querySelector('[data-k="p_date"]');if(dt)dt.value=data.p_date;
+  updateNext();renderHist();renderPriorMarks();markDirty();
+  cur=0;showStep();
+  alert('Session archived. You are now in session '+data.p_session+'. Save to the same file when you finish.');
+}
+function renderHist(){
+  const mount=document.getElementById('histMount');if(!mount)return;
+  const h=data.history||[];
+  if(!h.length){mount.innerHTML='';return;}
+  const label=k=>k?(ASSESS_META[k]?ASSESS_META[k].t:k):'No assessment recorded';
+  mount.innerHTML=`<div class="histpanel"><div class="hp-head">Course of care, ${h.length} prior session${h.length>1?'s':''}</div>`+
+    h.map(s=>`<div class="histrow"><span class="hn">Session ${esc(s.session)||'?'}</span><span class="hd">${esc(s.date)||'no date'}</span><span>${esc(label(s.assess))}${s.posopp?' &middot; '+esc(s.posopp):''}${s.safetyFlagged?' &middot; <span style="color:var(--flag)">safety flag</span>':''}</span>${s.next?`<span class="hd">Next step was: ${esc(s.next)}</span>`:''}</div>`).join('')+`</div>`;
+}
+function renderPriorMarks(){
+  const h=data.history||[];
+  document.querySelectorAll('.prior').forEach(el=>el.remove());
+  if(!h.length)return;
+  const last=h[h.length-1];
+  TESTS.forEach(t=>{
+    const v=last.tests&&last.tests[t.id];if(!v)return;
+    const grp=document.getElementById('test_'+t.id);if(!grp)return;
+    const lbl=v==='pass'?'Passed':v==='concern'?'Concern':'Failed';
+    const tag=document.createElement('span');tag.className='prior';tag.textContent='Last session: '+lbl;
+    grp.parentElement.querySelector('.tref').appendChild(tag);
+  });
+}
+
+function bindFields(){
+  document.querySelectorAll('[data-k]').forEach(el=>el.addEventListener('input',()=>{data[el.dataset.k]=el.value;markDirty();}));
+  document.querySelectorAll('[data-radio]').forEach(grp=>{grp.querySelectorAll('input[type=radio]').forEach(rb=>rb.addEventListener('change',()=>{
+    data[grp.dataset.radio]=rb.value;grp.querySelectorAll('.choice').forEach(c=>c.classList.remove('on'));rb.closest('.choice').classList.add('on');markDirty();
+    if(grp.dataset.radio==='t_posopp')updateNext();}));});
+}
+
+/* ============================== REPORT ============================== */
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function val(k){return data[k]?esc(data[k]):'';}
+function repLine(label,v){return `<div class="itemline"><span class="il-name"><span class="il-cat">${label}</span><br>${v||'<span class="empty">&mdash;</span>'}</span></div>`;}
+const ASSESS_META={
+  flesh:{cls:"flesh",t:"Sin or flesh",d:"The road in is repentance and discipleship. A foothold to close, not necessarily a spirit to expel."},
+  trauma:{cls:"trauma",t:"Trauma or grief",d:"Lead with healing prayer and pastoral care, not confession of sin. Invite Jesus into the wound to replace the lie with truth."},
+  mh:{cls:"mh",t:"Mental-health concern",d:"Involve a licensed professional before or alongside spiritual care. Pastoral support continues; it does not replace treatment."},
+  oppression:{cls:"oppression",t:"Oppression",d:"Deliverance prayer with a team, never rushed. Establish authority, break agreements, command release, then fill the house."},
+  mixed:{cls:"mixed",t:"Mixed",d:"More than one road is needed. Usually repentance and healing prepare the ground before deliverance, and filling always follows."}
+};
+function buildReport(){
+  const rep=document.getElementById('report'); if(!rep)return;
+  const flagged=[];
+  CATS.forEach(cat=>{const c=data.inv[cat.id];if(!c)return;Object.keys(c).forEach(idx=>{const r=c[idx];if(r.on){const it=cat.items[idx];flagged.push({cat:cat.id,catTitle:cat.title,name:itext(it),star:istar(it),note:r.note});}});});
+  const catsPresent=[...new Set(flagged.map(f=>f.cat))];
+  const hasUnforgive=flagged.some(f=>/unforgiv|bitter/i.test(f.name));
+  const safeFlags=SAFETY.filter((s,i)=>data.safety[i]);
+  const oppInd=OPP_INDICATORS.filter((s,i)=>data.opp[i]);
+  const triSel=TRIAGE.filter((x,i)=>data.triage[i]).map(x=>x.t);
+
+  let html='';
+  html+=`<div class="rep-h"><p class="eyebrow">Confidential Pastoral Record</p><h2>Care Session Plan</h2>
+    <div class="rep-meta"><strong>Participant:</strong> ${val('p_name')||val('c_name')||'&mdash;'} &nbsp;|&nbsp; <strong>Date:</strong> ${val('p_date')||val('c_date')||'&mdash;'} &nbsp;|&nbsp; <strong>Session:</strong> ${val('p_session')||'&mdash;'}<br>
+    <strong>Lead:</strong> ${val('p_pastor')||'&mdash;'} &nbsp;|&nbsp; <strong>Others present:</strong> ${val('p_team')||'&mdash;'}</div></div>`;
+
+  if(safeFlags.length){
+    html+=`<div class="rep-sec"><h3>Safety, address before ministry</h3>
+      <div class="verdict mh"><div class="vt">Referral indicated</div><div class="vd">One or more risk indicators were marked. Pastoral care continues, but a licensed mental-health professional should be involved before or alongside any deliverance or healing work. There is no shame in referring. Where there is immediate danger, contact emergency services.</div></div>
+      <ul class="clean">${safeFlags.map(s=>`<li>${esc(s)}</li>`).join('')}</ul>
+      ${data.s_notes?`<p style="font-size:14px"><strong>Notes:</strong> ${val('s_notes')}</p>`:''}
+      ${(data.r_crisis||data.r_counsel||data.r_other)?`<div style="margin-top:8px"><span class="il-cat">Referral resources on file:</span><ul class="clean">${data.r_crisis?`<li>Crisis line: ${val('r_crisis')}</li>`:''}${data.r_counsel?`<li>Counsellor or agency: ${val('r_counsel')}</li>`:''}${data.r_other?`<li>${val('r_other')}</li>`:''}</ul></div>`:''}</div>`;
+  }
+
+  if((data.history||[]).length){
+    const label=k=>k?(ASSESS_META[k]?ASSESS_META[k].t:k):'No assessment recorded';
+    html+=`<div class="rep-sec"><h3>Course of care</h3>`+
+      data.history.map(s=>`<div class="itemline"><span class="il-name"><span class="il-cat">Session ${esc(s.session)||'?'} &middot; ${esc(s.date)||'no date'}</span><br>${esc(label(s.assess))}${s.posopp?'; '+esc(s.posopp):''}${s.next?`<br><small style="color:var(--ink-soft)">Next step was: ${esc(s.next)}</small>`:''}</span></div>`).join('')+
+      `<p class="note" style="margin-top:8px">Fruit is judged over time, not in one sitting. Compare today's tests and this session's fruit against the sessions above before concluding anything.</p></div>`;
+  }
+
+  html+=`<div class="rep-sec"><h3>Presenting picture</h3>`;
+  html+=repLine('Reason for visit',val('i_reason')||val('c_reason'));
+  html+=repLine('Conversion or commitment',val('i_conv'));
+  html+=repLine('Spiritual practices',val('i_practice'));
+  html+=repLine('Maturity read',val('i_maturity'));
+  html+=repLine('Wounds identified',val('i_pain')||val('c_pain'));
+  html+=repLine('Generational patterns',val('i_gen'));
+  html+=repLine('Spiritual history',val('i_spirhist')||val('c_faith'));
+  html+=`</div>`;
+
+  html+=gnReportHTML();
+
+  html+=`<div class="rep-sec"><h3>Triage</h3>`;
+  html+=`<div class="itemline"><span class="il-name"><span class="il-cat">Categories in view</span><br>${triSel.length?esc(triSel.join('; ')):'<span class="empty">&mdash;</span>'}</span></div>`;
+  if(oppInd.length){html+=`<div style="margin-top:10px"><span class="il-cat">Oppression indicators noted (clues, not proof):</span><ul class="clean">${oppInd.map(o=>`<li>${esc(o)}</li>`).join('')}</ul></div>`;}
+  html+=repLine('Oppression read',val('t_posopp'));
+  html+=`</div>`;
+
+  const a=data.d_assess?ASSESS_META[data.d_assess]:null;
+  html+=`<div class="rep-sec"><h3>Discernment</h3>`;
+  if(a)html+=`<div class="verdict ${a.cls}"><div class="vt">${a.t}</div><div class="vd">${a.d}</div></div>`;
+  const testLines=TESTS.filter(t=>data.tests[t.id]).map(t=>{const v=data.tests[t.id];const label=v==='pass'?'Passes':v==='concern'?'Concern':'Fails';return `<div class="itemline"><span class="il-name">${esc(t.q)} <span class="il-cat">${t.ref}</span></span><span style="font-family:ui-monospace;font-size:12px;font-weight:700">${label}</span></div>`;});
+  if(testLines.length){html+=`<div style="margin:6px 0 4px"><span class="il-cat">Seven tests:</span></div>`+testLines.join('');}
+  html+=repLine('Consolation or desolation',val('d_ignatian'));
+  html+=repLine('Rebellion or captivity',val('d_rebcap'));
+  html+=repLine('Reasoning (fruit and evidence)',val('d_why'));
+  html+=repLine('Readiness',val('d_ready'));
+  html+=repLine('Listening prayer before ministry',val('m_listen'));
+  html+=`</div>`;
+
+  html+=`<div class="rep-sec"><h3>Entry points identified</h3>`;
+  if(!flagged.length)html+=`<p class="empty">No entry points flagged.</p>`;
+  else{html+=flagged.map(f=>`<div class="itemline"><span class="il-name">${esc(f.name)}${f.star?' <span style="color:var(--flag);font-weight:700">&lowast;</span>':''} <span class="il-cat">${esc(f.catTitle)}</span>${f.note?`<br><small style="color:var(--ink-soft)">${esc(f.note)}</small>`:''}</span></div>`).join('');
+    html+=`<div class="guard" style="margin-top:14px"><b>Read this rightly</b>These are doors, not a diagnosis. An asterisk marks a door that can open from a single occurrence. The discernment above, fruit over time, governs what these mean. A person is more than one room.</div>`;}
+  html+=`</div>`;
+
+  html+=`<div class="rep-sec"><h3>Scripture and prayer for the road in</h3>`;
+  if(!catsPresent.length)html+=`<p class="empty">Flag entry points to populate passages and prayers.</p>`;
+  else{catsPresent.forEach(cid=>{const lib=LIB[cid];const title=CATS.find(c=>c.id===cid).title;
+    html+=`<h4 style="font-size:15px;margin:18px 0 6px">${esc(title)}</h4>`;
+    lib.scriptures.forEach(s=>html+=`<blockquote class="scr">${esc(s.t)}<cite>${esc(s.r)}</cite></blockquote>`);
+    html+=`<div class="prayer"><span class="pl">Prayer to lead</span>${esc(lib.prayer)}</div>`;
+    html+=`<ul class="clean">${lib.steps.map(st=>`<li>${esc(st)}</li>`).join('')}</ul>`;});
+    if(hasUnforgive){html+=`<h4 style="font-size:15px;margin:18px 0 6px">Forgiveness pathway</h4>`;FORGIVE.scriptures.forEach(s=>html+=`<blockquote class="scr">${esc(s.t)}<cite>${esc(s.r)}</cite></blockquote>`);html+=`<div class="prayer"><span class="pl">Prayer to lead</span>${esc(FORGIVE.prayer)}</div>`;}}
+  html+=`</div>`;
+
+  const stepsDone=MINISTRY.filter(m=>data.ministry[m.id]);
+  if(stepsDone.length||data.d_assess==='oppression'||data.d_assess==='mixed'){
+    html+=`<div class="rep-sec"><h3>Ministry, the five steps</h3>`;
+    html+=`<ol class="steps">${MINISTRY.map(m=>`<li>${esc(m.t.replace(/^\d+\.\s/,''))} ${data.ministry[m.id]?'<strong style="color:var(--accent)">done</strong>':'<span class="empty">not yet</span>'}</li>`).join('')}</ol>`;
+    html+=`<div class="flagcard"><b>Guardrails</b><p>Command, do not converse. No theatrics. Protect dignity, not public. Never alone. Some battles need prayer and fasting (Mark 9:29).</p></div></div>`;
+  }
+
+  html+=`<div class="rep-sec"><h3>Fill the house and next steps</h3>`;
+  html+=repLine('Holy Spirit filling prayed',val('m_fill'));
+  html+=repLine('Daily Scripture or devotion',val('m_word'));
+  html+=repLine('Accountability or community',val('m_accountable'));
+  html+=repLine('Next step and report-back',val('m_next'));
+  html+=repLine('Between-session assignments',val('m_homework'));
+  html+=repLine('Check-in date',val('m_checkin'));
+  html+=repLine('Still open',val('m_open'));
+  html+=`<ul class="clean" style="margin-top:10px"><li>Cleansing is necessary but not sufficient. A swept, empty house ends worse (Luke 11:24-26).</li><li>Deliverance opens a door; discipleship decides what walks through it.</li><li>Confirm willingness before any renunciation or deliverance prayer. Never rush.</li></ul></div>`;
+
+  // ===== TAKE-HOME HANDOUT =====
+  html+=`<hr class="handout-divider"><div class="rep-sec handout-sec"><div class="handout-note">Take-home handout, print this part for the person</div><h3 style="border:0;margin-bottom:6px">Scripture and prayer to carry this week</h3>`;
+  // gather the relevant prayers + always-on encouragement
+  catsPresent.forEach(cid=>{const lib=LIB[cid];lib.scriptures.slice(0,2).forEach(s=>html+=`<blockquote class="scr">${esc(s.t)}<cite>${esc(s.r)}</cite></blockquote>`);});
+  HANDOUT_ALWAYS.forEach(s=>html+=`<blockquote class="scr">${esc(s.t)}<cite>${esc(s.r)}</cite></blockquote>`);
+  html+=`<div class="prayer"><span class="pl">A prayer to pray each day</span>${esc(HANDOUT_PRAYER)}</div>`;
+  if(catsPresent.length){html+=`<p class="note">Personal prayer for your situation:</p>`;catsPresent.forEach(cid=>{html+=`<div class="prayer"><span class="pl">${esc(CATS.find(c=>c.id===cid).title)}</span>${esc(LIB[cid].prayer)}</div>`;});}
+  // generational blessing and the pattern ending (from the genogram and Doors)
+  {const GF=gnFindings();const faithLine=GF.items.find(f=>f.t.k==='faith'&&f.car.length);const recDoor=GF.items.some(f=>f.t.kind==='door'&&f.gs.length>=2);const genFlag=catsPresent.includes('generational');
+   if(faithLine){html+=`<h3 style="border:0;margin:18px 0 6px">A heritage to build on</h3><blockquote class="scr">I am reminded of your sincere faith, which first lived in your grandmother Lois and in your mother Eunice and, I am persuaded, now lives in you also.<cite>2 Timothy 1:5</cite></blockquote><blockquote class="scr">He redeemed us in order that the blessing given to Abraham might come to the Gentiles through Christ Jesus, so that by faith we might receive the promise of the Spirit.<cite>Galatians 3:14</cite></blockquote><p style="font-size:14px">God's faithfulness in your family is a gift. This week, thank Him by name for the people who passed faith on to you.</p>`;}
+   if(genFlag||recDoor){html+=`<h3 style="border:0;margin:18px 0 6px">The pattern can end with you</h3>`;
+     if(!genFlag){html+=`<blockquote class="scr">Christ redeemed us from the curse of the law by becoming a curse for us.<cite>Galatians 3:13</cite></blockquote><blockquote class="scr">...showing love to a thousand generations of those who love me and keep my commandments.<cite>Exodus 20:6</cite></blockquote>`;}
+     html+=`<p style="font-size:14px">This is not about judging your family. It is about the old pattern ending here, and God's blessing beginning with you for the generations after you.</p>`;}}
+  const hwLines=(data.m_homework||'').split('\n').map(s=>s.trim()).filter(Boolean);
+  if(hwLines.length||data.m_checkin){
+    html+=`<h3 style="border:0;margin:18px 0 6px">Your steps this week</h3>`;
+    if(hwLines.length)html+=`<ol class="steps">${hwLines.map(s=>`<li>${esc(s)}</li>`).join('')}</ol>`;
+    if(data.m_checkin)html+=`<p style="font-size:14px"><strong>We will check in on:</strong> ${val('m_checkin')}</p>`;
+  }
+  html+=`<p style="font-size:13.5px;color:var(--ink-soft);margin-top:12px">Read one passage each morning. When the old pattern or fear rises, return to it. You are not walking this alone.</p>`;
+  html+=`<p style="font-size:13px;color:var(--ink-soft);margin-top:10px"><strong>If things get heavy this week:</strong> call or text 988 any time (Canada and US).${data.r_crisis?' Locally: '+val('r_crisis')+'.':''} You do not have to wait for our next meeting.</p>`;
+  html+=`</div>`;
+
+  html+=`<div class="disclaimerbar">This instrument supports pastoral discernment; it does not diagnose. Grounded in ground-level spiritual warfare, fruit-based discernment (the seven tests), a three-category triage, and a five-step ministry pattern with filling. The entry-point checklist adapts categories from Peter J. Bellini, <em>Unleashed: The C1-13 Integrative Deliverance Needs Assessment</em> (Wipf and Stock, 2018). Mental-health, medical, and safety concerns require qualified professionals. Keep confidential.</div>`;
+  rep.innerHTML=html;
+}
+
+/* ============================== PRINT ============================== */
+function printFull(){buildReport();document.body.classList.remove('print-handout');window.print();}
+function printHandout(){
+  buildReport();document.body.classList.add('print-handout');
+  const done=()=>{document.body.classList.remove('print-handout');window.removeEventListener('afterprint',done);};
+  window.addEventListener('afterprint',done);
+  window.print();
+  setTimeout(done,1500);
+}
+
+/* ============================== SAVE / LOAD ============================== */
+function saveSession(){
+  data.savedAt=new Date().toISOString();
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const a=document.createElement('a');const who=(data.p_name||data.c_name||'session').replace(/[^a-z0-9]/gi,'_');
+  const tag=data.mode==='client'?'intake':'session';
+  a.href=URL.createObjectURL(blob);a.download=`spiritual_care_${tag}_${who}.json`;a.click();URL.revokeObjectURL(a.href);
+  markClean();
+}
+function loadSession(e){const file=e.target.files[0];if(!file)return;const r=new FileReader();
+  r.onload=()=>{try{const L=JSON.parse(r.result);Object.keys(data).forEach(k=>delete data[k]);Object.assign(data,L);
+    ['safety','triage','opp','inv','tests','ministry'].forEach(b=>data[b]=data[b]||{});
+    data.history=Array.isArray(data.history)?data.history:[];
+    // entering: a loaded client file goes into minister mode so the pastor can work from it
+    mode = (data.mode==='client') ? 'minister' : (data.mode||'minister');
+    data.mode=mode; cur=0;
+    document.getElementById('gate').style.display='none';
+    document.getElementById('app').style.display='block';
+    document.body.classList.toggle('client',false);
+    enterMode(mode); // sets headers
+    rehydrate();
+    renderHist();renderPriorMarks();markClean();
+    alert('Loaded. '+(L.mode==='client'?'Client intake answers are now in your Intake tab.':'Session restored.'));
+  }catch(err){alert('Could not read that file.');}};
+  r.readAsText(file);
+  e.target.value='';
+}
+function rehydrate(){
+  document.querySelectorAll('[data-k]').forEach(el=>{if(data[el.dataset.k]!=null)el.value=data[el.dataset.k];});
+  // map client intake fields into minister intake fields if present
+  if(data.c_reason&&!data.i_reason){const t=document.querySelector('[data-k="i_reason"]');if(t){t.value=data.c_reason;data.i_reason=data.c_reason;}}
+  if(data.c_family&&!data.i_family){const t=document.querySelector('[data-k="i_family"]');if(t){t.value=data.c_family;data.i_family=data.c_family;}}
+  if(data.c_pain&&!data.i_pain){const t=document.querySelector('[data-k="i_pain"]');if(t){t.value=data.c_pain;data.i_pain=data.c_pain;}}
+  if(data.c_joy&&!data.i_joy){const t=document.querySelector('[data-k="i_joy"]');if(t){t.value=data.c_joy;data.i_joy=data.c_joy;}}
+  if(data.c_faith&&!data.i_spirhist){const t=document.querySelector('[data-k="i_spirhist"]');if(t){t.value=data.c_faith;data.i_spirhist=data.c_faith;}}
+  if(data.c_close&&!data.i_consol){const t=document.querySelector('[data-k="i_consol"]');if(t){t.value=data.c_close;data.i_consol=data.c_close;}}
+  if(data.c_far&&!data.i_desol){const t=document.querySelector('[data-k="i_desol"]');if(t){t.value=data.c_far;data.i_desol=data.c_far;}}
+  if(data.c_name&&!data.p_name){const t=document.querySelector('[data-k="p_name"]');if(t){t.value=data.c_name;data.p_name=data.c_name;}}
+  document.querySelectorAll('[data-radio]').forEach(grp=>{const v=data[grp.dataset.radio];grp.querySelectorAll('input[type=radio]').forEach(rb=>{if(rb.value===v){rb.checked=true;rb.closest('.choice').classList.add('on');}});});
+  Object.keys(data.safety||{}).forEach(i=>{if(data.safety[i]){const b=document.querySelector(`#safe_${i} input`);if(b){b.checked=true;document.getElementById('safe_'+i).classList.add('on');}}});
+  Object.keys(data.triage||{}).forEach(i=>{if(data.triage[i]){const b=document.querySelector(`#tri_${i} input`);if(b){b.checked=true;document.getElementById('tri_'+i).classList.add('on');}}});
+  Object.keys(data.opp||{}).forEach(j=>{if(data.opp[j]){const box=document.querySelectorAll('#oppsub input')[j];if(box)box.checked=true;}});
+  Object.keys(data.inv||{}).forEach(cid=>Object.keys(data.inv[cid]).forEach(idx=>{const r=data.inv[cid][idx];const root=document.getElementById(`inv_${cid}_${idx}`);if(!root)return;if(r.on){root.querySelector('input[type=checkbox]').checked=true;root.classList.add('on');}const nt=root.querySelector('input[type=text]');if(nt&&r.note)nt.value=r.note;}));
+  Object.keys(data.tests||{}).forEach(id=>{const grp=document.getElementById('test_'+id);if(!grp)return;const map={pass:0,concern:1,fail:2};const b=grp.querySelectorAll('button')[map[data.tests[id]]];if(b)b.classList.add('sel');});
+  Object.keys(data.ministry||{}).forEach(id=>{if(data.ministry[id]){const el=document.getElementById('min_'+id);if(el){el.querySelector('input').checked=true;el.classList.add('on');}}});
+  updateNext();
+  GN.sel=null;GN.lens=null;GN.mode='ask';gnRender();
+}
+function clearAll(){if(!confirm('Clear all entries and start over? This also clears the course of care. Anything not saved will be lost.'))return;
+  Object.keys(data).forEach(k=>delete data[k]);['safety','triage','opp','inv','tests','ministry'].forEach(b=>data[b]={});data.history=[];data.mode=mode;
+  renderSafety();renderTriage();renderInv();renderTests();renderMinistry();renderHist();renderPriorMarks();GN.sel=null;GN.lens=null;GN.mode='ask';gnRender();markClean();
+  document.querySelectorAll('[data-k]').forEach(el=>el.value='');
+  document.querySelectorAll('[data-radio] .choice').forEach(c=>c.classList.remove('on'));
+  document.querySelectorAll('[data-radio] input[type=radio]').forEach(r=>r.checked=false);
+  document.querySelectorAll('.triad button').forEach(b=>b.classList.remove('sel'));
+  cur=0;showStep();
+}
+
+/* ============================== GENOGRAM ============================== */
+const GN_TAGS=[
+  {k:'faith',label:'Faith in Christ',short:'Faith',kind:'blessing'},
+  {k:'addiction',label:'Addiction',short:'Addiction',kind:'door',door:'Addiction in the family line'},
+  {k:'occult',label:'Occult or false religion',short:'Occult',kind:'door',door:'Occult in the family line'},
+  {k:'abuse',label:'Abuse or violence',short:'Abuse',kind:'door',door:'Abuse in the line (any kind)'},
+  {k:'sexual',label:'Sexual sin',short:'Sexual sin',kind:'door',door:'Sexual sin in the line'},
+  {k:'breakdown',label:'Divorce or abandonment',short:'Breakdown',kind:'door',door:'Divorce or family fracture'},
+  {k:'death',label:'Early death or accidents',short:'Early death',kind:'door',door:'Pattern of accidents, sickness, miscarriage, financial crises, or premature death'},
+  {k:'illness',label:'Chronic illness',short:'Illness',kind:'medical'},
+  {k:'mental',label:'Mental-health struggles',short:'Mental health',kind:'referral'}
+];
+const GN_TAG=Object.fromEntries(GN_TAGS.map(t=>[t.k,t]));
+const GN_RELS=[['','No line'],['close','Close'],['distant','Distant'],['conflict','Conflicted'],['cutoff','Cut off'],['abuse','Abusive']];
+const GN_STAT=[['married','Married'],['divorced','Divorced'],['separated','Separated'],['together','Together, not married']];
+const GN_GEN={'-4':'Great-great-grandparents','-3':'Great-grandparents','-2':'Grandparents','-1':'Parents','0':'Self and siblings','1':'Children','2':'Grandchildren','3':'Great-grandchildren'};
+const GR=18,GSP=100,GUG=26,GROWH=150,GMX=104;
+const GN={lens:null,showRel:false,sel:null,mode:'ask',confirmDel:false};
+const gq=s=>String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const gavg=a=>a.reduce((s,v)=>s+v,0)/a.length;
+const gtrunc=(s,n)=>s.length>n?s.slice(0,n-1)+'…':s;
+
+function gnAdd(o){const g=data.geno;const id='g'+(++g.seq);g.persons[id]=Object.assign({name:'',sex:'u',born:'',died:'',tags:[],rel:'',parents:null,ph:false,adopted:false,birthNote:''},o,{id});return g.persons[id];}
+function gnUnion(a,b,s){const g=data.geno;const id='gu'+(++g.seq);g.unions[id]={id,a,b,status:s||'married'};return g.unions[id];}
+function G(){
+  if(!data.geno||!data.geno.persons||!data.geno.focus||!data.geno.persons[data.geno.focus]){
+    data.geno={persons:{},unions:{},focus:null,seq:0,step:0,listen:''};
+    data.geno.focus=gnAdd({sex:'u'}).id;
+  }
+  return data.geno;
+}
+const gUnionsOf=id=>Object.values(G().unions).filter(u=>u.a===id||u.b===id);
+const gKids=uid=>Object.values(G().persons).filter(p=>p.parents===uid);
+function gName(p){if(p.id===G().focus)return p.name||data.p_name||'The person';return p.ph?'Unknown':(p.name||'Unnamed');}
+function gnParents(p,create){const g=G();if(p.parents&&g.unions[p.parents])return g.unions[p.parents];if(!create)return null;
+  const f=gnAdd({sex:'m',ph:true}),m=gnAdd({sex:'f',ph:true});const u=gnUnion(f.id,m.id,'married');p.parents=u.id;return u;}
+function gnSpouseUnion(p,create){const us=gUnionsOf(p.id);if(us.length)return us[0];if(!create)return null;
+  const s=gnAdd({sex:p.sex==='m'?'f':p.sex==='f'?'m':'u',ph:true});return gnUnion(p.id,s.id,'married');}
+
+/* generations, blood line, layout */
+function gnGens(){
+  const g=G(),gens={};gens[g.focus]=0;const q=[g.focus];
+  while(q.length){const id=q.shift(),p=g.persons[id],g0=gens[id];
+    if(p.parents&&g.unions[p.parents]){const u=g.unions[p.parents];[u.a,u.b].forEach(m=>{if(m&&g.persons[m]&&gens[m]===undefined){gens[m]=g0-1;q.push(m);}});}
+    gUnionsOf(id).forEach(u=>{const o=u.a===id?u.b:u.a;if(o&&g.persons[o]&&gens[o]===undefined){gens[o]=g0;q.push(o);}
+      gKids(u.id).forEach(k=>{if(gens[k.id]===undefined){gens[k.id]=g0+1;q.push(k.id);}});});}
+  return gens;
+}
+function gnBlood(){
+  const g=G(),anc=new Set(),blood=new Set();
+  const up=id=>{if(!id||anc.has(id)||!g.persons[id])return;anc.add(id);const p=g.persons[id];if(p.parents&&g.unions[p.parents]){const u=g.unions[p.parents];up(u.a);up(u.b);}};
+  const down=id=>{if(blood.has(id))return;blood.add(id);gUnionsOf(id).forEach(u=>gKids(u.id).forEach(k=>down(k.id)));};
+  up(g.focus);anc.forEach(down);return blood;
+}
+function gnPrune(){
+  const g=G(),gens=gnGens();
+  Object.keys(g.persons).forEach(id=>{if(gens[id]===undefined)delete g.persons[id];});
+  Object.values(g.unions).forEach(u=>{if(!g.persons[u.a]||!g.persons[u.b])delete g.unions[u.id];});
+  Object.values(g.persons).forEach(p=>{if(p.parents&&!g.unions[p.parents])p.parents=null;});
+}
+function gnLayout(){
+  const g=G(),P=g.persons,gens=gnGens();
+  const ids=Object.keys(P).filter(id=>gens[id]!==undefined);
+  const byGen={};ids.forEach(id=>{(byGen[gens[id]]=byGen[gens[id]]||[]).push(id);});
+  const keys=Object.keys(byGen).map(Number).sort((a,b)=>a-b);
+  const unitsBy={};
+  keys.forEach(k=>{const set=new Set(byGen[k]),seen=new Set(),units=[];
+    byGen[k].forEach(id=>{if(seen.has(id))return;const comp=[],st=[id];seen.add(id);
+      while(st.length){const c=st.pop();comp.push(c);gUnionsOf(c).forEach(u=>{const o=u.a===c?u.b:u.a;if(o&&set.has(o)&&!seen.has(o)){seen.add(o);st.push(o);}});}
+      const deg=x=>gUnionsOf(x).filter(u=>comp.includes(u.a===x?u.b:u.a)).length;
+      const start=comp.find(c=>deg(c)<=1)||comp[0],order=[],vis=new Set();
+      (function walk(c){vis.add(c);order.push(c);gUnionsOf(c).forEach(u=>{const o=u.a===c?u.b:u.a;if(comp.includes(o)&&!vis.has(o))walk(o);});})(start);
+      units.push({members:order,left:0});});
+    unitsBy[k]=units;});
+  const pos={};
+  keys.forEach(k=>{let x=0;unitsBy[k].forEach(u=>{u.left=x;u.members.forEach((m,i)=>pos[m]={x:x+i*GSP,y:0});x+=u.members.length*GSP+GUG;});});
+  const pMid=id=>{const p=P[id];if(!p.parents||!g.unions[p.parents])return null;const u=g.unions[p.parents];const xs=[u.a,u.b].filter(m=>pos[m]).map(m=>pos[m].x);return xs.length?gavg(xs):null;};
+  const kMid=u=>{const xs=gKids(u.id).filter(k=>pos[k.id]).map(k=>pos[k.id].x);return xs.length?gavg(xs):null;};
+  const bornOf=u=>Math.min(...u.members.map(m=>parseInt(P[m].born,10)||9999));
+  for(let it=0;it<48;it++){
+    (it%2?[...keys].reverse():keys).forEach(k=>{const units=unitsBy[k];
+      units.forEach(u=>{
+        const pr=u.members.map((m,i)=>[i,pMid(m)]).filter(p=>p[1]!==null);
+        if(pr.length>=2){const mi=gavg(pr.map(p=>p[0])),mk=gavg(pr.map(p=>p[1]));if(pr.reduce((a,p)=>a+(p[0]-mi)*(p[1]-mk),0)< -0.01)u.members.reverse();}
+        const vals=[];u.members.forEach(m=>{const v=pMid(m);if(v!==null)vals.push(v);});
+        const su=new Set();u.members.forEach(m=>gUnionsOf(m).forEach(un=>{if(su.has(un.id))return;su.add(un.id);const v=kMid(un);if(v!==null)vals.push(v);}));
+        const w=(u.members.length-1)*GSP;u.des=vals.length?gavg(vals):u.left+w/2;u.b=bornOf(u);});
+      units.sort((a,b)=>(a.des-b.des)||(a.b-b.b));
+      let cur=-1e9;units.forEach(u=>{const w=(u.members.length-1)*GSP;u.left=Math.max(u.des-w/2,cur);cur=u.left+w+GSP+GUG;});
+      const sh=gavg(units.map(u=>u.des-(u.left+(u.members.length-1)*GSP/2)));
+      units.forEach(u=>{u.left+=sh;u.members.forEach((m,i)=>{pos[m].x=u.left+i*GSP;});});});
+  }
+  let minX=Infinity,maxX=-Infinity;ids.forEach(id=>{minX=Math.min(minX,pos[id].x);maxX=Math.max(maxX,pos[id].x);});
+  const minG=keys[0];ids.forEach(id=>{pos[id].x=pos[id].x-minX+GMX;pos[id].y=(gens[id]-minG)*GROWH+44;});
+  return {pos,gens,keys,minG,width:Math.max(maxX-minX+GMX+70,360),height:(keys.length-1)*GROWH+44+GR+62};
+}
+
+/* patterns */
+function gnCarriers(k){
+  const g=G(),out=Object.values(g.persons).filter(p=>!p.ph&&p.tags.includes(k));
+  if(k==='breakdown')Object.values(g.unions).filter(u=>u.status==='divorced'||u.status==='separated').forEach(u=>[u.a,u.b].forEach(id=>{const p=g.persons[id];if(p&&!p.ph&&!out.includes(p))out.push(p);}));
+  return out;
+}
+function gnFindings(){
+  const g=G(),gens=gnGens(),blood=gnBlood();
+  const items=GN_TAGS.map(t=>{
+    const all=gnCarriers(t.k).filter(p=>gens[p.id]!==undefined);
+    const car=all.filter(p=>blood.has(p.id)),mar=all.filter(p=>!blood.has(p.id));
+    const gs=[...new Set(car.map(p=>gens[p.id]))].sort((a,b)=>a-b);
+    const skip=[];if(gs.length>=2)for(let x=gs[0]+1;x<gs[gs.length-1];x++)if(!gs.includes(x))skip.push(x);
+    const side=gs.filter(x=>car.filter(p=>gens[p.id]===x).length>=2);
+    return {t,car,mar,gs,skip,side};
+  }).filter(f=>f.car.length||f.mar.length).sort((a,b)=>b.gs.length-a.gs.length||b.car.length-a.car.length);
+  const adopted=Object.values(g.persons).filter(p=>p.adopted&&!p.ph);
+  return {items,adopted,gens};
+}
+function gnDoorIdx(name){const cat=CATS.find(c=>c.id==='generational');return cat.items.findIndex(it=>itext(it)===name);}
+function gnDoorMarked(name){const i=gnDoorIdx(name);return i>=0&&data.inv.generational&&data.inv.generational[i]&&data.inv.generational[i].on;}
+function gnMarkDoor(name,who){
+  const i=gnDoorIdx(name);if(i<0)return;const r=ensureInv('generational',i);r.on=true;
+  const add='Genogram: '+who;if(!(r.note||'').includes(add))r.note=r.note?r.note+'; '+add:add;
+  const root=document.getElementById('inv_generational_'+i);
+  if(root){root.classList.add('on');root.querySelector('input[type=checkbox]').checked=true;const nt=root.querySelector('input[type=text]');if(nt)nt.value=r.note;}
+  markDirty();gnFind();
+}
+function gnWho(list,gens){return list.map(p=>`${esc(gName(p))} <span style="opacity:.7">(${esc(GN_GEN[gens[p.id]]||'')})</span>`).join(', ');}
+function gnPatternLine(f){
+  const bits=[];if(f.gs.length)bits.push(f.gs.length+' generation'+(f.gs.length>1?'s':''));
+  if(f.skip.length)bits.push('skips '+f.skip.map(x=>(GN_GEN[x]||'').toLowerCase()).join(', '));
+  if(f.side.length)bits.push('sideways in '+f.side.map(x=>(GN_GEN[x]||'').toLowerCase()).join(', '));
+  return bits.join('; ');
+}
+function gnGuide(f){
+  const rec=f.gs.length>=2;
+  if(f.t.kind==='referral')return 'Mental-health history is medical information first, not a door. Note it for the person\'s doctor and consider a referral before drawing any spiritual conclusion.';
+  if(f.t.kind==='medical')return 'Physical illness in a family is medical history first; make sure the person\'s doctor knows it. We also pray for healing (Jas 5:14-15), alongside medical care and never instead of it.';
+  if(f.t.kind==='blessing')return rec?'A godly heritage across generations (Ex 20:6; 2 Tim 1:5). Name it with the person and give thanks; it is something to build on.':'Faith in the family is a strength to name and build on.';
+  if(!f.car.length)return 'Only in people who married into the family, so it is not counted in this person\'s line.';
+  return rec?'Repeating across generations. If it fits what you have heard, mark the matching Generational Door.':'Seen in one generation only. Note it, but it is not yet a generational pattern.';
+}
+function gnFind(){
+  const el=document.getElementById('gnFind');if(!el)return;
+  const F=gnFindings(),gens=F.gens;let h='<h3>What the genogram shows</h3>';
+  if(!F.items.length&&!F.adopted.length)h+='<p class="empty">Mark patterns on family members and they will be gathered here, generation by generation.</p>';
+  F.items.forEach(f=>{
+    const rec=f.gs.length>=2,bless=f.t.kind==='blessing';
+    const badge=f.gs.length?`<span class="gn-badge ${rec?(bless?'bless':'rec'):''}">${esc(gnPatternLine(f))}</span>`:'';
+    let guide=`<span>${gnGuide(f)}</span>`;
+    if(f.t.kind==='door'&&rec){guide+=gnDoorMarked(f.t.door)?`<span class="gn-sub" style="color:var(--accent)">Marked on Doors tab: ${esc(f.t.door)}</span>`:`<button type="button" class="mini" data-gdoor="${f.t.k}">Mark on Doors tab: ${esc(f.t.door)}</button>`;}
+    if(f.mar.length)guide+=`<span class="gn-who">By marriage, not counted in this line: ${gnWho(f.mar,gens)}. This is part of their children's line.</span>`;
+    h+=`<div class="gn-fi"><span class="gn-fdot" style="background:var(--t-${f.t.k})"></span><div><div class="gn-fhead">${esc(f.t.label)}${badge}</div><div class="gn-who">${f.car.length?gnWho(f.car,gens):''}</div></div><div class="gn-guide">${guide}</div></div>`;
+  });
+  F.adopted.forEach(p=>{h+=`<div class="gn-fi"><span class="gn-fdot" style="background:var(--ink-soft)"></span><div><div class="gn-fhead">${esc(gName(p))} is adopted</div><div class="gn-who">The diagram shows the adoptive family. ${p.birthNote?'Known of the birth family: '+esc(p.birthNote):'Record anything known of the birth family on this person.'}</div></div></div>`;});
+  h+='<div class="gn-caution">Guilt is not inherited: each person answers for their own sin (Ezek 18:20). The effects of a pattern can carry on where it is repeated, yet God\'s love reaches a thousand generations (Ex 20:5-6), and Christ became a curse for us (Gal 3:13). This is not about judging family members; it is about the pattern ending here.</div>';
+  el.innerHTML=h;
+}
+
+/* drawing */
+function gnRel(a,b,type,uid){
+  const dx=b.x-a.x,dy=b.y-a.y,len=Math.hypot(dx,dy);if(len<2*GR+10)return '';
+  let px=-dy/len,py=dx/len;if(py>0.001||(Math.abs(py)<=0.001&&px>0)){px=-px;py=-py;}
+  const k=Math.abs(dy)<1?0.32:0.16,cx=(a.x+b.x)/2+px*len*k,cy=(a.y+b.y)/2+py*len*k;
+  const Q=t=>{const u=1-t;return {x:u*u*a.x+2*u*t*cx+t*t*b.x,y:u*u*a.y+2*u*t*cy+t*t*b.y,tx:2*u*(cx-a.x)+2*t*(b.x-cx),ty:2*u*(cy-a.y)+2*t*(b.y-cy)};};
+  const t0=Math.min(.45,(GR+8)/len),t1=1-t0;
+  const pts=(ta,tb,n,off)=>{const o=[];for(let i=0;i<=n;i++){const q=Q(ta+(tb-ta)*i/n),l=Math.hypot(q.tx,q.ty)||1,nx=-q.ty/l,ny=q.tx/l,f=typeof off==='function'?off(i,n):off;o.push([q.x+nx*f,q.y+ny*f,nx,ny]);}return o;};
+  const path=ps=>'M'+ps.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join(' L');
+  const c=`var(--r-${type})`,arc=len*(1+k);
+  if(type==='close')return `<path d="${path(pts(t0,t1,28,2.5))} ${path(pts(t0,t1,28,-2.5))}" style="stroke:${c};stroke-width:1.6;fill:none" opacity=".85"/>`;
+  if(type==='distant')return `<path d="${path(pts(t0,t1,28,0))}" style="stroke:${c};stroke-width:1.6;fill:none;stroke-dasharray:2 5"/>`;
+  if(type==='conflict'||type==='abuse'){const ab=type==='abuse',n=Math.max(6,Math.round(arc/(ab?8:9))),amp=ab?4.5:4;
+    return `<path d="${path(pts(t0,t1,n,(i,m)=>i===0||i===m?0:(i%2?amp:-amp)))}" style="stroke:${c};stroke-width:${ab?1.8:1.5};fill:none"${ab?` marker-end="url(#gnarr-${uid})"`:''}/>`;}
+  if(type==='cutoff'){const gp=Math.min(.06,9/arc),s1=pts(t0,.5-gp,14,0),s2=pts(.5+gp,t1,14,0);
+    const bar=p=>`M${(p[0]+p[2]*6).toFixed(1)},${(p[1]+p[3]*6).toFixed(1)} L${(p[0]-p[2]*6).toFixed(1)},${(p[1]-p[3]*6).toFixed(1)}`;
+    return `<path d="${path(s1)} ${path(s2)} ${bar(s1[s1.length-1])} ${bar(s2[0])}" style="stroke:${c};stroke-width:1.6;fill:none"/>`;}
+  return '';
+}
+function gnShapeSVG(sex,x,y,r,cls,extra){
+  if(sex==='m')return `<rect x="${x-r}" y="${y-r}" width="${2*r}" height="${2*r}" class="${cls}" ${extra||''}/>`;
+  if(sex==='f')return `<circle cx="${x}" cy="${y}" r="${r}" class="${cls}" ${extra||''}/>`;
+  const q=r*1.15;return `<polygon points="${x},${y-q} ${x+q},${y} ${x},${y+q} ${x-q},${y}" class="${cls}" ${extra||''}/>`;
+}
+function gnSVG(o){
+  const g=G(),L=gnLayout(),pos=L.pos,uid=o.uid||'live';let s='';
+  const lensSet=o.lens?new Set(gnCarriers(o.lens).map(p=>p.id)):null;
+  s+=`<defs><marker id="gnarr-${uid}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" style="fill:var(--r-abuse)"/></marker></defs>`;
+  L.keys.forEach(k=>{s+=`<text x="8" y="${(k-L.minG)*GROWH+44-GR-12}" class="gn-gen">${esc(GN_GEN[k]||'')}</text>`;});
+  Object.values(g.unions).forEach(u=>{
+    const pa=pos[u.a],pb=pos[u.b];if(!pa||!pb)return;
+    const yl=Math.max(pa.y,pb.y)+GR+46,mid=(pa.x+pb.x)/2;
+    s+=`<path d="M${pa.x},${pa.y+GR} V${yl} H${pb.x} V${pb.y+GR}" class="gn-line${u.status==='together'?' gn-dash':''}"/>`;
+    const sl=d=>`<path d="M${mid+d-4},${yl+7} L${mid+d+4},${yl-7}" class="gn-line"/>`;
+    if(u.status==='divorced')s+=sl(-4)+sl(4);else if(u.status==='separated')s+=sl(0);
+    const ks=gKids(u.id).filter(k=>pos[k.id]);
+    if(ks.length){const ky=pos[ks[0].id].y,sy=ky-GR-22,xs=ks.map(k=>pos[k.id].x),lo=Math.min(...xs,mid),hi=Math.max(...xs,mid);
+      s+=`<path d="M${mid},${yl} V${sy} M${lo},${sy} H${hi}" class="gn-line"/>`;
+      ks.forEach(k=>{s+=`<path d="M${pos[k.id].x},${sy} V${ky-GR-(k.adopted?8:0)}" class="gn-line${k.adopted?' gn-dash':''}"/>`;});}
+  });
+  if(o.showRel&&pos[g.focus])Object.values(g.persons).forEach(p=>{if(p.id===g.focus||!p.rel||p.ph||!pos[p.id])return;
+    const a=p.rel==='abuse'?pos[p.id]:pos[g.focus],b=p.rel==='abuse'?pos[g.focus]:pos[p.id];
+    s+=`<g opacity="${lensSet?.25:1}">${gnRel(a,b,p.rel,uid)}</g>`;});
+  Object.values(g.persons).forEach(p=>{
+    const q=pos[p.id];if(!q)return;const {x,y}=q;
+    const on=lensSet&&lensSet.has(p.id),fade=lensSet&&!on;
+    let n=`<g class="gn-node${o.clickable?' click':''}" data-gid="${p.id}" opacity="${fade?.3:1}"${o.clickable?` tabindex="0" role="button" aria-label="Edit ${gq(gName(p))}"`:''}>`;
+    if(o.clickable)n+=`<rect x="${x-44}" y="${y-GR-8}" width="88" height="${2*GR+52}" style="fill:transparent;stroke:none"/>`;
+    if(p.id===g.focus)n+=gnShapeSVG(p.sex,x,y,GR+5,'gn-focus');
+    n+=gnShapeSVG(p.sex,x,y,GR,'gn-shape'+(p.ph?' gn-ph':''));
+    if(on)n+=gnShapeSVG(p.sex,x,y,GR,'',`style="fill:var(--t-${o.lens});fill-opacity:.32;stroke:var(--t-${o.lens});stroke-width:2.6"`);
+    if(p.adopted){const b=GR+7;n+=`<path d="M${x-b+5},${y-b} H${x-b} V${y+b} H${x-b+5} M${x+b-5},${y-b} H${x+b} V${y+b} H${x+b-5}" class="gn-line"/>`;}
+    if(p.ph)n+=`<text x="${x}" y="${y+4.5}" class="gn-q">?</text>`;
+    if(p.died&&!p.ph){const d=GR*.72;n+=`<path d="M${x-d},${y-d} L${x+d},${y+d} M${x+d},${y-d} L${x-d},${y+d}" class="gn-x"/>`;}
+    if(o.sel===p.id)n+=gnShapeSVG(p.sex,x,y,GR+10,'gn-sel');
+    n+=`<text x="${x}" y="${y+GR+15}" class="gn-name">${esc(gtrunc(gName(p),14))}</text>`;
+    const yrs=p.born&&p.died?`${p.born}-${p.died}`:p.born?`b. ${p.born}`:p.died?`d. ${p.died}`:'';
+    if(yrs)n+=`<text x="${x}" y="${y+GR+27}" class="gn-yrs">${esc(yrs)}</text>`;
+    const tg=p.tags.filter(t=>GN_TAG[t]);if(tg.length){const w=(tg.length-1)*9;tg.forEach((t,i)=>{n+=`<circle cx="${x-w/2+i*9}" cy="${y+GR+37}" r="3.6" style="fill:var(--t-${t})"/>`;});}
+    s+=n+'</g>';
+  });
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${L.width}" height="${L.height}" viewBox="0 0 ${L.width} ${L.height}" role="img" aria-label="Family genogram">${s}</svg>`;
+}
+function gnLegend(){
+  const sw=i=>`<svg width="30" height="20" viewBox="0 0 30 20" aria-hidden="true">${i}</svg>`;
+  const zig=(x1,x2,a,st)=>{let d=`M${x1},10`;const n=Math.floor((x2-x1)/st);for(let i=1;i<n;i++)d+=` L${x1+(x2-x1)*i/n},${10+(i%2?a:-a)}`;return d+` L${x2},10`;};
+  const L=(d,st)=>`<path d="${d}" style="fill:none;${st}"/>`;
+  return [
+    `<span>${sw('<rect x="8" y="3" width="14" height="14" class="gn-shape"/>')}Man</span>`,
+    `<span>${sw('<circle cx="15" cy="10" r="7" class="gn-shape"/>')}Woman</span>`,
+    `<span>${sw('<rect x="8" y="3" width="14" height="14" class="gn-shape"/><path d="M10,5 L20,15 M20,5 L10,15" class="gn-x"/>')}Deceased</span>`,
+    `<span>${sw('<rect x="5" y="0" width="20" height="20" class="gn-focus"/><rect x="8" y="3" width="14" height="14" class="gn-shape"/>')}Person receiving care</span>`,
+    `<span>${sw('<rect x="9" y="4" width="12" height="12" class="gn-shape"/><path d="M8,2 H5 V18 H8 M22,2 H25 V18 H22" class="gn-line"/>')}Adopted</span>`,
+    `<span>${sw('<rect x="8" y="3" width="14" height="14" class="gn-shape gn-ph"/>')}Unknown</span>`,
+    `<span>${sw('<path d="M2,10 H28" class="gn-line"/>')}Married</span>`,
+    `<span>${sw('<path d="M2,10 H28 M9,16 L15,4 M15,16 L21,4" class="gn-line"/>')}Divorced</span>`,
+    `<span>${sw('<path d="M2,10 H28 M12,16 L18,4" class="gn-line"/>')}Separated</span>`,
+    `<span>${sw('<path d="M2,10 H28" class="gn-line gn-dash"/>')}Together, not married</span>`,
+    `<span>${sw(L('M2,7 H28 M2,12 H28','stroke:var(--r-close);stroke-width:1.6'))}Close</span>`,
+    `<span>${sw(L('M2,10 H28','stroke:var(--r-distant);stroke-width:1.6;stroke-dasharray:2 5'))}Distant</span>`,
+    `<span>${sw(L(zig(2,28,3.5,6),'stroke:var(--r-conflict);stroke-width:1.5'))}Conflicted</span>`,
+    `<span>${sw(L('M2,10 H11 M19,10 H28 M11,4 V16 M19,4 V16','stroke:var(--r-cutoff);stroke-width:1.6'))}Cut off</span>`,
+    `<span>${sw(L(zig(2,24,3.5,5)+' M22,6 L28,10 L22,14','stroke:var(--r-abuse);stroke-width:1.7'))}Abusive</span>`
+  ].join('');
+}
+function gnLens(){
+  document.getElementById('gnLens').innerHTML=`<span class="gn-ll">Pattern lens</span><button type="button" class="gn-chip${!GN.lens?' on':''}" data-glens="" aria-pressed="${!GN.lens}">All</button>`+
+    GN_TAGS.map(t=>`<button type="button" class="gn-chip${GN.lens===t.k?' on':''}" data-glens="${t.k}" aria-pressed="${GN.lens===t.k}" title="${gq(t.label)}"><i style="background:var(--t-${t.k})"></i>${t.short}</button>`).join('')+
+    `<label class="gn-reltog"><input type="checkbox" data-greltog${GN.showRel?' checked':''}> Relationship lines</label>`;
+}
+function gnDraw(){
+  const el=document.getElementById('gnSvg');if(!el)return;
+  if(GN.sel&&!G().persons[GN.sel])GN.sel=null;
+  el.innerHTML=gnSVG({lens:GN.lens,showRel:GN.showRel,sel:GN.sel,clickable:true,uid:'live'});
+  gnLens();gnFind();
+}
+
+/* editor panel */
+const gOpts=(list,v)=>list.map(([k,l])=>`<option value="${k}"${k===v?' selected':''}>${esc(l)}</option>`).join('');
+function gChips(p){return `<div class="gn-chips">${GN_TAGS.map(t=>{const on=p.tags.includes(t.k);return `<button type="button" class="gn-tchip${on?' on':''}" data-gp="${p.id}" data-gtag="${t.k}" aria-pressed="${on}" style="${on?`color:var(--t-${t.k})`:''}"><i style="background:var(--t-${t.k})"></i>${t.short}</button>`;}).join('')}</div>`;}
+function gField(p,f,label,o){o=o||{};return `<label class="fld${o.full?' full':''}"><span class="lab">${label}</span><input type="text" id="gn-${f}-${p.id}" data-gp="${p.id}" data-gf="${f}" value="${gq(p[f])}"${o.ph?` placeholder="${gq(o.ph)}"`:''}${o.max?` maxlength="${o.max}" inputmode="numeric"`:''}></label>`;}
+function gRelSel(p){return `<label class="fld full"><span class="lab">Relationship with ${esc(gName(G().persons[G().focus]))}</span><select id="gn-rel-${p.id}" data-gp="${p.id}" data-gf="rel">${gOpts(GN_RELS,p.rel)}</select></label>`;}
+function gBlock(p,o){o=o||{};
+  return `<div class="gn-pblock">${o.title?`<h4>${esc(o.title)}</h4>`:''}<div class="gn-pgrid">${gField(p,'name','Name',{full:true})}${gField(p,'born','Year born',{max:4})}${o.noDied?'':gField(p,'died','Year died, if deceased',{max:4})}${o.noRel?'':gRelSel(p)}</div><div class="gn-sub">Any of these in their life?</div>${gChips(p)}</div>`;}
+function gList(people,labels,more){
+  let h=people.map(p=>`<div class="gn-pblock"><div class="gn-row">
+    <input class="gn-rname" type="text" id="gn-name-${p.id}" data-gp="${p.id}" data-gf="name" value="${gq(p.name)}" placeholder="Name" aria-label="Name">
+    <select id="gn-sex-${p.id}" data-gp="${p.id}" data-gf="sex" aria-label="Sex">${gOpts([['m',labels[0]],['f',labels[1]]],p.sex)}</select>
+    <input type="text" id="gn-born-${p.id}" data-gp="${p.id}" data-gf="born" value="${gq(p.born)}" placeholder="Born" maxlength="4" inputmode="numeric" aria-label="Year born">
+    <button type="button" class="gn-x-btn" data-gdel="${p.id}" aria-label="Remove ${gq(p.name||'person')}">×</button>
+    <label class="gn-check wide"><input type="checkbox" data-gp="${p.id}" data-gf="adopted"${p.adopted?' checked':''}> Adopted</label>
+    ${more?`<div class="wide">${gRelSel(p)}</div><div class="wide">${gChips(p)}</div>`:''}
+  </div></div>`).join('');
+  if(!people.length)h+='<p class="empty" style="margin:0">None added yet.</p>';
+  return h;
+}
+const GN_STEPS=[
+  {t:'The person',ask:()=>"Let's draw your family. Start with you: your name, and the year you were born.",render(){const p=G().persons[G().focus];
+    return `<div class="gn-radios"><label><input type="radio" name="gn-sex" data-gp="${p.id}" data-gf="sex" value="m"${p.sex==='m'?' checked':''}> Man</label><label><input type="radio" name="gn-sex" data-gp="${p.id}" data-gf="sex" value="f"${p.sex==='f'?' checked':''}> Woman</label></div>
+    <div class="gn-pblock"><div class="gn-pgrid">${gField(p,'name','Name',{full:true,ph:data.p_name||''})}${gField(p,'born','Year born',{max:4})}<label class="gn-check" style="align-self:end"><input type="checkbox" data-gp="${p.id}" data-gf="adopted"${p.adopted?' checked':''}> Adopted</label></div><div class="gn-sub">Any of these in their own life?</div>${gChips(p)}</div>`;}},
+  {t:'Marriage',ask:()=>'Are you married, or have you been married or lived with someone?',render(){const p=G().persons[G().focus],us=gUnionsOf(p.id);
+    if(!us.length)return `<p class="empty" style="margin:0">No partner recorded.</p><div class="gn-btns"><button type="button" class="btn ghost" data-gadd="spouse">Add a spouse or partner</button></div>`;
+    return us.map(u=>{const o=G().persons[u.a===p.id?u.b:u.a];return `<label class="fld"><span class="lab">Status</span><select id="gn-u-${u.id}" data-gu="${u.id}">${gOpts(GN_STAT,u.status)}</select></label>${gBlock(o,{noDied:false})}`;}).join('')+`<div class="gn-btns"><button type="button" class="btn ghost" data-gadd="spouse2">Add another partner</button></div>`;}},
+  {t:'Children',ask:()=>'Do you have any children? Tell me their names, oldest first.',render(){const p=G().persons[G().focus];const kids=[].concat(...gUnionsOf(p.id).map(u=>gKids(u.id)));
+    return gList(kids,['Son','Daughter'],false)+`<div class="gn-btns"><button type="button" class="btn ghost" data-gadd="son">Add a son</button><button type="button" class="btn ghost" data-gadd="daughter">Add a daughter</button></div>`;}},
+  {t:'Brothers and sisters',ask:()=>'Tell me about your brothers and sisters, oldest to youngest. How do you get along with each one?',render(){const p=G().persons[G().focus];const sibs=p.parents?gKids(p.parents).filter(k=>k.id!==p.id):[];
+    return gList(sibs,['Brother','Sister'],true)+`<div class="gn-btns"><button type="button" class="btn ghost" data-gadd="brother">Add a brother</button><button type="button" class="btn ghost" data-gadd="sister">Add a sister</button></div>`;}},
+  {t:'Father',ask:()=>'Tell me about your father. What was he like when you were growing up? Is he still living?',render(){const u=gnParents(G().persons[G().focus],true);return gBlock(G().persons[u.a]);}},
+  {t:'Mother',ask:()=>'Tell me about your mother. What was she like? Were your parents married, and are they still together?',render(){const u=gnParents(G().persons[G().focus],true);
+    return gBlock(G().persons[u.b])+`<label class="fld"><span class="lab">Your parents</span><select id="gn-u-${u.id}" data-gu="${u.id}">${gOpts(GN_STAT,u.status)}</select></label>`;}},
+  {t:"Father's parents",ask:()=>"What do you know about your father's parents? Even a little helps.",render(){const f=G().persons[gnParents(G().persons[G().focus],true).a];const u=gnParents(f,true);
+    return gBlock(G().persons[u.a],{title:'Grandfather'})+gBlock(G().persons[u.b],{title:'Grandmother'})+`<label class="fld"><span class="lab">They were</span><select id="gn-u-${u.id}" data-gu="${u.id}">${gOpts(GN_STAT,u.status)}</select></label>`;}},
+  {t:"Mother's parents",ask:()=>"And your mother's parents?",render(){const m=G().persons[gnParents(G().persons[G().focus],true).b];const u=gnParents(m,true);
+    return gBlock(G().persons[u.a],{title:'Grandfather'})+gBlock(G().persons[u.b],{title:'Grandmother'})+`<label class="fld"><span class="lab">They were</span><select id="gn-u-${u.id}" data-gu="${u.id}">${gOpts(GN_STAT,u.status)}</select></label>`;}},
+  {t:'Pause and listen',ask:()=>'Holy Spirit, is there anything in this family You want to show us?',render(){
+    return `<p style="margin:0">Before praying over anything on this page, stop and listen together. Ask the Spirit to bring to mind anything not yet written here, or long forgotten.</p>
+    <label class="fld"><span class="lab">What came to mind in listening prayer</span><textarea id="gn-listen" data-glisten>${esc(G().listen||'')}</textarea></label>
+    <div class="gn-sub">Then ask, slowly</div><ol class="steps" style="margin:0">
+      <li>When you look at your family laid out like this, what stands out to you?</li>
+      <li>Is there anything here that has been handed down that you want to end with you?</li>
+      <li>Where do you see God's faithfulness in your family line?</li>
+      <li>Is there anyone on this page you need to forgive, or to bless?</li></ol>
+    <div class="guard" style="margin:0"><b>Remember</b>This is not about judging family members. It is about the pattern ending here, so that this person and their children do not walk in it.</div>`;}}
+];
+function gnPanel(){
+  const el=document.getElementById('gnPanel');if(!el)return;const g=G();
+  document.querySelectorAll('[data-gmode]').forEach(b=>{const on=b.dataset.gmode===GN.mode;b.classList.toggle('on',on);b.setAttribute('aria-selected',on);});
+  if(GN.mode==='ask'){
+    const n=GN_STEPS.length;g.step=Math.max(0,Math.min(n-1,g.step||0));const st=GN_STEPS[g.step];
+    el.innerHTML=`<div class="gn-prog">Question ${g.step+1} of ${n} &middot; ${esc(st.t)}</div><div class="gn-bar"><i style="width:${(g.step+1)/n*100}%"></i></div>
+      <p class="askline" style="margin:0">${esc(st.ask())}</p>${st.render()}
+      <div class="gn-nav"><button type="button" class="btn ghost" data-gnav="-1"${g.step===0?' disabled':''}>Back</button><button type="button" class="btn" data-gnav="1"${g.step===n-1?' disabled':''}>Next question</button></div>`;
+    gnDraw();return;
+  }
+  const p=g.persons[GN.sel];
+  if(!p){el.innerHTML='<p class="empty" style="margin:0">Tap anyone on the diagram to edit them, or to add their parents, partner, children, or siblings. Use this for relatives the guided questions do not cover: great-grandparents, aunts and uncles, cousins, remarriages.</p>';return;}
+  const isF=p.id===g.focus,us=gUnionsOf(p.id);
+  let h=`<div class="gn-sub">${isF?'The person receiving care':'Edit a person'}</div>
+    <div class="gn-pgrid">${gField(p,'name','Name',{full:true,ph:isF?(data.p_name||''):'Type a name'})}${gField(p,'born','Year born',{max:4})}${gField(p,'died','Year died',{max:4})}
+    <label class="fld"><span class="lab">Sex</span><select id="gn-esex-${p.id}" data-gp="${p.id}" data-gf="sex">${gOpts([['m','Man'],['f','Woman'],['u','Unknown']],p.sex)}</select></label>
+    <label class="gn-check" style="align-self:end"><input type="checkbox" data-gp="${p.id}" data-gf="adopted"${p.adopted?' checked':''}> Adopted</label>
+    ${isF?'':gRelSel(p)}</div>
+    ${p.adopted?`<label class="fld"><span class="lab">What is known of the birth family</span><textarea id="gn-bn-${p.id}" data-gp="${p.id}" data-gf="birthNote">${esc(p.birthNote)}</textarea></label>`:''}
+    <div class="gn-sub">Patterns in this person's life</div>${gChips(p)}
+    <div class="gn-sub">Add a relative</div><div class="gn-btns">
+      ${p.parents?'':'<button type="button" class="btn ghost" data-gact="parents">Parents</button>'}
+      <button type="button" class="btn ghost" data-gact="partner">Partner</button>
+      ${us.length?'':'<button type="button" class="btn ghost" data-gact="child-m">Son</button><button type="button" class="btn ghost" data-gact="child-f">Daughter</button>'}
+      <button type="button" class="btn ghost" data-gact="sib-m">Brother</button><button type="button" class="btn ghost" data-gact="sib-f">Sister</button></div>`;
+  if(us.length){h+='<div class="gn-sub">Partnerships</div>';us.forEach(u=>{const o=g.persons[u.a===p.id?u.b:u.a];
+    h+=`<div class="gn-union"><span>With <b>${esc(o.ph?'unknown partner':gName(o))}</b></span><select id="gn-eu-${u.id}" data-gu="${u.id}" aria-label="Status">${gOpts(GN_STAT,u.status)}</select><div class="gn-btns"><button type="button" class="btn ghost" data-gact="kid-m" data-guid="${u.id}">Add son</button><button type="button" class="btn ghost" data-gact="kid-f" data-guid="${u.id}">Add daughter</button></div></div>`;});}
+  h+=`<div class="gn-btns">${isF?'':'<button type="button" class="btn ghost" data-gact="del" style="color:var(--flag);border-color:var(--flag)">Remove</button>'}<button type="button" class="btn ghost" data-gact="done">Done</button></div>`;
+  if(GN.confirmDel)h+=`<div class="gn-confirm">Remove ${esc(gName(p))}? If they have children on the diagram they become "Unknown" so the family stays connected.<div class="gn-btns"><button type="button" class="btn" data-gact="del-yes">Remove</button><button type="button" class="btn ghost" data-gact="del-no">Keep</button></div></div>`;
+  el.innerHTML=h;
+}
+function gnRemove(id){
+  const g=G();if(id===g.focus)return;const p=g.persons[id];if(!p)return;
+  if(gUnionsOf(id).some(u=>gKids(u.id).length))Object.assign(p,{name:'',born:'',died:'',tags:[],rel:'',ph:true,adopted:false,birthNote:''});
+  else{gUnionsOf(id).forEach(u=>{delete g.unions[u.id];});delete g.persons[id];}
+  gnPrune();
+}
+function gnRender(){G();gnPanel();gnDraw();}
+function gnInit(){
+  const leg=document.getElementById('gnLegend');if(leg)leg.innerHTML=gnLegend();
+  const svgEl=document.getElementById('gnSvg'),panel=document.getElementById('gnPanel');
+  const pick=id=>{GN.sel=id;GN.mode='edit';GN.confirmDel=false;gnPanel();gnDraw();};
+  svgEl.addEventListener('click',e=>{const n=e.target.closest('.gn-node');if(n)pick(n.dataset.gid);});
+  svgEl.addEventListener('keydown',e=>{const n=e.target.closest('.gn-node');if(n&&(e.key==='Enter'||e.key===' ')){e.preventDefault();pick(n.dataset.gid);const a=document.querySelector(`#gnSvg .gn-node[data-gid="${n.dataset.gid}"]`);if(a)a.focus();}});
+  document.getElementById('gnLens').addEventListener('click',e=>{const b=e.target.closest('[data-glens]');if(b){GN.lens=b.dataset.glens||null;gnDraw();}});
+  document.getElementById('gnLens').addEventListener('change',e=>{if(e.target.matches('[data-greltog]')){GN.showRel=e.target.checked;gnDraw();}});
+  document.querySelectorAll('[data-gmode]').forEach(b=>b.addEventListener('click',()=>{GN.mode=b.dataset.gmode;GN.confirmDel=false;gnPanel();gnDraw();}));
+  document.getElementById('gnFind').addEventListener('click',e=>{const b=e.target.closest('[data-gdoor]');if(!b)return;const t=GN_TAG[b.dataset.gdoor];const f=gnFindings();const it=f.items.find(x=>x.t.k===t.k);
+    gnMarkDoor(t.door,it?it.car.map(p=>gName(p)).join(', '):'');});
+  const onField=e=>{const el=e.target;
+    if(el.dataset.gp&&el.dataset.gf){const p=G().persons[el.dataset.gp];if(!p)return;const f=el.dataset.gf;
+      p[f]=el.type==='checkbox'?el.checked:el.value;if(['name','born','died'].includes(f)&&String(p[f]).trim())p.ph=false;
+      markDirty();gnDraw();if(f==='adopted'&&GN.mode==='edit')gnPanel();return;}
+    if(el.dataset.gu){const u=G().unions[el.dataset.gu];if(u){u.status=el.value;markDirty();gnDraw();}return;}
+    if(el.matches('[data-glisten]')){G().listen=el.value;markDirty();}
+  };
+  panel.addEventListener('input',e=>{if(e.target.type!=='checkbox'&&e.target.type!=='radio'&&e.target.tagName!=='SELECT')onField(e);});
+  panel.addEventListener('change',e=>{if(e.target.type==='checkbox'||e.target.type==='radio'||e.target.tagName==='SELECT')onField(e);});
+  panel.addEventListener('click',e=>{
+    const g=G();
+    const chip=e.target.closest('[data-gtag]');if(chip){const p=g.persons[chip.dataset.gp];const k=chip.dataset.gtag;const on=!p.tags.includes(k);p.tags=on?[...p.tags,k]:p.tags.filter(t=>t!==k);if(on)p.ph=false;
+      chip.classList.toggle('on',on);chip.setAttribute('aria-pressed',on);chip.style.color=on?`var(--t-${k})`:'';markDirty();gnDraw();return;}
+    const nav=e.target.closest('[data-gnav]');if(nav){g.step=(g.step||0)+(+nav.dataset.gnav);gnPanel();const a=panel.querySelector('input[type=text]');if(a)a.focus({preventScroll:true});return;}
+    const add=e.target.closest('[data-gadd]');if(add){const f=g.persons[g.focus];const k=add.dataset.gadd;let np=null;
+      if(k==='spouse')gnSpouseUnion(f,true);
+      else if(k==='spouse2'){const s=gnAdd({sex:f.sex==='m'?'f':f.sex==='f'?'m':'u',ph:true});gnUnion(f.id,s.id,'married');}
+      else if(k==='son'||k==='daughter'){const u=gnSpouseUnion(f,true);const us=gUnionsOf(f.id);np=gnAdd({sex:k==='son'?'m':'f',ph:true,parents:(us[us.length-1]||u).id});}
+      else if(k==='brother'||k==='sister'){const u=gnParents(f,true);np=gnAdd({sex:k==='brother'?'m':'f',ph:true,parents:u.id});}
+      markDirty();gnPanel();if(np){const i=document.getElementById('gn-name-'+np.id);if(i)i.focus();}return;}
+    const del=e.target.closest('[data-gdel]');if(del){gnRemove(del.dataset.gdel);markDirty();gnPanel();return;}
+    const b=e.target.closest('[data-gact]');if(!b)return;const p=g.persons[GN.sel];if(!p)return;const act=b.dataset.gact;let pickId=null;
+    if(act==='parents'){pickId=gnParents(p,true).a;}
+    else if(act==='partner'){const n=gnAdd({sex:p.sex==='f'?'m':p.sex==='m'?'f':'u',ph:true});gnUnion(p.id,n.id,'married');pickId=n.id;}
+    else if(act==='child-m'||act==='child-f'){const u=gnSpouseUnion(p,true);pickId=gnAdd({sex:act==='child-m'?'m':'f',ph:true,parents:u.id}).id;}
+    else if(act==='kid-m'||act==='kid-f'){pickId=gnAdd({sex:act==='kid-m'?'m':'f',ph:true,parents:b.dataset.guid}).id;}
+    else if(act==='sib-m'||act==='sib-f'){const u=gnParents(p,true);pickId=gnAdd({sex:act==='sib-m'?'m':'f',ph:true,parents:u.id}).id;}
+    else if(act==='done'){GN.sel=null;GN.confirmDel=false;gnPanel();gnDraw();return;}
+    else if(act==='del'){GN.confirmDel=true;gnPanel();return;}
+    else if(act==='del-no'){GN.confirmDel=false;gnPanel();return;}
+    else if(act==='del-yes'){gnRemove(p.id);GN.sel=null;GN.confirmDel=false;markDirty();gnPanel();gnDraw();return;}
+    markDirty();GN.sel=pickId;GN.confirmDel=false;gnPanel();gnDraw();const nm=document.getElementById('gn-name-'+pickId);if(nm)nm.focus();
+  });
+  gnRender();
+}
+
+/* report pieces */
+function gnHasContent(){const g=G();return Object.values(g.persons).some(p=>p.id!==g.focus)||g.persons[g.focus].tags.length;}
+function gnReportHTML(){
+  if(!gnHasContent())return '';
+  const F=gnFindings(),gens=F.gens;
+  let h=`<div class="rep-sec"><h3>Family genogram</h3><div class="gn-repsvg">${gnSVG({lens:null,showRel:GN.showRel,sel:null,clickable:false,uid:'rep'})}</div>`;
+  if(F.items.length){h+=F.items.map(f=>{
+    const marked=f.t.kind==='door'&&gnDoorMarked(f.t.door)?' &middot; marked on Doors tab':'';
+    return `<div class="itemline"><span class="il-name"><span class="il-cat">${esc(f.t.label)}${f.gs.length?' &middot; '+esc(gnPatternLine(f)):''}${marked}</span><br>${f.car.length?gnWho(f.car,gens):''}${f.mar.length?`<br><small style="color:var(--ink-soft)">By marriage (not counted in this line): ${gnWho(f.mar,gens)}</small>`:''}<br><small style="color:var(--ink-soft)">${gnGuide(f)}</small></span></div>`;}).join('');}
+  F.adopted.forEach(p=>{h+=repLine('Adopted: '+esc(gName(p)),p.birthNote?'Known of the birth family: '+esc(p.birthNote):'Birth family not recorded.');});
+  if(G().listen)h+=repLine('Listening prayer over the family',esc(G().listen));
+  h+=`<p class="note" style="margin-top:8px">Guilt is not inherited (Ezek 18:20); effects can carry on where a pattern is repeated, and God's love reaches a thousand generations (Ex 20:5-6). Patterns are questions to explore, not verdicts.</p></div>`;
+  return h;
+}
+
+/* init dynamic content once */
+renderSafety();renderTriage();renderInv();renderTests();renderMinistry();bindFields();gnInit();
+</script>
+</body>
+</html>

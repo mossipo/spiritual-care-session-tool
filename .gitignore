@@ -1,0 +1,10 @@
+# NEVER commit saved session or intake files.
+# They hold confidential pastoral records (names, histories, prayer notes).
+# The tool saves them as .json, so every .json file is blocked here.
+*.json
+
+# Other files that should never be shared
+*.pdf
+*.docx
+.DS_Store
+Thumbs.db

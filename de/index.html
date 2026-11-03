@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Seelsorge-Werkzeug</title>
+<style>
+  :root{
+    --ink:#21241f;--ink-soft:#50564a;--paper:#f5f2ea;--card:#fffdf8;--rule:#ddd6c5;--rule-soft:#e8e2d4;
+    --accent:#5d6b3f;--accent-deep:#3f4a2b;--amber:#9a7b2e;--flag:#8a3324;--flag-bg:#f3e2dd;--shade:#ede7d8;
+    --shadow:0 1px 2px rgba(33,36,31,.05),0 10px 30px rgba(33,36,31,.06);
+  }
+  *{box-sizing:border-box}html,body{margin:0;padding:0}
+  body{background:var(--paper);color:var(--ink);
+    font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;line-height:1.55;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:900px;margin:0 auto;padding:30px 22px 110px}
+
+  header.mast{border-bottom:2px solid var(--ink);padding-bottom:14px}
+  .eyebrow{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--accent);margin:0 0 6px}
+  h1.title{font-size:31px;line-height:1.08;margin:0;font-weight:600;letter-spacing:-.015em}
+  .subtitle{margin:7px 0 0;color:var(--ink-soft);font-size:15px;font-style:italic}
+  .conf{margin-top:10px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-soft)}
+
+  /* mode gate */
+  .gate{max-width:760px;margin:60px auto;text-align:center}
+  .gate h1{font-size:30px;margin:0 0 8px;color:var(--accent-deep)}
+  .gate p{color:var(--ink-soft);font-size:16px;margin:0 0 34px}
+  .gatecards{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  @media(max-width:640px){.gatecards{grid-template-columns:1fr}}
+  .gatecard{border:1px solid var(--rule);background:var(--card);border-radius:12px;padding:28px 24px;cursor:pointer;
+    text-align:left;transition:border-color .15s,box-shadow .15s,transform .08s;box-shadow:var(--shadow)}
+  .gatecard:hover{border-color:var(--accent);transform:translateY(-2px)}
+  .gatecard .gi{font-size:13px;font-family:ui-monospace,Menlo,Consolas,monospace;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:10px}
+  .gatecard h2{margin:0 0 8px;font-size:21px;color:var(--ink)}
+  .gatecard p{margin:0;font-size:14px;color:var(--ink-soft);line-height:1.5}
+  .gate .resume{margin-top:26px;font-size:13.5px;color:var(--ink-soft)}
+  .gate .resume label{color:var(--accent);text-decoration:underline;cursor:pointer}
+
+  .toolbar{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin:18px 0 0;padding:11px 13px;background:var(--card);border:1px solid var(--rule);border-radius:8px}
+  .toolbar .tb-label{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft);margin-right:auto}
+  button.mini{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;letter-spacing:.05em;text-transform:uppercase;padding:8px 12px;border-radius:6px;cursor:pointer;border:1px solid var(--rule);background:transparent;color:var(--ink)}
+  button.mini:hover{background:var(--shade)}
+  button.mini.home{border-color:var(--accent);color:var(--accent)}
+
+  nav.rail{display:flex;flex-wrap:wrap;gap:0;margin:18px 0 26px;border:1px solid var(--rule);border-radius:9px;overflow:hidden;background:var(--card)}
+  nav.rail button{flex:1 1 auto;min-width:112px;border:0;background:transparent;cursor:pointer;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);padding:11px 7px;border-right:1px solid var(--rule);transition:background .15s,color .15s}
+  nav.rail button:last-child{border-right:0}
+  nav.rail button .num{display:block;font-size:14px;color:var(--accent);font-weight:700;margin-bottom:2px;font-family:inherit}
+  nav.rail button.active{background:var(--ink);color:#fff}
+  nav.rail button.active .num{color:#cdbb6a}
+  nav.rail button.done .num::after{content:" \2713";color:var(--accent)}
+  nav.rail button:hover:not(.active){background:var(--shade)}
+
+  .step{display:none;animation:fade .22s ease}.step.show{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+  .lede{font-size:16px;color:var(--ink-soft);margin:0 0 18px;max-width:64ch}
+  h2.sec{font-size:12.5px;font-family:ui-monospace,Menlo,Consolas,monospace;letter-spacing:.17em;text-transform:uppercase;color:var(--accent);margin:30px 0 4px;padding-bottom:6px;border-bottom:1px solid var(--rule)}
+  h2.sec:first-of-type{margin-top:0}
+  p.note{font-size:13.5px;color:var(--ink-soft);font-style:italic;margin:4px 0 14px;max-width:66ch}
+  .askline{font-size:14px;color:var(--accent-deep);margin:2px 0 10px;font-style:italic}
+  .askline::before{content:"\201E"}.askline::after{content:"\201C"}
+
+  /* instruction panel, collapsible, minister-facing */
+  .howto{border:1px solid var(--rule);background:#f1efe4;border-radius:9px;margin:0 0 20px;overflow:hidden}
+  .howto > summary{cursor:pointer;list-style:none;padding:12px 15px;font-family:ui-monospace,Menlo,Consolas,monospace;
+    font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent-deep);display:flex;align-items:center;gap:8px}
+  .howto > summary::-webkit-details-marker{display:none}
+  .howto > summary::before{content:"\25B8";color:var(--accent);transition:transform .15s}
+  .howto[open] > summary::before{transform:rotate(90deg)}
+  .howto .hbody{padding:2px 16px 15px 16px;font-size:14px;line-height:1.6;color:var(--ink)}
+  .howto .hbody p{margin:8px 0}
+  .howto .hbody b{color:var(--accent-deep)}
+  .howto .hbody ul{margin:8px 0;padding-left:20px}.howto .hbody li{margin:5px 0}
+  .howto .look{font-size:12px;font-family:ui-monospace,Menlo,Consolas,monospace;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);margin-top:10px}
+
+  label.fld{display:block;margin:14px 0}
+  label.fld span.lab{display:block;font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:5px;font-family:ui-monospace,Menlo,Consolas,monospace}
+  input[type=text],input[type=date],textarea,select{width:100%;font-family:inherit;font-size:15px;color:var(--ink);background:var(--card);border:1px solid var(--rule);border-radius:6px;padding:9px 11px}
+  textarea{min-height:70px;resize:vertical;line-height:1.5}
+  input:focus,textarea:focus,select:focus{outline:2px solid var(--accent);outline-offset:0;border-color:var(--accent)}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:14px}.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+  @media(max-width:640px){.row2,.row3{grid-template-columns:1fr}}
+
+  .clist{margin:6px 0 0}
+  .citem{border:1px solid var(--rule);border-radius:8px;margin:7px 0;background:var(--card);overflow:hidden;transition:border-color .15s,box-shadow .15s}
+  .citem.on{border-color:var(--accent);box-shadow:var(--shadow)}
+  .chead{display:flex;align-items:flex-start;gap:11px;padding:11px 13px;cursor:pointer}
+  .chead input{width:18px;height:18px;flex:none;margin-top:2px;accent-color:var(--accent);cursor:pointer}
+  .chead .nm{flex:1;font-size:14.5px}
+  .chead .nm small{display:block;color:var(--ink-soft);font-size:12.5px;font-style:italic;margin-top:2px}
+  .chead .star{color:var(--flag);font-weight:700;font-size:13px;margin-left:3px}
+  .sub{display:none;padding:0 13px 13px 42px;border-top:1px dashed var(--rule-soft);margin-top:-1px}
+  .citem.on .sub{display:block;padding-top:11px}
+  .sub input[type=text]{font-size:13.5px}
+
+  .choices{display:grid;gap:8px;margin:8px 0 4px}
+  .choice{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--rule);border-radius:8px;padding:10px 12px;cursor:pointer;background:var(--card);transition:border-color .15s,background .15s}
+  .choice:hover{background:var(--shade)}
+  .choice.on{border-color:var(--accent);background:#f7f5ec}
+  .choice input{margin-top:3px;accent-color:var(--accent)}
+  .choice .ctxt b{display:block;font-size:14px}
+  .choice .ctxt small{color:var(--ink-soft);font-size:12.5px}
+
+  .triad{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin:6px 0}
+  @media(max-width:640px){.triad{grid-template-columns:1fr}}
+  .triad button{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:10.5px;letter-spacing:.04em;text-transform:uppercase;padding:9px 6px;border-radius:6px;border:1px solid var(--rule);background:var(--card);color:var(--ink-soft);cursor:pointer;transition:all .13s}
+  .triad button:hover{background:var(--shade)}
+  .triad button.sel{border-color:var(--accent);background:var(--accent);color:#fff}
+  .testrow{border:1px solid var(--rule);border-radius:8px;padding:11px 13px;margin:8px 0;background:var(--card)}
+  .testrow .tq{font-size:14.5px;margin:0 0 3px}
+  .testrow .tref{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--accent);margin-bottom:7px}
+
+  .flagcard{border:1px solid var(--flag);background:var(--flag-bg);border-radius:8px;padding:13px 15px;margin:14px 0}
+  .flagcard b{color:var(--flag);font-size:12.5px;letter-spacing:.04em;text-transform:uppercase;font-family:ui-monospace,Menlo,Consolas,monospace}
+  .flagcard p{margin:6px 0 0;font-size:14px}
+  .guard{border:1px solid var(--rule);background:#f7f5ec;border-radius:8px;padding:12px 15px;margin:14px 0;font-size:13.5px}
+  .guard b{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent-deep);display:block;margin-bottom:5px}
+  .nextbox{border:1px solid var(--accent);background:#f1efe4;border-radius:8px;padding:14px 16px;font-size:14.5px;line-height:1.6;color:var(--ink)}
+  .nextbox b{color:var(--accent-deep)}
+  .nextbox .arrow{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);display:block;margin-top:8px}
+
+  .actions{display:flex;justify-content:space-between;gap:12px;margin-top:32px;padding-top:18px;border-top:1px solid var(--rule)}
+  button.btn{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;letter-spacing:.09em;text-transform:uppercase;padding:12px 20px;border-radius:7px;cursor:pointer;border:1px solid var(--ink);background:var(--ink);color:#fff;transition:transform .08s,opacity .15s}
+  button.btn:hover{opacity:.88}button.btn:active{transform:translateY(1px)}
+  button.btn.ghost{background:transparent;color:var(--ink)}button.btn.ghost:hover{background:var(--shade);opacity:1}
+  button.btn:disabled{opacity:.3;cursor:not-allowed}
+
+  .reportwrap{background:var(--card);border:1px solid var(--rule);border-radius:10px;padding:34px 38px;box-shadow:var(--shadow)}
+  @media(max-width:640px){.reportwrap{padding:22px 17px}}
+  .rep-h{border-bottom:2px solid var(--ink);padding-bottom:12px;margin-bottom:16px}
+  .rep-h h2{margin:0;font-size:24px}
+  .rep-meta{font-size:13px;color:var(--ink-soft);margin-top:6px;line-height:1.7}
+  .rep-sec{margin:24px 0}
+  .rep-sec h3{font-size:11.5px;font-family:ui-monospace,Menlo,Consolas,monospace;letter-spacing:.15em;text-transform:uppercase;color:var(--accent);border-bottom:1px solid var(--rule);padding-bottom:5px;margin:0 0 12px}
+  .verdict{border-radius:9px;padding:15px 17px;margin:10px 0;border:1px solid var(--rule)}
+  .verdict .vt{font-weight:700;font-size:16px;margin-bottom:3px}
+  .verdict .vd{font-size:13.5px;color:var(--ink-soft)}
+  .verdict.flesh{background:#eef1e8;border-color:#cdd6b8}.verdict.trauma{background:#eaeef1;border-color:#bcc9d4}
+  .verdict.mh{background:var(--flag-bg);border-color:var(--flag)}.verdict.oppression{background:#f4ecd9;border-color:#dec88f}
+  .verdict.mixed{background:#efeadb;border-color:#d8cda6}
+  .itemline{display:flex;justify-content:space-between;gap:13px;padding:8px 0;border-bottom:1px dotted var(--rule);font-size:14px;align-items:baseline}
+  .itemline:last-child{border-bottom:0}
+  .itemline .il-name{flex:1}
+  .itemline .il-cat{font-size:10.5px;color:var(--ink-soft);font-family:ui-monospace,Menlo,Consolas,monospace;text-transform:uppercase;letter-spacing:.05em}
+  blockquote.scr{margin:9px 0;padding:9px 15px;border-left:3px solid var(--accent);background:#f7f5ec;font-size:14.5px}
+  blockquote.scr cite{display:block;font-style:normal;font-size:11.5px;color:var(--accent);margin-top:4px;font-family:ui-monospace,Menlo,Consolas,monospace;letter-spacing:.05em}
+  .prayer{font-size:14.5px;background:#f7f5ec;border:1px solid var(--rule);border-radius:8px;padding:13px 15px;margin:8px 0}
+  .prayer .pl{font-size:10px;font-family:ui-monospace,Menlo,Consolas,monospace;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);display:block;margin-bottom:6px}
+  ul.clean{margin:8px 0;padding-left:20px}ul.clean li{margin:5px 0;font-size:14.5px}
+  ol.steps{margin:8px 0;padding-left:22px}ol.steps li{margin:7px 0;font-size:14.5px}
+  .empty{color:var(--ink-soft);font-style:italic;font-size:14px}
+  .disclaimerbar{font-size:12px;color:var(--ink-soft);background:var(--shade);border:1px solid var(--rule);border-radius:8px;padding:12px 15px;margin:18px 0 0;line-height:1.6}
+  .printrow{display:flex;gap:12px;flex-wrap:wrap;margin:18px 0 0}
+  .handout-divider{border:0;border-top:2px dashed var(--rule);margin:26px 0 18px}
+  .handout-note{font-size:12px;font-family:ui-monospace,Menlo,Consolas,monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin-bottom:4px}
+
+  /* client mode tinting */
+  body.client{--accent:#4a6b6b;--accent-deep:#2f4a4a}
+  body.client .gatecard,body.client header.mast{}
+
+  /* course of care (session history) */
+  .histpanel{border:1px solid var(--rule);background:var(--card);border-radius:9px;margin:0 0 20px;overflow:hidden}
+  .histpanel .hp-head{padding:11px 15px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent-deep);border-bottom:1px solid var(--rule-soft);background:#f1efe4}
+  .histrow{display:flex;flex-wrap:wrap;gap:6px 16px;padding:10px 15px;border-bottom:1px dotted var(--rule);font-size:13.5px;align-items:baseline}
+  .histrow:last-child{border-bottom:0}
+  .histrow .hn{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);flex:none}
+  .histrow .hd{color:var(--ink-soft);font-size:12.5px}
+  .prior{display:inline-block;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--amber);border:1px dashed var(--amber);border-radius:5px;padding:2px 7px;margin-left:8px;vertical-align:middle}
+
+  /* unsaved-work indicator */
+  #saveBtn.dirty{border-color:var(--amber);color:var(--amber)}
+  #saveBtn.dirty::after{content:" \25CF"}
+
+  /* larger touch targets on tablets and phones */
+  @media(pointer:coarse){
+    .chead input,.choice input{width:22px;height:22px}
+    .chead{padding:13px 15px}
+    .triad button{padding:13px 8px}
+    button.mini{padding:11px 14px}
+  }
+
+  @media print{
+    body{background:#fff}
+    nav.rail,.actions,.toolbar,.printrow,header.mast .conf,.howto,.gate,.histpanel{display:none!important}
+    .step{display:none!important}.step.show{display:block!important}
+    .reportwrap{border:0;box-shadow:none;padding:0}.wrap{max-width:100%;padding:0}
+    .print-hide{display:none!important}
+    /* handout-only printing: hide the confidential record, keep the handout */
+    body.print-handout .rep-sec:not(.handout-sec),body.print-handout .rep-h,body.print-handout .handout-divider,body.print-handout .disclaimerbar{display:none!important}
+    body.print-handout .handout-note{display:none!important}
+  }
+</style>
+<body>
+<div class="wrap">
+
+  <!-- ============ STARTSEITE ============ -->
+  <div id="gate" class="gate">
+    <h1>Seelsorge-Werkzeug</h1>
+    <p>Ein seelsorgerliches Instrument für Begleitung, Unterscheidung der Geister und die Schritte in die Freiheit.<br>Wählen Sie, wie Sie es heute verwenden.</p>
+    <div class="gatecards">
+      <div class="gatecard" onclick="enterMode('client')">
+        <div class="gi">Für die Person, die Begleitung sucht</div>
+        <h2>Meinen Fragebogen ausfüllen</h2>
+        <p>Ein paar behutsame Fragen zu Ihnen und Ihrer Geschichte, damit die Person, die Sie begleitet, mit etwas Hintergrund beginnen kann. Dauer etwa zehn Minuten. Am Ende speichern Sie eine Datei, die Sie übergeben oder zusenden.</p>
+      </div>
+      <div class="gatecard" onclick="enterMode('minister')">
+        <div class="gi">Für den Seelsorger</div>
+        <h2>Eine Seelsorgesitzung öffnen</h2>
+        <p>Das vollständige Instrument: Aufnahme, Sicherheit, Einordnung, Einfallstore, die sieben Prüfungen der Unterscheidung, die Schritte des Befreiungsdienstes und ein druckbarer Plan mit Schriftwort und Gebet zum Mitnehmen.</p>
+      </div>
+    </div>
+    <p class="resume">Möchten Sie eine begonnene Sitzung fortsetzen? <label>Gespeicherte Datei laden<input type="file" id="gateLoad" accept=".json" style="display:none" onchange="loadSession(event)"></label>, und Sie machen dort weiter, wo Sie aufgehört haben.</p>
+  </div>
+
+  <!-- ============ ANWENDUNG (verborgen, bis ein Modus gewählt ist) ============ -->
+  <div id="app" style="display:none">
+    <header class="mast">
+      <p class="eyebrow" id="modeEyebrow"></p>
+      <h1 class="title" id="modeTitle"></h1>
+      <p class="subtitle" id="modeSub"></p>
+      <p class="conf">Vertraulich. Läuft vollständig auf diesem Gerät. Nichts wird gespeichert oder versendet, außer Sie laden es selbst herunter.</p>
+    </header>
+
+    <div class="toolbar">
+      <span class="tb-label" id="tbLabel">Sitzung</span>
+      <button class="mini home" onclick="goHome()">Startseite</button>
+      <button class="mini" onclick="saveSession()" id="saveBtn">Speichern</button>
+      <label class="mini" style="cursor:pointer">Datei laden<input type="file" accept=".json" style="display:none" onchange="loadSession(event)"></label>
+      <button class="mini" onclick="newSession()" id="nextSessBtn" style="display:none">Neue Sitzung, gleiche Person</button>
+      <button class="mini" onclick="clearAll()">Leeren</button>
+    </div>
+
+    <nav class="rail" id="rail"></nav>
+
+    <!-- ===== SCHRITTE FÜR DIE BEGLEITETE PERSON ===== -->
+    <section class="step" data-mode="client" data-step="0">
+      <p class="lede">Willkommen. Diese Fragen sollen der Person, mit der Sie sich treffen, nur helfen, Sie vor dem Gespräch ein wenig kennenzulernen. Es gibt keine richtigen oder falschen Antworten, und Sie können alles überspringen, was Sie noch nicht aufschreiben möchten. Nehmen Sie sich Zeit.</p>
+      <h2 class="sec">Über Sie</h2>
+      <div class="row2">
+        <label class="fld"><span class="lab">Ihr Name (oder Initialen, wenn Sie möchten)</span><input type="text" data-k="c_name"></label>
+        <label class="fld"><span class="lab">Heutiges Datum</span><input type="date" data-k="c_date"></label>
+      </div>
+      <h2 class="sec">Was Sie herführt</h2>
+      <p class="askline">Was hat Sie bewogen, mit jemandem sprechen zu wollen? In Ihren eigenen Worten.</p>
+      <label class="fld"><textarea data-k="c_reason" placeholder="Was Ihnen auf dem Herzen liegt. Ein oder zwei Sätze genügen."></textarea></label>
+      <label class="fld"><span class="lab">Wie lange beschäftigt Sie das schon?</span><input type="text" data-k="c_howlong"></label>
+    </section>
+
+    <section class="step" data-mode="client" data-step="1">
+      <h2 class="sec">Ihre Familie und Ihr Aufwachsen</h2>
+      <p class="note">Das hilft der Person, die Sie begleitet, zu verstehen, woher Sie kommen. Teilen Sie nur, was Sie teilen möchten.</p>
+      <p class="askline">Wer hat Sie großgezogen, und wie war es zu Hause, als Sie aufwuchsen?</p>
+      <label class="fld"><textarea data-k="c_family"></textarea></label>
+      <p class="askline">Was sind gute Erinnerungen, Zeiten, in denen Sie sich geliebt oder sicher gefühlt haben?</p>
+      <label class="fld"><textarea data-k="c_joy"></textarea></label>
+      <p class="askline">Was war schwerer, Dinge, die wehgetan haben oder Sie noch belasten?</p>
+      <label class="fld"><textarea data-k="c_pain" placeholder="Nur, was Sie aufschreiben möchten. Sie können dies auch für das Gespräch aufheben."></textarea></label>
+    </section>
+
+    <section class="step" data-mode="client" data-step="2">
+      <h2 class="sec">Ihr Glaube und Ihr geistliches Leben</h2>
+      <p class="askline">Welche Rolle hat der Glaube in Ihrem Leben und in Ihrer Familie gespielt?</p>
+      <label class="fld"><textarea data-k="c_faith"></textarea></label>
+      <div class="row2">
+        <label class="fld"><span class="lab">Wann fühlen Sie sich Gott am nächsten?</span><textarea data-k="c_close"></textarea></label>
+        <label class="fld"><span class="lab">Wann fühlen Sie sich Gott am fernsten?</span><textarea data-k="c_far"></textarea></label>
+      </div>
+      <label class="fld"><span class="lab">Gibt es etwas, das Sie sich von dieser gemeinsamen Zeit besonders erhoffen?</span><textarea data-k="c_hope"></textarea></label>
+    </section>
+
+    <section class="step" data-mode="client" data-step="3">
+      <p class="lede">Danke, dass Sie sich die Zeit genommen haben. Wenn Sie bereit sind, speichern Sie Ihre Antworten unten und übergeben oder senden Sie die Datei der Person, mit der Sie sich treffen. Von hier aus wird nichts von selbst versendet.</p>
+      <div class="guard"><b>Ein behutsamer Hinweis</b>Wenn Sie gerade in Gefahr sind oder daran denken, sich etwas anzutun, warten Sie bitte nicht auf einen Termin. Wenden Sie sich heute an einen Menschen, dem Sie vertrauen, oder rufen Sie sofort an: TelefonSeelsorge Deutschland 0800 111 0 111 oder 0800 111 0 222, Österreich 142, Schweiz 143, Kanada und USA 988. Im Notfall die örtliche Notrufnummer (112 in Europa, 911 in Nordamerika). Sie sind wichtig, und es gibt Hilfe.</div>
+      <div class="printrow">
+        <button class="btn" onclick="saveSession()">Meine Antworten als Datei speichern</button>
+      </div>
+      <p class="note" style="margin-top:14px">Nach dem Klick auf Speichern wird eine Datei auf Ihr Gerät heruntergeladen. Senden Sie diese Datei der Person, die Sie begleitet, oder bringen Sie sie mit.</p>
+    </section>
+
+    <!-- ===== SCHRITTE FÜR DEN SEELSORGER ===== -->
+
+    <!-- 0 AUFNAHME -->
+    <section class="step" data-mode="minister" data-step="0">
+      <details class="howto"><summary>So verwenden Sie diesen Abschnitt</summary><div class="hbody">
+        <p>Dies ist die Phase des Zuhörens. Ziel ist nicht, jedes Feld zu füllen, sondern die Person ihre Geschichte erzählen zu lassen und dabei das Wesentliche festzuhalten. Zuerst Wärme, dann Information.</p>
+        <p>Die kursiven Zeilen in Anführungszeichen sind Fragen, die Sie laut stellen können. Verwenden Sie diese oder eigene. Hat die Person einen Fragebogen ausgefüllt, laden Sie ihn über die Werkzeugleiste oben; dann stehen ihre Worte bereits in diesen Feldern, und Ihre Aufgabe ist es, auf das zu hören, was darunter liegt.</p>
+        <p class="look">Worauf achten: die Wunde unter dem eigentlichen Anliegen, das geistliche Klima, in dem die Person aufgewachsen ist, und wo sie Gott nah oder fern erlebt. Diese drei sagen oft mehr als die Fakten.</p>
+        <p><b>Begleitung über mehrere Wochen:</b> Laden Sie die Datei der letzten Sitzung, sehen Sie sie durch und drücken Sie dann in der Werkzeugleiste <b>Neue Sitzung, gleiche Person</b>. Die vorige Sitzung wird in derselben Datei als Begleitungsverlauf archiviert, Hintergrund und markierte Einfallstore werden übernommen, und die Sitzungsarbeit (Sicherheit, Einordnung, Prüfungen, Befreiungsdienst) beginnt neu. Speichern Sie pro Person immer in eine Datei, dann bleibt der ganze Weg beisammen.</p>
+      </div></details>
+      <div id="histMount"></div>
+      <p class="lede">Zuerst Vertrauen aufbauen. Lassen Sie die Person ihre Geschichte erzählen, bevor Sie nach einer Kategorie greifen.</p>
+      <h2 class="sec">Angaben zur Sitzung</h2>
+      <div class="row2">
+        <label class="fld"><span class="lab">Person (Initialen oder Kürzel)</span><input type="text" data-k="p_name"></label>
+        <label class="fld"><span class="lab">Datum</span><input type="date" data-k="p_date"></label>
+      </div>
+      <div class="row3">
+        <label class="fld"><span class="lab">Sitzung Nr.</span><select data-k="p_session"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6+</option></select></label>
+        <label class="fld"><span class="lab">Leitender Seelsorger</span><input type="text" data-k="p_pastor"></label>
+        <label class="fld"><span class="lab">Weitere Anwesende (nie allein dienen)</span><input type="text" data-k="p_team"></label>
+      </div>
+      <h2 class="sec">Anlass des Gesprächs</h2>
+      <p class="askline">Erzählen Sie mir, was Sie heute herführt.</p>
+      <label class="fld"><textarea data-k="i_reason"></textarea></label>
+      <h2 class="sec">Herkunftsfamilie und Aufwachsen</h2>
+      <p class="askline">Erzählen Sie mir von Ihrer Familie. Wer hat Sie großgezogen, und wie war es zu Hause?</p>
+      <label class="fld"><span class="lab">Struktur und Atmosphäre</span><textarea data-k="i_family"></textarea></label>
+      <p class="askline">Wo gab es Freude?</p>
+      <label class="fld"><span class="lab">Freude und Stärken</span><textarea data-k="i_joy"></textarea></label>
+      <p class="askline">Was war schwer?</p>
+      <label class="fld"><span class="lab">Belastungen und Verletzungen</span><textarea data-k="i_pain"></textarea></label>
+      <label class="fld"><span class="lab">Erkennbare Muster in den Generationen</span><textarea data-k="i_gen"></textarea></label>
+      <p class="askline">Wie war der Glaube in Ihrer Familie? Gab es okkulte Praktiken oder falsche Religion?</p>
+      <label class="fld"><span class="lab">Geistliche Vorgeschichte</span><textarea data-k="i_spirhist"></textarea></label>
+      <h2 class="sec">Gegenwärtiger geistlicher Stand</h2>
+      <div class="row2">
+        <label class="fld"><span class="lab">Bekehrung oder Hingabe</span><select data-k="i_conv"><option value="">Auswählen</option><option>Wiedergeboren (klares Zeugnis)</option><option>Kulturchrist</option><option>Suchend oder fragend</option><option>Unklar</option></select></label>
+        <label class="fld"><span class="lab">Geistliche Praxis</span><select data-k="i_practice"><option value="">Auswählen</option><option>Tägliches Gebet und Bibellesen</option><option>Gelegentlich</option><option>Kaum oder keine</option><option>Blockiert (kann auf Bedrückung hinweisen)</option></select></label>
+      </div>
+      <div class="row2">
+        <label class="fld"><span class="lab">Gott am nächsten, wenn (Trost)</span><textarea data-k="i_consol"></textarea></label>
+        <label class="fld"><span class="lab">Gott am fernsten, wenn (Trostlosigkeit)</span><textarea data-k="i_desol"></textarea></label>
+      </div>
+      <label class="fld"><span class="lab">Einschätzung der geistlichen Reife</span><select data-k="i_maturity"><option value="">Auswählen</option><option>Reifender Gläubiger</option><option>Wachsender Gläubiger</option><option>Kämpfender Gläubiger</option><option>Suchend oder fragend</option></select></label>
+    </section>
+
+    <!-- 1 SICHERHEIT -->
+    <section class="step" data-mode="minister" data-step="1">
+      <details class="howto"><summary>So verwenden Sie diesen Abschnitt</summary><div class="hbody">
+        <p>Dieser Abschnitt kommt aus gutem Grund vor allem anderen. Seelsorge ersetzt niemals Sicherheit. Keiner dieser Punkte bedeutet, dass jemand Befreiung braucht; jeder bedeutet, dass jemand womöglich zuerst Schutz, ärztliche Hilfe oder Fachleute braucht.</p>
+        <p><b>Wenn Sie einen Punkt ankreuzen,</b> beginnt der gedruckte Plan mit einem Hinweis zur Weitervermittlung, noch vor allem anderen. Weitervermitteln ist kein Versagen, sondern Weisheit. Über die eigene Kompetenz hinaus zu dienen, kann Schaden anrichten.</p>
+        <p class="look">Worauf achten: jede gegenwärtige Gefahr für die Person oder andere. Im Zweifel klar und behutsam fragen, und dem Gesagten glauben.</p>
+      </div></details>
+      <p class="lede">Immer zuerst. Lesen Sie die Liste und markieren Sie alles, was jetzt zutrifft.</p>
+      <div class="flagcard"><b>Warum dies zuerst kommt</b><p>Ist ein Punkt markiert, beginnt der Plan mit einem Hinweis zur Weitervermittlung. Bei unmittelbarer Gefahr den Notruf verständigen, statt fortzufahren.</p></div>
+      <h2 class="sec">Risiko- und Sicherheitsprüfung</h2>
+      <p class="askline">Haben Sie Gedanken, sich selbst oder anderen etwas anzutun? Ist jemand bei Ihnen zu Hause nicht sicher? Gibt es gerade Suchtmittel oder Abhängigkeiten?</p>
+      <div id="safetyList" class="clist"></div>
+      <label class="fld" style="margin-top:16px"><span class="lab">Notizen, Zusammenhang oder bereits erfolgte Weitervermittlung</span><textarea data-k="s_notes"></textarea></label>
+      <h2 class="sec">Ihre Anlaufstellen</h2>
+      <p class="note">Tragen Sie hier einmal die Beratungsstellen, Therapeuten und Krisentelefone ein, an die Sie in Ihrer Gegend tatsächlich weitervermitteln. Sie werden mit der Datei gespeichert, von Sitzung zu Sitzung übernommen und erscheinen automatisch im Plan, sobald ein Sicherheitspunkt markiert ist. Das Krisentelefon wird auch auf das Blatt zum Mitnehmen gedruckt.</p>
+      <div class="row2">
+        <label class="fld"><span class="lab">Örtliches Krisentelefon</span><input type="text" data-k="r_crisis" placeholder="Name und Nummer"></label>
+        <label class="fld"><span class="lab">Beratungsstelle oder Therapeut für Weitervermittlung</span><input type="text" data-k="r_counsel" placeholder="Name und Kontakt"></label>
+      </div>
+      <label class="fld"><span class="lab">Weitere Stellen (Frauenhaus, Suchtberatung, Opferhilfe)</span><textarea data-k="r_other"></textarea></label>
+    </section>
+
+    <!-- 2 EINORDNUNG -->
+    <section class="step" data-mode="minister" data-step="2">
+      <details class="howto"><summary>So verwenden Sie diesen Abschnitt</summary><div class="hbody">
+        <p>Dies ist eine Phase des Nachdenkens, nicht des Handelns. Sie benennen, womit Sie es tatsächlich zu tun haben, damit der Rest der Sitzung seinen Weg kennt. Die wichtigste Disziplin des ganzen Werkzeugs lernt man hier: Behandeln Sie einen gewöhnlichen Kampf nicht als Dämon, und übersehen Sie keinen echten.</p>
+        <p>In <b>Schritt 1</b> können Sie mehr als eine Art von Problem markieren, denn die meisten Situationen sind vielschichtig. <b>Schritt 2</b> stellt nur eine Frage: Wenn ein Geist beteiligt sein könnte, wie tief reicht es? Ein Gläubiger kann nicht besessen sein, aber bedrückt werden oder in einem Bereich dem Feind Raum gegeben haben. Ein Mensch ist mehr als ein Zimmer.</p>
+        <p>Die Hinweisliste, die sich unter dem dritten Feld öffnet, enthält genau das: Hinweise, keine Beweise. Sie laden zum genaueren Hinsehen ein, nicht zum Schlussfolgern.</p>
+        <p class="look">Worauf achten: Ehrlichkeit vor Tempo. Die meisten Probleme sind gewöhnlich oder in einer Verletzung verwurzelt. Das wirklich Dämonische ist der seltenere Fall, und das Werkzeug ist so gebaut, dass es dabei bleibt.</p>
+      </div></details>
+      <p class="lede">Benennen Sie, was Sie tatsächlich vor sich haben, damit der Rest der Sitzung weiß, auf welchem Weg er ist. Hier geschieht nichts automatisch; Ihre Markierungen prägen den Plan am Ende.</p>
+      <div class="guard"><b>Die Spannung halten</b>Den Geist nicht dämpfen (1. Thess 5,19), aber die Geister prüfen (1. Joh 4,1). Nicht jedes Problem ist ein Dämon, und nicht jede glatte Oberfläche ist rein. Die Prüfung der Frucht dauert Wochen und Monate, nicht Minuten.</div>
+      <h2 class="sec">Schritt 1. Welche Art von Problem ist das?</h2>
+      <p class="note">Ein Anliegen kann zugleich in mehreren dieser Bereiche liegen. Kreuzen Sie alles an, was wirklich zutrifft. Beim dritten Punkt öffnet sich eine kurze Hinweisliste.</p>
+      <div id="triageList" class="clist"></div>
+      <h2 class="sec">Schritt 2. Wenn ein Geist beteiligt sein könnte, wie tief?</h2>
+      <p class="note">Hier nur eine Antwort. Hatte Schritt 1 keine dämonische Komponente, wählen Sie die erste Option und gehen Sie weiter.</p>
+      <div class="choices" data-radio="t_posopp">
+        <label class="choice"><input type="radio" name="t_posopp" value="Keine dämonische Komponente erkannt"><span class="ctxt"><b>Keine dämonische Komponente erkannt</b><small>Das ist Seelsorge, Heilung oder Jüngerschaft. Keine Befreiung.</small></span></label>
+        <label class="choice"><input type="radio" name="t_posopp" value="Bedrückung oder Einfallstor in einem Bereich"><span class="ctxt"><b>Bedrückung oder Einfallstor</b><small>Ein Bereich des Lebens, nicht der ganze Mensch. Bei Gläubigen am häufigsten.</small></span></label>
+        <label class="choice"><input type="radio" name="t_posopp" value="Schwere Bindung, Team sammeln, nicht überstürzen"><span class="ctxt"><b>Schwere Bindung</b><small>Ein Team sammeln. Nicht überstürzen. Braucht womöglich Gebet und Fasten (Mk 9,29).</small></span></label>
+        <label class="choice"><input type="radio" name="t_posopp" value="Unklar, Frucht über Zeit beobachten"><span class="ctxt"><b>Unklar</b><small>Die Frucht über einige Zeit beobachten, bevor etwas geschlossen wird.</small></span></label>
+      </div>
+      <h2 class="sec">Wie geht es weiter?</h2>
+      <div id="triageNext" class="nextbox">Setzen Sie oben Ihre Markierungen, dann zeigt Ihnen dieses Feld, wie der Rest der Sitzung aussieht.</div>
+    </section>
+
+    <!-- 3 EINFALLSTORE -->
+    <section class="step" data-mode="minister" data-step="3">
+      <details class="howto"><summary>So verwenden Sie diesen Abschnitt</summary><div class="hbody">
+        <p>Dies sind Einfallstore, Stellen, an denen der Feind Zugang gewonnen haben könnte. Es sind Türen, keine Diagnose. Eine lange Liste von Markierungen bedeutet keinen schweren Fall; was das alles bedeutet, entscheidet die Phase der Unterscheidung.</p>
+        <p>Markieren Sie nur, was wirklich zutrifft, und halten Sie in der Notizzeile darunter Einzelheiten, Namen oder Dauer fest. Das Sternchen kennzeichnet eine Tür, die sich schon durch ein einziges Vorkommnis öffnen kann; sie verdient Aufmerksamkeit, auch wenn es nur einmal geschah.</p>
+        <p>Die Gruppe <b>Verletzungen</b> ist von anderer Art. Das ist, was der Person angetan wurde, nicht Sünde, die sie begangen hat. Sie verlangt Heilung, nicht Bekenntnis, und der Plan behandelt sie so.</p>
+        <p class="look">Worauf achten: Muster, die zu den Verletzungen und der Familiengeschichte passen, die Sie bereits gehört haben. Eine Tür steht selten allein.</p>
+      </div></details>
+      <p class="lede">Einfallstore, kein Urteil. Fünf Arten von Türen: okkulte, sexuelle, anhaltende Sünde, Generationen und die Verletzungen, die einem Menschen zugefügt wurden. Ein Sternchen (<span style="color:var(--flag);font-weight:700">*</span>) kennzeichnet eine Tür, die sich schon durch ein einziges Vorkommnis öffnen kann. Markieren Sie nur, was zutrifft.</p>
+      <div id="invMount"></div>
+    </section>
+
+    <!-- 4 UNTERSCHEIDUNG -->
+    <section class="step" data-mode="minister" data-step="4">
+      <details class="howto"><summary>So verwenden Sie diesen Abschnitt</summary><div class="hbody">
+        <p>Dies ist das Herz der Unterscheidung, die sieben Prüfungen. Der leitende Grundsatz: Die Form einer Sache ist nicht ihre Identität. Saul weissagte sowohl unter dem Heiligen Geist als auch unter einem bösen Geist. Dämonen zitieren wahre Theologie. Darum prüfen Sie die Quelle, nicht das Spektakel.</p>
+        <p>Jede Prüfung ist eine Frage mit Bibelstelle und drei Knöpfen: besteht, Bedenken oder besteht nicht. Tippen Sie, was passt. Einige Prüfungen sind mit <b>über Zeit</b> gekennzeichnet, die Prüfung der Frucht und der Lebensrichtung, weil sie sich in einer Sitzung nicht ehrlich beurteilen lassen. Heben Sie diese für spätere Sitzungen auf.</p>
+        <p>Unter den Prüfungen engen drei kurze Einschätzungen Ihr Ergebnis ein, und Ihre <b>seelsorgerliche Einschätzung</b> ist die wichtigste Wahl im ganzen Werkzeug. Sie bestimmt die Gestalt des Plans: Buße, Heilung, fachliche Hilfe, Befreiung oder eine Mischung.</p>
+        <p class="look">Worauf achten: Übereinstimmung. Ein ungewöhnliches Zeichen beweist wenig. Ein Muster über mehrere Prüfungen hinweg, über Zeit bestätigt und mit anderen abgewogen, darauf ruht Unterscheidung.</p>
+      </div></details>
+      <p class="lede">Die sieben Prüfungen. Die Form einer Sache ist nicht ihre Identität. Prüfen Sie die Quelle, nicht das Spektakel.</p>
+      <div class="guard"><b>Prüfungen über Zeit und Prüfungen im Raum</b>Die christologische Prüfung, die Prüfung an der Schrift, die Prüfung der Selbstbeherrschung und die Prüfung der Erbauung lassen sich jetzt anwenden. Die Prüfung der Frucht und der Lebensrichtung braucht Wochen und Monate. Markieren Sie, was möglich ist; den Rest heben Sie für die Nachbegleitung auf.</div>
+      <h2 class="sec">Die sieben Prüfungen</h2>
+      <div id="testList"></div>
+      <h2 class="sec">Trost oder Trostlosigkeit</h2>
+      <p class="askline">Wenn Sie damit vor Gott still werden, spüren Sie Frieden oder Schwere und Verwirrung?</p>
+      <label class="fld"><textarea data-k="d_ignatian"></textarea></label>
+      <h2 class="sec">Auflehnung oder Gefangenschaft?</h2>
+      <div class="choices" data-radio="d_rebcap">
+        <label class="choice"><input type="radio" name="d_rebcap" value="Auflehnung (Sünde, Buße)"><span class="ctxt"><b>Auflehnung</b><small>Sünde. Der Weg hinein führt über Buße und Glauben.</small></span></label>
+        <label class="choice"><input type="radio" name="d_rebcap" value="Gefangenschaft (Bedrückung, Befreiung im Team)"><span class="ctxt"><b>Gefangenschaft</b><small>Bedrückung. Der Weg hinein führt über Befreiung im Team.</small></span></label>
+        <label class="choice"><input type="radio" name="d_rebcap" value="Beides oder gemischt"><span class="ctxt"><b>Beides oder gemischt</b><small>Buße und Befreiung gemeinsam.</small></span></label>
+      </div>
+      <h2 class="sec">Ihre seelsorgerliche Einschätzung</h2>
+      <div class="choices" data-radio="d_assess">
+        <label class="choice"><input type="radio" name="d_assess" value="flesh"><span class="ctxt"><b>Sünde oder Fleisch</b><small>Buße und Jüngerschaft.</small></span></label>
+        <label class="choice"><input type="radio" name="d_assess" value="trauma"><span class="ctxt"><b>Trauma oder Trauer</b><small>Heilungsgebet und seelsorgerliche Begleitung. Mit Heilung beginnen, nicht mit Sündenbekenntnis.</small></span></label>
+        <label class="choice"><input type="radio" name="d_assess" value="mh"><span class="ctxt"><b>Psychische Erkrankung möglich</b><small>Fachliche Hilfe plus seelsorgerliche Unterstützung.</small></span></label>
+        <label class="choice"><input type="radio" name="d_assess" value="oppression"><span class="ctxt"><b>Bedrückung</b><small>Befreiungsgebet im Team, nicht überstürzt.</small></span></label>
+        <label class="choice"><input type="radio" name="d_assess" value="mixed"><span class="ctxt"><b>Gemischt</b><small>Mehr als eines der oben Genannten.</small></span></label>
+      </div>
+      <label class="fld" style="margin-top:14px"><span class="lab">Warum? Welche Frucht und welche Hinweise führten Sie hierher?</span><textarea data-k="d_why"></textarea></label>
+      <label class="fld"><span class="lab">Bereitschaft (Befreiung braucht Zustimmung; nie überstürzen)</span><select data-k="d_ready"><option value="">Auswählen</option><option>Bereit und willig</option><option>Willig, aber es fällt schwer</option><option>Zögernd</option><option>Braucht mehr Zeit</option><option>Ablehnend</option></select></label>
+    </section>
+
+    <!-- 5 BEFREIUNG -->
+    <section class="step" data-mode="minister" data-step="5">
+      <details class="howto"><summary>So verwenden Sie diesen Abschnitt</summary><div class="hbody">
+        <p>Kommen Sie nur hierher, wenn Sie wirklich eine dämonische Komponente erkannt haben und die Person bereit ist. Dies ist keine Formel zum Abarbeiten, sondern ein Weg, den Sie mit ihr gehen. War Ihre Einschätzung Sünde, Trauma oder eine psychische Erkrankung, können Sie diese Phase ganz überspringen.</p>
+        <p>Die fünf Schritte sind eine Abfolge: Vollmacht festmachen, den Geist ansprechen statt der Person, die Übereinkünfte brechen, die ihm Raum gaben, die Freigabe gebieten und dann das Haus füllen. Haken Sie jeden Schritt ab, wenn Sie ihn tun, damit die Begegnung festgehalten ist.</p>
+        <p><b>Das Füllen ist nicht freiwillig.</b> Reinigung ohne Füllung hinterlässt ein gefegtes, leeres Haus, das schlimmer endet (Lk 11,24-26). Befreiung öffnet eine Tür; Jüngerschaft entscheidet, was hindurchgeht.</p>
+        <p class="look">Worauf achten: die Leitplanken unten, die man im Moment leicht vergisst. Gebieten, nicht reden. Kein Theater. Würde schützen. Nie allein.</p>
+      </div></details>
+      <p class="lede">Wenn Sie eine dämonische Komponente erkennen und die Person bereit ist, ist dies das Muster in fünf Schritten. Gehen Sie es, hetzen Sie es nicht. Das Haus muss gefüllt werden.</p>
+      <div class="flagcard"><b>Was Sie nicht tun sollten</b><p>Kein Drama und kein Theater. Kein längeres Gespräch mit einem Geist; gebieten, nicht reden. Nicht öffentlich; die Würde schützen. Nie allein; als Team dienen. Nicht jedes Problem für dämonisch halten, und weder Angst noch Faszination für Dämonen wecken.</p></div>
+      <h2 class="sec">Die fünf Schritte, festhalten, was getan wurde</h2>
+      <div id="ministryList"></div>
+      <h2 class="sec">Das Haus füllen</h2>
+      <p class="note">Lukas 11,24-26. Benennen Sie die Füllung.</p>
+      <label class="fld"><span class="lab">Um Erfüllung mit dem Heiligen Geist gebetet?</span><select data-k="m_fill"><option value="">Auswählen</option><option>Ja</option><option>Begonnen, wird fortgesetzt</option><option>Noch nicht</option></select></label>
+      <div class="row2">
+        <label class="fld"><span class="lab">Plan für tägliches Bibellesen oder Andacht</span><input type="text" data-k="m_word"></label>
+        <label class="fld"><span class="lab">Rechenschaft oder Gemeinschaft</span><input type="text" data-k="m_accountable"></label>
+      </div>
+      <label class="fld"><span class="lab">Konkreter nächster Schritt und Rückmeldedatum</span><input type="text" data-k="m_next"></label>
+      <h2 class="sec">Der Weg zwischen den Sitzungen (Hausaufgaben)</h2>
+      <p class="note">Eine Zeile pro Aufgabe. Diese erscheinen auf dem Blatt zum Mitnehmen unter „Ihre Schritte in dieser Woche“, also schreiben Sie sie schlicht und direkt an die Person. Halten Sie es klein genug, dass es wirklich getan wird: ein Abschnitt, eine Gebetsgewohnheit, ein Schritt des Gehorsams.</p>
+      <label class="fld"><span class="lab">Aufgaben, eine pro Zeile</span><textarea data-k="m_homework" placeholder="Jeden Morgen Psalm 34 lesen&#10;Das tägliche Gebet vom Blatt beten&#10;Einer Vertrauensperson erzählen, wofür wir gebetet haben"></textarea></label>
+      <div class="row2">
+        <label class="fld"><span class="lab">Termin für Rückmeldung (Sitzung oder Anruf)</span><input type="date" data-k="m_checkin"></label>
+        <label class="fld"><span class="lab">Was für die nächste Sitzung offen bleibt</span><input type="text" data-k="m_open"></label>
+      </div>
+    </section>
+
+    <!-- 6 PLAN -->
+    <section class="step" data-mode="minister" data-step="6">
+      <details class="howto"><summary>So verwenden Sie diesen Abschnitt</summary><div class="hbody">
+        <p>Alles, was Sie eingegeben haben, wird hier zu einem geordneten Plan zusammengeführt: das Bild, die Einordnung, die Unterscheidung, die Einfallstore, Schriftworte und Gebete für den Weg hinein, gegebenenfalls die Aufzeichnung des Befreiungsdienstes und die Nachbegleitung. Ist ein Sicherheitspunkt markiert, steht die Sicherheit am Anfang.</p>
+        <p>Der untere Teil ist ein <b>Blatt zum Mitnehmen</b> mit Schriftworten und Gebeten für die Person. Sie können den ganzen Plan für Ihre Unterlagen drucken oder nur das Blatt für die Person. Lesen Sie jedes Gebet, bevor Sie es beten; machen Sie es zu Ihrem eigenen.</p>
+        <p>Um etwas zu ändern, gehen Sie zurück zum entsprechenden Reiter, ändern es dort, und der Plan baut sich neu auf.</p>
+      </div></details>
+      <p class="lede">Prüfen Sie den Plan. Drucken Sie die vollständige Aufzeichnung für Ihre vertraulichen Unterlagen oder nur das Blatt zum Mitnehmen für die Person. Beides vermischt sich nie: Das Blatt enthält keine Notizen, Markierungen oder Einschätzungen aus der Sitzung.</p>
+      <div class="printrow">
+        <button class="btn" onclick="printFull()">Ganzen Plan drucken (für Sie)</button>
+        <button class="btn" onclick="printHandout()">Nur das Blatt drucken (für die Person)</button>
+        <button class="btn ghost" onclick="buildReport()">Aktualisieren</button>
+      </div>
+      <div id="report" class="reportwrap" style="margin-top:18px"></div>
+    </section>
+
+    <div class="actions">
+      <button class="btn ghost" id="prevBtn" onclick="go(-1)">Zurück</button>
+      <button class="btn" id="nextBtn" onclick="go(1)">Weiter</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================== DATEN ============================== */
+const SAFETY=[
+  "Suizidgedanken, Pläne oder Versuche","Todeswunsch (möchte sterben)","Selbstverletzung oder Ritzen",
+  "Gewalt gegen sich selbst oder andere","Stimmenhören, Halluzinationen oder unbegründete Verfolgungsangst (zuerst fachlich abklären)",
+  "Anhaltende Hoffnungslosigkeit, Wertlosigkeit, Hilflosigkeit","Jemand ist zu Hause nicht sicher","Gegenwärtige Abhängigkeit von Suchtmitteln"
+];
+const TRIAGE=[
+  {t:"Natürliche Krankheit oder gewöhnlicher Kampf",d:"Körperlich, seelisch, situationsbedingt. Das meiste gehört hierher."},
+  {t:"Geistliche Wurzel",d:"Trauma, Unversöhnlichkeit, ein Generationenmuster, eine Wunde unter der Oberfläche."},
+  {t:"Dämonische Bedrückung",d:"Ein Geist nutzt ein Einfallstor aus. Die Hinweise unten sind Hinweise, keine Beweise."}
+];
+const OPP_INDICATORS=[
+  "Chronischer Zustand ohne Erklärung","Plötzlicher Beginn ohne natürliche Ursache",
+  "Symptome zeigen sich beim Gebet oder Lobpreis","Muster selbstzerstörerischen Verhaltens",
+  "Ähnliches Leiden in der Familiengeschichte (Generationen)","Berichtet, eine Gegenwart zu spüren oder Stimmen zu hören",
+  "Zustand verschlechtert sich, wenn geistliche Disziplinen zunehmen"
+];
+const CATS=[
+  { id:"occult", title:"Okkulte und falsche geistliche Türen", items:[
+    "Zauberei jeder Art","Flüche, andere verfluchen oder sich verflucht fühlen","Ouija-Brett oder Kontakt mit Verstorbenen",
+    "Tarot, Wahrsagen, Handlesen","Astrologie, Horoskope, Tierkreis","Kristalle, Talismane, Amulette",
+    "New Age, Energieheilung, Reiki","Freimaurerei oder Geheimbünde",{t:"Séancen, Medien, Channeling",star:true},
+    {t:"Satanismus",star:true},"Wicca oder Hexenpraxis","Wahrsagerei jeder Art","Astralreisen, außerkörperliche Erfahrungen",
+    "Okkulte Bücher, Musik, Filme, Spiele, die einen hineingezogen haben",{t:"Bündnisse, Gelübde, Schwüre oder Pakte mit einem Geist oder einer Gottheit",star:true},
+    {t:"Herbeirufen von Geistern oder Verstorbenen",star:true},"Gegenstände aus nichtchristlichem religiösem Gebrauch (Götzenbilder, Fetische)",
+    "Geistliche Praktiken oder Bündnisse der Vorfahren in der Linie"
+  ]},
+  { id:"sexual", title:"Sexuelle Türen", note:"Sorgfältig unterscheiden, was die Person getan hat und was ihr angetan wurde. Betroffene empfangen Heilung, nicht Sündenbekenntnis.", items:[
+    "Pornografie","Begierde als Muster",{t:"Ehebruch",star:true},{t:"Unzucht",star:true},
+    {t:"Inzest, als Opfer oder Täter",star:true},{t:"Erlittener sexueller Missbrauch",star:true},
+    {t:"Begangener sexueller Missbrauch",star:true},{t:"Vergewaltigung, erlitten oder begangen",star:true},"Prostitution","Voyeurismus oder Exhibitionismus",
+    {t:"Sodomie",star:true},"Ungöttliche Seelenbindungen aus früheren sexuellen Beziehungen",
+    "Sexuelle Erfahrung mit einer Gegenwart in Träumen oder nachts"
+  ]},
+  { id:"persistent", title:"Anhaltende Sünde und Einfallstore", note:"Eph 4,26-27: Ungeklärte Sünde gibt dem Feind Raum. Zuerst durch Buße angehen.", items:[
+    "Unversöhnlichkeit oder Bitterkeit",{t:"Ein Gelübde oder Fluchwort über sich selbst gesprochen",star:true},"Stolz","Wut oder unbeherrschter Zorn",
+    "Angst, die bestimmt","Auflehnung gegen Gott oder Autorität","Sucht (Substanzen)",
+    "Sucht (Verhalten: Glücksspiel, Kaufen, Internet, Sexualität)","Götzendienst, etwas an Gottes Stelle gesetzt",
+    "Täuschung oder Lügen als Muster","Hass","Okkultnahe Medien, die das Verhalten geprägt haben"
+  ]},
+  { id:"generational", title:"Türen in den Generationen", note:"Höher gewichten, wo das Muster über Eltern und Großeltern zurückreicht. Zerbrechen durch Vergebung gegenüber der Linie, Bekennen, Absagen und Empfangen dessen, was das Kreuz erwirkt hat.", items:[
+    "Okkultes in der Familienlinie","Sucht in der Familienlinie","Straftaten in der Linie","Sexuelle Sünde in der Linie",
+    "Unbiblische Religion oder Praxis in der Linie",{t:"Inzest in der Linie",star:true},"Scheidung oder Familienbruch",
+    "Abtreibung in der Linie","Ablehnung, verwaist, verlassen, weggegeben","Trauma in der Linie",
+    "Muster von Unfällen, Krankheit, Fehlgeburten, Finanzkrisen oder frühem Tod","Missbrauch in der Linie (jeder Art)"
+  ]},
+  { id:"wounds", title:"Verletzungen, die uns zugefügt wurden", note:"Nicht die Sünde der Person. Stellen der Verletzung, an denen Lügen gepflanzt wurden. Mit Heilungsgebet begegnen.", items:[
+    "Erlittene körperliche Gewalt","Erlittene seelische oder verbale Gewalt","Geistlicher Missbrauch (durch Gemeinde oder Leiter)",
+    "Verlassenwerden oder Ablehnung","Schwerer Verlust oder Trauer","Verrat durch einen vertrauten Menschen",
+    "Eine Lüge über sich selbst geglaubt (wertlos, nicht liebenswert, ich kann das nicht, es ist meine Schuld)","Menschenhandel, Opfer von Menschenhandel"
+  ]}
+];
+
+const TESTS=[
+  {id:"christ",q:"Bekennt es Jesus Christus als im Fleisch gekommen, den wahrhaft menschgewordenen, gekreuzigten und auferstandenen Herrn?",ref:"1. Joh 4,1-3",over:false},
+  {id:"scripture",q:"Stimmt es mit der Schrift überein, oder fügt es hinzu, verdreht oder widerspricht es ihr? Dämonen können Wahrheit zitieren.",ref:"Jes 8,20; Apg 16,16-18",over:false},
+  {id:"selfcontrol",q:"Ist der Wille der Person intakt? Der Geist übergeht den Willen nicht. Verlust der Selbstbeherrschung ist ein Warnzeichen.",ref:"1. Kor 14,32; Gal 5,23",over:false},
+  {id:"edify",q:"Baut es den Leib in Liebe auf, oder bringt es Verwirrung, Spaltung, Faszination oder Angst hervor?",ref:"1. Kor 14,26.33",over:false},
+  {id:"body",q:"Wurde es von anderen geprüft, die unterscheiden können? Unterscheidung ist kein Alleingang.",ref:"1. Kor 14,29",over:false},
+  {id:"fruit",q:"Was bringt es über Zeit hervor: Liebe, Heiligkeit, Demut, oder Stolz, Streit, sittliches Versagen?",ref:"Mt 7,15-20; Gal 5,19-23",over:true},
+  {id:"trajectory",q:"Neigt sich das Leben über Zeit zu Christus hin oder von ihm weg?",ref:"Mt 7,16-20",over:true}
+];
+const MINISTRY=[
+  {id:"authority",t:"1. Vollmacht festmachen",d:"Die Vollmacht liegt im Namen Jesu (Lk 10,19); der in euch ist, ist größer (1. Joh 4,4). Keine Angst, kein Betteln."},
+  {id:"address",t:"2. Den Geist ansprechen, nicht die Person",d:"Gebieten, nicht reden. Der Blick bleibt auf der Vollmacht Jesu, nie auf Kosten der Würde der Person."},
+  {id:"break",t:"3. Übereinkünfte brechen",d:"Die Person anleiten, den Lügen abzusagen und die Übereinkunft mit Angst, Scham und Ablehnung zu brechen. Vergebung löst Einfallstore (Eph 4,26-27)."},
+  {id:"release",t:"4. Die Freigabe gebieten",d:"Kurz, mit Vollmacht, zuversichtlich, im Namen Jesu. Nicht flehen."},
+  {id:"fill",t:"5. Das Haus füllen",d:"Um Erfüllung mit dem Heiligen Geist beten; Disziplinen einüben; mit Gemeinschaft verbinden (Lk 11,24-26)."}
+];
+/* Bibeltexte: Lutherbibel 1912 (gemeinfrei). Verszählung nach deutscher Zählung. */
+const LIB={
+  occult:{scriptures:[
+      {t:"Du sollst keine anderen Götter neben mir haben.",r:"2. Mose 20,3"},
+      {t:"Viele aber, die da vorwitzige Kunst getrieben hatten, brachten die Bücher zusammen und verbrannten sie öffentlich.",r:"Apostelgeschichte 19,19"},
+      {t:"Der in euch ist, ist größer, als der in der Welt ist.",r:"1. Johannes 4,4"}],
+    prayer:"Im Namen Jesu Christi sage ich mich los von jeder okkulten Praxis und von jedem Bund, Gelübde oder Wort, das ich einem anderen Geist als dem lebendigen Gott gegeben habe. Ich bekenne es als Sünde und wende mich davon ab. Herr Jesus, mache jeden Anspruch zunichte, den der Feind dadurch erhoben hat, und fülle den Raum, den er besetzt hielt, mit deinem Heiligen Geist.",
+    steps:["Gegenstände, die mit der Praxis verbunden sind, ausfindig machen und vernichten (Apg 19).","Konkret absagen, wo bekannt mit Namen.","Füllen: in der ersten Woche täglich Bibel und Lobpreis; mit Gemeinschaft verbinden."]},
+  sexual:{scriptures:[
+      {t:"Fliehet die Hurerei! ... Denn ihr seid teuer erkauft; darum so preiset Gott an eurem Leibe.",r:"1. Korinther 6,18-20"},
+      {t:"Schaffe in mir, Gott, ein reines Herz und gib mir einen neuen, gewissen Geist.",r:"Psalm 51,12"}],
+    prayer:"Herr Jesus, ich bekenne sexuelle Sünde und sage mich los von jeder ungöttlichen Seelenbindung, die außerhalb deiner Ordnung entstanden ist. Wo ich gesündigt habe, vergib mir. Wo an mir gesündigt wurde, heile mich und nimm die Scham weg, die nie meine war. Durchtrenne jede Bindung, die nicht von dir ist.",
+    steps:["Bekenntnis (was die Person getan hat) von Heilung (was ihr angetan wurde) trennen.","Benannte Seelenbindungen behutsam lösen, nur mit Zustimmung.","Füllen: Rechenschaft und praktische Schutzmaßnahmen."]},
+  persistent:{scriptures:[
+      {t:"Zürnet und sündiget nicht; lasset die Sonne nicht über eurem Zorn untergehen. Gebet auch nicht Raum dem Lästerer.",r:"Epheser 4,26-27"},
+      {t:"So wir aber unsre Sünden bekennen, so ist er treu und gerecht, daß er uns die Sünden vergibt und reinigt uns von aller Untugend.",r:"1. Johannes 1,9"},
+      {t:"So besteht nun in der Freiheit, damit uns Christus befreit hat.",r:"Galater 5,1"}],
+    prayer:"Vater, ich bringe dieses Muster ans Licht. Ich bekenne es, ich sage mich los von seinem Griff, und ich schließe die Tür, die ich offen gelassen habe. Fülle diesen Raum mit deinem Geist und schenke mir Menschen, mit denen ich diesen Weg gehe.",
+    steps:["Zuerst Buße; dies ist ein Einfallstor, nicht unbedingt ein Geist.","Der Übereinkunft mit der Sünde und jeder darunterliegenden Lüge absagen.","Füllen: Disziplin plus Rechenschaft; die Wunde ansprechen, die damit betäubt wird."]},
+  generational:{scriptures:[
+      {t:"Christus aber hat uns erlöst von dem Fluch des Gesetzes, da er ward ein Fluch für uns.",r:"Galater 3,13"},
+      {t:"Gedenke nicht unsrer vorigen Missetaten; erbarme dich unser bald.",r:"Psalm 79,8"}],
+    prayer:"Herr Jesus Christus, ich bekenne die Sünden meiner Familienlinie und bitte um Befreiung von ihren Folgen. Mit einer Entscheidung meines Willens vergebe ich denen in meiner Linie, deren Sünde mich getroffen hat. Ich sage mich los von diesem Muster und empfange die Freiheit, die du am Kreuz erworben hast. Lass den Kreislauf mit mir enden, erfüllt mit deinem Geist.",
+    steps:["Reihenfolge: der Linie vergeben, bekennen, absagen, den Fluch brechen, dann wo nötig Vollmacht ausüben.","Das konkrete Muster benennen.","Füllen: eine tägliche Proklamation für die Woche."]},
+  wounds:{scriptures:[
+      {t:"Der HERR ist nahe bei denen, die zerbrochenen Herzens sind, und hilft denen, die ein zerschlagen Gemüt haben.",r:"Psalm 34,19"},
+      {t:"Er hat mich gesandt, die zerbrochenen Herzen zu verbinden, zu verkündigen den Gefangenen die Freiheit.",r:"Jesaja 61,1"},
+      {t:"Und werdet die Wahrheit erkennen, und die Wahrheit wird euch frei machen.",r:"Johannes 8,32"}],
+    prayer:"Herr Jesus, du wurdest verwundet zu meiner Heilung. Komm an den Ort, an dem ich verletzt wurde und die Lüge gepflanzt wurde. Sprich deine Wahrheit, wo die Lüge gesprochen hat, und lass mich hören, was du über mich sagst. Heile, was zerbrochen ist, und nimm weg, was nie meine Last war.",
+    steps:["Heilungsgebet, nicht Bekenntnis; die Wunde ist nicht die Sünde der Person.","Jesus in die Erinnerung einladen; ihn die Lüge durch Wahrheit ersetzen lassen.","Der konkreten geglaubten Lüge absagen; durch ein Wahrheitswort aus der Schrift ersetzen."]}
+};
+const FORGIVE={scriptures:[
+    {t:"Liebet eure Feinde; tut denen wohl, die euch hassen; segnet die, so euch verfluchen; bittet für die, so euch beleidigen.",r:"Lukas 6,27-28"},
+    {t:"Gleichwie Christus euch vergeben hat, also auch ihr.",r:"Kolosser 3,13"}],
+  prayer:"Herr, mit einer Entscheidung meines Willens vergebe ich [Name]. Ich entschuldige nicht, was geschehen ist, aber ich übergebe diese Person dir. Ich lasse die Schuld los. Heile die Wunde darunter, und wo Vertrauen neu wachsen muss, gib zu seiner Zeit Weisheit dafür."};
+
+// Ermutigende Schriftworte, immer auf dem Blatt zum Mitnehmen
+const HANDOUT_ALWAYS=[
+  {t:"Der HERR ist mein Hirte; mir wird nichts mangeln.",r:"Psalm 23,1"},
+  {t:"Alle eure Sorge werfet auf ihn; denn er sorgt für euch.",r:"1. Petrus 5,7"},
+  {t:"Siehe, ich habe dir geboten, daß du getrost und freudig seist. Laß dir nicht grauen und entsetze dich nicht; denn der HERR, dein Gott, ist mit dir in allem, was du tun wirst.",r:"Josua 1,9"},
+  {t:"Kommet her zu mir alle, die ihr mühselig und beladen seid; ich will euch erquicken.",r:"Matthäus 11,28"}
+];
+const HANDOUT_PRAYER="Vater, danke, dass du mir nahe bist. Geh mit mir durch diese Woche. Wenn Angst oder das alte Muster aufsteigt, erinnere mich daran, wem ich gehöre. Erfülle mich mit deinem Geist, schenke mir Menschen, an die ich mich anlehnen kann, und lass mich einen kleinen Schritt des Gehorsams nach dem anderen gehen. Im Namen Jesu, Amen.";
+
+/* ============================== ZUSTAND ============================== */
+const MIN_STEPS=["Aufnahme","Sicherheit","Einordnung","Türen","Prüfung","Befreiung","Plan"];
+const CLIENT_STEPS=["Über Sie","Familie","Glaube","Abschluss"];
+let mode=null, cur=0, dirty=false;
+const data={mode:null,safety:{},triage:{},opp:{},inv:{},tests:{},ministry:{},history:[]};
+
+function steps(){return mode==='client'?CLIENT_STEPS:MIN_STEPS;}
+
+/* Schutz vor Datenverlust: auf dem Gerät wird nichts gespeichert, daher Warnung vor dem Schließen */
+function markDirty(){dirty=true;const b=document.getElementById('saveBtn');if(b)b.classList.add('dirty');}
+function markClean(){dirty=false;const b=document.getElementById('saveBtn');if(b)b.classList.remove('dirty');}
+window.addEventListener('beforeunload',e=>{if(dirty){e.preventDefault();e.returnValue='';}});
+
+function enterMode(m){
+  mode=m; data.mode=m; cur=0;
+  document.getElementById('gate').style.display='none';
+  document.getElementById('app').style.display='block';
+  document.body.classList.toggle('client',m==='client');
+  const eb=document.getElementById('modeEyebrow'), tt=document.getElementById('modeTitle'), sb=document.getElementById('modeSub'), tl=document.getElementById('tbLabel');
+  if(m==='client'){eb.textContent='Seelsorge-Werkzeug';tt.textContent='Ihr Fragebogen';sb.textContent='Ein paar Fragen zu Ihnen und Ihrer Geschichte.';tl.textContent='Ihre Antworten';document.getElementById('saveBtn').textContent='Antworten speichern';}
+  else{eb.textContent='Seelsorge-Werkzeug';tt.textContent='Seelsorgesitzung';sb.textContent='Aufnahme, Unterscheidung und die Schritte in die Freiheit.';tl.textContent='Sitzung';document.getElementById('saveBtn').textContent='Speichern';}
+  document.getElementById('nextSessBtn').style.display=(m==='minister')?'':'none';
+  renderHist();
+  showStep();
+}
+function goHome(){
+  if(confirm('Zur Startseite zurückkehren? Nicht Gespeichertes bleibt nur im Arbeitsspeicher, bis Sie leeren oder das Fenster schließen.')){
+    document.getElementById('app').style.display='none';
+    document.getElementById('gate').style.display='block';
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+}
+
+function railRender(){
+  document.getElementById('rail').innerHTML=steps().map((s,i)=>
+    `<button class="${i===cur?'active':''} ${i<cur?'done':''}" onclick="jump(${i})"><span class="num">${i+1}</span>${s}</button>`).join('');
+}
+function showStep(){
+  document.querySelectorAll('.step').forEach(el=>el.classList.remove('show'));
+  const sel=document.querySelector(`.step[data-mode="${mode}"][data-step="${cur}"]`);
+  if(sel) sel.classList.add('show');
+  document.getElementById('prevBtn').disabled=cur===0;
+  const last=steps().length-1;
+  document.getElementById('nextBtn').style.visibility=cur===last?'hidden':'visible';
+  railRender();
+  if(mode==='minister'&&cur===6) buildReport();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function go(d){const n=cur+d;if(n<0||n>=steps().length)return;cur=n;showStep();}
+function jump(i){cur=i;showStep();}
+
+/* dynamische Listen */
+function renderSafety(){document.getElementById('safetyList').innerHTML=SAFETY.map((s,i)=>`<div class="citem" id="safe_${i}"><label class="chead"><input type="checkbox" onchange="tog('safety',${i},this.checked,'safe_${i}')"><span class="nm">${s}</span></label></div>`).join('');}
+function renderTriage(){
+  document.getElementById('triageList').innerHTML=TRIAGE.map((x,i)=>`<div class="citem" id="tri_${i}"><label class="chead"><input type="checkbox" onchange="togTri(${i},this.checked)"><span class="nm">${x.t}<small>${x.d}</small></span></label>${i===2?`<div class="sub" id="oppsub">${OPP_INDICATORS.map((o,j)=>`<label style="display:flex;gap:9px;align-items:flex-start;margin:6px 0;font-size:13.5px;cursor:pointer"><input type="checkbox" style="margin-top:3px;accent-color:var(--accent)" onchange="togOpp(${j},this.checked)">${o}</label>`).join('')}</div>`:''}</div>`).join('');
+}
+function togTri(i,on){data.triage[i]=on;markDirty();document.getElementById('tri_'+i).classList.toggle('on',on);updateNext();}
+function togOpp(j,on){data.opp[j]=on;markDirty();}
+function updateNext(){
+  const box=document.getElementById('triageNext'); if(!box)return;
+  const opp=data.t_posopp||''; const kinds=[];
+  if(data.triage[0])kinds.push('einen gewöhnlichen Kampf');
+  if(data.triage[1])kinds.push('eine geistliche Wurzel');
+  if(data.triage[2])kinds.push('eine mögliche dämonische Komponente');
+  if(!kinds.length&&!opp){box.innerHTML='Setzen Sie oben Ihre Markierungen, dann zeigt Ihnen dieses Feld, wie der Rest der Sitzung aussieht.';return;}
+  let msg='';
+  if(kinds.length)msg+='Sie haben dies benannt als <b>'+kinds.join('</b>, <b>')+'</b>. ';
+  if(opp.startsWith('Keine')){msg+='Dies ist ein Weg der <b>Seelsorge und Jüngerschaft</b>. Die Phase Befreiung entfällt. Gehen Sie durch Türen und Prüfung und achten Sie auf Wunden, die Heilung brauchen, und Sünde, die Buße braucht; dann landen Sie bei einem behutsamen Plan.';msg+='<span class="arrow">Weiter: Türen, Prüfung, Plan. Befreiung überspringen.</span>';}
+  else if(opp.startsWith('Bedrückung')){msg+='Dies ist ein Weg der <b>Bedrückung oder eines Einfallstors</b>. Ein Mensch ist mehr als ein Zimmer; Sie haben es mit einem Bereich zu tun, nicht mit dem ganzen Menschen. Die Phase Befreiung kommt später ins Spiel, aber erst nachdem Buße und Heilung den Boden bereitet haben.';msg+='<span class="arrow">Weiter: Türen, Prüfung, Befreiung, das Haus füllen.</span>';}
+  else if(opp.startsWith('Schwere')){msg+='Dies ist ein Weg der <b>schweren Bindung</b>. Nicht überstürzen und nicht allein tun. Sammeln Sie vor der Phase Befreiung ein Team und erwägen Sie Gebet und Fasten (Mk 9,29).';msg+='<span class="arrow">Weiter: ein Team sammeln. Dann Türen, Prüfung, Befreiung, ohne Eile.</span>';}
+  else if(opp.startsWith('Unklar')){msg+='Sie sind <b>unsicher</b>, und das ist ein ehrlicher und sicherer Ort. Schließen Sie heute nichts. Gehen Sie durch Türen und Prüfung, stützen Sie sich auf die sieben Prüfungen und beobachten Sie die Frucht in den kommenden Wochen.';msg+='<span class="arrow">Weiter: Türen, Prüfung. Zeit und Frucht entscheiden lassen, bevor es zur Befreiung kommt.</span>';}
+  else{if(data.triage[2])msg+='Sie haben eine mögliche dämonische Komponente markiert. <b>Treffen Sie eine Wahl in Schritt 2</b>, damit das Werkzeug weiß, wie tief es reicht und wie vorsichtig es sein muss.';else msg+='Keine dämonische Komponente ist markiert. Wenn das Ihre Einschätzung ist, wählen Sie in Schritt 2 <b>„Keine dämonische Komponente erkannt“</b>; dann ist dies ein Weg der Seelsorge und Jüngerschaft.';}
+  box.innerHTML=msg;
+}
+function itext(it){return typeof it==='string'?it:it.t;}
+function istar(it){return typeof it==='object'&&it.star;}
+function renderInv(){
+  document.getElementById('invMount').innerHTML=CATS.map(cat=>{
+    const note=cat.note?`<p class="note">${cat.note}</p>`:'';
+    const rows=cat.items.map((it,idx)=>{const nm=itext(it),star=istar(it)?'<span class="star">&lowast;</span>':'';
+      return `<div class="citem" id="inv_${cat.id}_${idx}"><label class="chead"><input type="checkbox" onchange="togInv('${cat.id}',${idx},this.checked)"><span class="nm">${nm}${star}</span></label><div class="sub"><label class="fld" style="margin:0"><span class="lab">Notiz (Einzelheiten, Namen, Dauer)</span><input type="text" oninput="invNote('${cat.id}',${idx},this.value)"></label></div></div>`;}).join('');
+    return `<h2 class="sec">${cat.title}</h2>${note}<div class="clist">${rows}</div>`;}).join('');
+}
+function ensureInv(cid,idx){data.inv[cid]=data.inv[cid]||{};data.inv[cid][idx]=data.inv[cid][idx]||{on:false,note:""};return data.inv[cid][idx];}
+function togInv(cid,idx,on){ensureInv(cid,idx).on=on;markDirty();document.getElementById(`inv_${cid}_${idx}`).classList.toggle('on',on);}
+function invNote(cid,idx,v){ensureInv(cid,idx).note=v;markDirty();}
+function renderTests(){
+  document.getElementById('testList').innerHTML=TESTS.map(t=>{
+    const tag=t.over?' <span style="font-family:ui-monospace;font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--amber)">[über Zeit]</span>':'';
+    return `<div class="testrow"><p class="tq">${t.q}${tag}</p><div class="tref">${t.ref}</div><div class="triad" id="test_${t.id}"><button onclick="setTest('${t.id}','pass',this)">Besteht</button><button onclick="setTest('${t.id}','concern',this)">Bedenken</button><button onclick="setTest('${t.id}','fail',this)">Besteht nicht</button></div></div>`;}).join('');
+}
+function setTest(id,val,btn){data.tests[id]=val;markDirty();const grp=document.getElementById('test_'+id);grp.querySelectorAll('button').forEach(b=>b.classList.remove('sel'));btn.classList.add('sel');}
+function renderMinistry(){document.getElementById('ministryList').innerHTML=MINISTRY.map(m=>`<div class="citem" id="min_${m.id}"><label class="chead"><input type="checkbox" onchange="tog('ministry','${m.id}',this.checked,'min_${m.id}')"><span class="nm">${m.t}<small>${m.d}</small></span></label></div>`).join('');}
+function tog(bucket,key,on,elid){data[bucket][key]=on;markDirty();document.getElementById(elid).classList.toggle('on',on);}
+
+/* ============================== BEGLEITUNGSVERLAUF (MEHRERE SITZUNGEN) ============================== */
+function snapshotSession(){
+  const flaggedNames=[];
+  CATS.forEach(cat=>{const c=data.inv[cat.id];if(!c)return;Object.keys(c).forEach(idx=>{if(c[idx].on)flaggedNames.push(itext(cat.items[idx]));});});
+  return {
+    session:data.p_session||'',date:data.p_date||'',assess:data.d_assess||'',posopp:data.t_posopp||'',
+    rebcap:data.d_rebcap||'',why:data.d_why||'',ready:data.d_ready||'',
+    tests:Object.assign({},data.tests),flagged:flaggedNames,
+    fill:data.m_fill||'',next:data.m_next||'',homework:data.m_homework||'',checkin:data.m_checkin||'',open:data.m_open||'',
+    safetyFlagged:SAFETY.some((s,i)=>data.safety[i]),notes:data.s_notes||''
+  };
+}
+function newSession(){
+  if(!confirm('Diese Sitzung im Begleitungsverlauf archivieren und die nächste Sitzung mit derselben Person beginnen? Hintergrund, Türen und Anlaufstellen werden übernommen; die Sitzungsarbeit beginnt neu.'))return;
+  data.history=data.history||[];
+  data.history.push(snapshotSession());
+  data.safety={};data.triage={};data.opp={};data.tests={};data.ministry={};
+  ['s_notes','t_posopp','d_ignatian','d_rebcap','d_assess','d_why','d_ready',
+   'm_fill','m_word','m_accountable','m_next','m_homework','m_checkin','m_open','i_reason'].forEach(k=>delete data[k]);
+  const sessOrder=['1','2','3','4','5','6+'];
+  const curIdx=sessOrder.indexOf(String(data.p_session||'1'));
+  data.p_session=sessOrder[Math.min(curIdx+1,sessOrder.length-1)];
+  data.p_date=new Date().toISOString().slice(0,10);
+  document.querySelectorAll('#safetyList input,#triageList input,#ministryList input').forEach(b=>{b.checked=false;});
+  document.querySelectorAll('#safetyList .citem,#triageList .citem,#ministryList .citem').forEach(c=>c.classList.remove('on'));
+  document.querySelectorAll('.triad button').forEach(b=>b.classList.remove('sel'));
+  document.querySelectorAll('[data-radio] .choice').forEach(c=>c.classList.remove('on'));
+  document.querySelectorAll('[data-radio] input[type=radio]').forEach(r=>r.checked=false);
+  ['s_notes','t_posopp','d_ignatian','d_why','d_ready','m_fill','m_word','m_accountable','m_next','m_homework','m_checkin','m_open','i_reason'].forEach(k=>{const el=document.querySelector(`[data-k="${k}"]`);if(el)el.value='';});
+  const sel=document.querySelector('[data-k="p_session"]');if(sel)sel.value=data.p_session;
+  const dt=document.querySelector('[data-k="p_date"]');if(dt)dt.value=data.p_date;
+  updateNext();renderHist();renderPriorMarks();markDirty();
+  cur=0;showStep();
+  alert('Sitzung archiviert. Sie sind jetzt in Sitzung '+data.p_session+'. Speichern Sie am Ende in dieselbe Datei.');
+}
+function assessLabel(k){return k?(ASSESS_META[k]?ASSESS_META[k].t:k):'Keine Einschätzung festgehalten';}
+function renderHist(){
+  const mount=document.getElementById('histMount');if(!mount)return;
+  const h=data.history||[];
+  if(!h.length){mount.innerHTML='';return;}
+  mount.innerHTML=`<div class="histpanel"><div class="hp-head">Begleitungsverlauf, ${h.length} frühere Sitzung${h.length>1?'en':''}</div>`+
+    h.map(s=>`<div class="histrow"><span class="hn">Sitzung ${esc(s.session)||'?'}</span><span class="hd">${esc(s.date)||'ohne Datum'}</span><span>${esc(assessLabel(s.assess))}${s.posopp?' &middot; '+esc(s.posopp):''}${s.safetyFlagged?' &middot; <span style="color:var(--flag)">Sicherheitspunkt</span>':''}</span>${s.next?`<span class="hd">Nächster Schritt war: ${esc(s.next)}</span>`:''}</div>`).join('')+`</div>`;
+}
+function renderPriorMarks(){
+  const h=data.history||[];
+  document.querySelectorAll('.prior').forEach(el=>el.remove());
+  if(!h.length)return;
+  const last=h[h.length-1];
+  TESTS.forEach(t=>{
+    const v=last.tests&&last.tests[t.id];if(!v)return;
+    const grp=document.getElementById('test_'+t.id);if(!grp)return;
+    const lbl=v==='pass'?'Bestanden':v==='concern'?'Bedenken':'Nicht bestanden';
+    const tag=document.createElement('span');tag.className='prior';tag.textContent='Letzte Sitzung: '+lbl;
+    grp.parentElement.querySelector('.tref').appendChild(tag);
+  });
+}
+
+function bindFields(){
+  document.querySelectorAll('[data-k]').forEach(el=>{
+    const h=()=>{data[el.dataset.k]=el.value;markDirty();};
+    el.addEventListener('input',h);el.addEventListener('change',h);
+  });
+  document.querySelectorAll('[data-radio]').forEach(grp=>{grp.querySelectorAll('input[type=radio]').forEach(rb=>rb.addEventListener('change',()=>{
+    data[grp.dataset.radio]=rb.value;grp.querySelectorAll('.choice').forEach(c=>c.classList.remove('on'));rb.closest('.choice').classList.add('on');markDirty();
+    if(grp.dataset.radio==='t_posopp')updateNext();}));});
+}
+
+/* ============================== PLAN ============================== */
+const NA='<span class="empty">k. A.</span>';
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function val(k){return data[k]?esc(data[k]):'';}
+function repLine(label,v){return `<div class="itemline"><span class="il-name"><span class="il-cat">${label}</span><br>${v||NA}</span></div>`;}
+const ASSESS_META={
+  flesh:{cls:"flesh",t:"Sünde oder Fleisch",d:"Der Weg hinein führt über Buße und Jüngerschaft. Ein Einfallstor, das geschlossen werden muss, nicht unbedingt ein Geist, der ausgetrieben werden muss."},
+  trauma:{cls:"trauma",t:"Trauma oder Trauer",d:"Mit Heilungsgebet und seelsorgerlicher Begleitung beginnen, nicht mit Sündenbekenntnis. Jesus in die Wunde einladen, damit er die Lüge durch Wahrheit ersetzt."},
+  mh:{cls:"mh",t:"Psychische Erkrankung möglich",d:"Vor oder neben der Seelsorge eine approbierte Fachkraft einbeziehen. Seelsorgerliche Unterstützung geht weiter; sie ersetzt keine Behandlung."},
+  oppression:{cls:"oppression",t:"Bedrückung",d:"Befreiungsgebet im Team, nie überstürzt. Vollmacht festmachen, Übereinkünfte brechen, die Freigabe gebieten, dann das Haus füllen."},
+  mixed:{cls:"mixed",t:"Gemischt",d:"Mehr als ein Weg ist nötig. Meist bereiten Buße und Heilung den Boden für die Befreiung, und die Füllung folgt immer."}
+};
+const CRISIS_LINE='TelefonSeelsorge Deutschland 0800 111 0 111 oder 0800 111 0 222, Österreich 142, Schweiz 143, Kanada und USA 988';
+function buildReport(){
+  const rep=document.getElementById('report'); if(!rep)return;
+  const flagged=[];
+  CATS.forEach(cat=>{const c=data.inv[cat.id];if(!c)return;Object.keys(c).forEach(idx=>{const r=c[idx];if(r.on){const it=cat.items[idx];flagged.push({cat:cat.id,catTitle:cat.title,name:itext(it),star:istar(it),note:r.note});}});});
+  const catsPresent=[...new Set(flagged.map(f=>f.cat))];
+  const hasUnforgive=flagged.some(f=>/unversöhn|bitter/i.test(f.name));
+  const safeFlags=SAFETY.filter((s,i)=>data.safety[i]);
+  const oppInd=OPP_INDICATORS.filter((s,i)=>data.opp[i]);
+  const triSel=TRIAGE.filter((x,i)=>data.triage[i]).map(x=>x.t);
+
+  let html='';
+  html+=`<div class="rep-h"><p class="eyebrow">Vertrauliche seelsorgerliche Aufzeichnung</p><h2>Plan der Seelsorgesitzung</h2>
+    <div class="rep-meta"><strong>Person:</strong> ${val('p_name')||val('c_name')||'k. A.'} &nbsp;|&nbsp; <strong>Datum:</strong> ${val('p_date')||val('c_date')||'k. A.'} &nbsp;|&nbsp; <strong>Sitzung:</strong> ${val('p_session')||'k. A.'}<br>
+    <strong>Leitung:</strong> ${val('p_pastor')||'k. A.'} &nbsp;|&nbsp; <strong>Weitere Anwesende:</strong> ${val('p_team')||'k. A.'}</div></div>`;
+
+  if(safeFlags.length){
+    html+=`<div class="rep-sec"><h3>Sicherheit, vor jedem Befreiungsdienst klären</h3>
+      <div class="verdict mh"><div class="vt">Weitervermittlung angezeigt</div><div class="vd">Ein oder mehrere Risikopunkte wurden markiert. Die seelsorgerliche Begleitung geht weiter, aber vor oder neben jedem Befreiungs- oder Heilungsdienst sollte eine approbierte Fachkraft für psychische Gesundheit einbezogen werden. Weitervermitteln ist keine Schande. Bei unmittelbarer Gefahr den Notruf verständigen.</div></div>
+      <ul class="clean">${safeFlags.map(s=>`<li>${esc(s)}</li>`).join('')}</ul>
+      ${data.s_notes?`<p style="font-size:14px"><strong>Notizen:</strong> ${val('s_notes')}</p>`:''}
+      ${(data.r_crisis||data.r_counsel||data.r_other)?`<div style="margin-top:8px"><span class="il-cat">Hinterlegte Anlaufstellen:</span><ul class="clean">${data.r_crisis?`<li>Krisentelefon: ${val('r_crisis')}</li>`:''}${data.r_counsel?`<li>Beratungsstelle oder Therapeut: ${val('r_counsel')}</li>`:''}${data.r_other?`<li>${val('r_other')}</li>`:''}</ul></div>`:''}</div>`;
+  }
+
+  if((data.history||[]).length){
+    html+=`<div class="rep-sec"><h3>Begleitungsverlauf</h3>`+
+      data.history.map(s=>`<div class="itemline"><span class="il-name"><span class="il-cat">Sitzung ${esc(s.session)||'?'} &middot; ${esc(s.date)||'ohne Datum'}</span><br>${esc(assessLabel(s.assess))}${s.posopp?'; '+esc(s.posopp):''}${s.next?`<br><small style="color:var(--ink-soft)">Nächster Schritt war: ${esc(s.next)}</small>`:''}</span></div>`).join('')+
+      `<p class="note" style="margin-top:8px">Frucht wird über Zeit beurteilt, nicht in einer Sitzung. Vergleichen Sie die heutigen Prüfungen und die Frucht dieser Sitzung mit den Sitzungen oben, bevor Sie etwas schließen.</p></div>`;
+  }
+
+  html+=`<div class="rep-sec"><h3>Ausgangslage</h3>`;
+  html+=repLine('Anlass des Gesprächs',val('i_reason')||val('c_reason'));
+  html+=repLine('Bekehrung oder Hingabe',val('i_conv'));
+  html+=repLine('Geistliche Praxis',val('i_practice'));
+  html+=repLine('Geistliche Reife',val('i_maturity'));
+  html+=repLine('Erkannte Verletzungen',val('i_pain')||val('c_pain'));
+  html+=repLine('Muster in den Generationen',val('i_gen'));
+  html+=repLine('Geistliche Vorgeschichte',val('i_spirhist')||val('c_faith'));
+  html+=`</div>`;
+
+  html+=`<div class="rep-sec"><h3>Einordnung</h3>`;
+  html+=`<div class="itemline"><span class="il-name"><span class="il-cat">Betrachtete Bereiche</span><br>${triSel.length?esc(triSel.join('; ')):NA}</span></div>`;
+  if(oppInd.length){html+=`<div style="margin-top:10px"><span class="il-cat">Festgestellte Hinweise auf Bedrückung (Hinweise, keine Beweise):</span><ul class="clean">${oppInd.map(o=>`<li>${esc(o)}</li>`).join('')}</ul></div>`;}
+  html+=repLine('Einschätzung der Tiefe',val('t_posopp'));
+  html+=`</div>`;
+
+  const a=data.d_assess?ASSESS_META[data.d_assess]:null;
+  html+=`<div class="rep-sec"><h3>Unterscheidung</h3>`;
+  if(a)html+=`<div class="verdict ${a.cls}"><div class="vt">${a.t}</div><div class="vd">${a.d}</div></div>`;
+  const testLines=TESTS.filter(t=>data.tests[t.id]).map(t=>{const v=data.tests[t.id];const label=v==='pass'?'Besteht':v==='concern'?'Bedenken':'Besteht nicht';return `<div class="itemline"><span class="il-name">${esc(t.q)} <span class="il-cat">${t.ref}</span></span><span style="font-family:ui-monospace;font-size:12px;font-weight:700">${label}</span></div>`;});
+  if(testLines.length){html+=`<div style="margin:6px 0 4px"><span class="il-cat">Sieben Prüfungen:</span></div>`+testLines.join('');}
+  html+=repLine('Trost oder Trostlosigkeit',val('d_ignatian'));
+  html+=repLine('Auflehnung oder Gefangenschaft',val('d_rebcap'));
+  html+=repLine('Begründung (Frucht und Hinweise)',val('d_why'));
+  html+=repLine('Bereitschaft',val('d_ready'));
+  html+=`</div>`;
+
+  html+=`<div class="rep-sec"><h3>Erkannte Einfallstore</h3>`;
+  if(!flagged.length)html+=`<p class="empty">Keine Einfallstore markiert.</p>`;
+  else{html+=flagged.map(f=>`<div class="itemline"><span class="il-name">${esc(f.name)}${f.star?' <span style="color:var(--flag);font-weight:700">&lowast;</span>':''} <span class="il-cat">${esc(f.catTitle)}</span>${f.note?`<br><small style="color:var(--ink-soft)">${esc(f.note)}</small>`:''}</span></div>`).join('');
+    html+=`<div class="guard" style="margin-top:14px"><b>Richtig lesen</b>Dies sind Türen, keine Diagnose. Ein Sternchen kennzeichnet eine Tür, die sich schon durch ein einziges Vorkommnis öffnen kann. Was sie bedeuten, entscheidet die Unterscheidung oben, die Frucht über Zeit. Ein Mensch ist mehr als ein Zimmer.</div>`;}
+  html+=`</div>`;
+
+  html+=`<div class="rep-sec"><h3>Schriftwort und Gebet für den Weg hinein</h3>`;
+  if(!catsPresent.length)html+=`<p class="empty">Markieren Sie Einfallstore, um Schriftworte und Gebete einzufügen.</p>`;
+  else{catsPresent.forEach(cid=>{const lib=LIB[cid];const title=CATS.find(c=>c.id===cid).title;
+    html+=`<h4 style="font-size:15px;margin:18px 0 6px">${esc(title)}</h4>`;
+    lib.scriptures.forEach(s=>html+=`<blockquote class="scr">${esc(s.t)}<cite>${esc(s.r)}</cite></blockquote>`);
+    html+=`<div class="prayer"><span class="pl">Gebet zum Vorbeten</span>${esc(lib.prayer)}</div>`;
+    html+=`<ul class="clean">${lib.steps.map(st=>`<li>${esc(st)}</li>`).join('')}</ul>`;});
+    if(hasUnforgive){html+=`<h4 style="font-size:15px;margin:18px 0 6px">Weg der Vergebung</h4>`;FORGIVE.scriptures.forEach(s=>html+=`<blockquote class="scr">${esc(s.t)}<cite>${esc(s.r)}</cite></blockquote>`);html+=`<div class="prayer"><span class="pl">Gebet zum Vorbeten</span>${esc(FORGIVE.prayer)}</div>`;}}
+  html+=`</div>`;
+
+  const stepsDone=MINISTRY.filter(m=>data.ministry[m.id]);
+  if(stepsDone.length||data.d_assess==='oppression'||data.d_assess==='mixed'){
+    html+=`<div class="rep-sec"><h3>Befreiungsdienst, die fünf Schritte</h3>`;
+    html+=`<ol class="steps">${MINISTRY.map(m=>`<li>${esc(m.t.replace(/^\d+\.\s/,''))} ${data.ministry[m.id]?'<strong style="color:var(--accent)">erledigt</strong>':'<span class="empty">noch nicht</span>'}</li>`).join('')}</ol>`;
+    html+=`<div class="flagcard"><b>Leitplanken</b><p>Gebieten, nicht reden. Kein Theater. Würde schützen, nicht öffentlich. Nie allein. Manche Kämpfe brauchen Gebet und Fasten (Mk 9,29).</p></div></div>`;
+  }
+
+  html+=`<div class="rep-sec"><h3>Das Haus füllen und nächste Schritte</h3>`;
+  html+=repLine('Um Erfüllung mit dem Heiligen Geist gebetet',val('m_fill'));
+  html+=repLine('Tägliches Bibellesen oder Andacht',val('m_word'));
+  html+=repLine('Rechenschaft oder Gemeinschaft',val('m_accountable'));
+  html+=repLine('Nächster Schritt und Rückmeldung',val('m_next'));
+  html+=repLine('Aufgaben zwischen den Sitzungen',val('m_homework'));
+  html+=repLine('Termin für Rückmeldung',val('m_checkin'));
+  html+=repLine('Noch offen',val('m_open'));
+  html+=`<ul class="clean" style="margin-top:10px"><li>Reinigung ist nötig, aber nicht genug. Ein gefegtes, leeres Haus endet schlimmer (Lk 11,24-26).</li><li>Befreiung öffnet eine Tür; Jüngerschaft entscheidet, was hindurchgeht.</li><li>Vor jedem Absagegebet oder Befreiungsgebet die Zustimmung bestätigen. Nie überstürzen.</li></ul></div>`;
+
+  // ===== BLATT ZUM MITNEHMEN =====
+  html+=`<hr class="handout-divider"><div class="rep-sec handout-sec"><div class="handout-note">Blatt zum Mitnehmen, diesen Teil für die Person drucken</div><h3 style="border:0;margin-bottom:6px">Schriftwort und Gebet für diese Woche</h3>`;
+  catsPresent.forEach(cid=>{const lib=LIB[cid];lib.scriptures.slice(0,2).forEach(s=>html+=`<blockquote class="scr">${esc(s.t)}<cite>${esc(s.r)}</cite></blockquote>`);});
+  HANDOUT_ALWAYS.forEach(s=>html+=`<blockquote class="scr">${esc(s.t)}<cite>${esc(s.r)}</cite></blockquote>`);
+  html+=`<div class="prayer"><span class="pl">Ein Gebet für jeden Tag</span>${esc(HANDOUT_PRAYER)}</div>`;
+  if(catsPresent.length){html+=`<p class="note">Persönliches Gebet für Ihre Situation:</p>`;catsPresent.forEach(cid=>{html+=`<div class="prayer"><span class="pl">${esc(CATS.find(c=>c.id===cid).title)}</span>${esc(LIB[cid].prayer)}</div>`;});}
+  const hwLines=(data.m_homework||'').split('\n').map(s=>s.trim()).filter(Boolean);
+  if(hwLines.length||data.m_checkin){
+    html+=`<h3 style="border:0;margin:18px 0 6px">Ihre Schritte in dieser Woche</h3>`;
+    if(hwLines.length)html+=`<ol class="steps">${hwLines.map(s=>`<li>${esc(s)}</li>`).join('')}</ol>`;
+    if(data.m_checkin)html+=`<p style="font-size:14px"><strong>Wir melden uns wieder am:</strong> ${val('m_checkin')}</p>`;
+  }
+  html+=`<p style="font-size:13.5px;color:var(--ink-soft);margin-top:12px">Lesen Sie jeden Morgen einen Abschnitt. Wenn das alte Muster oder die Angst aufsteigt, kehren Sie dorthin zurück. Sie gehen diesen Weg nicht allein.</p>`;
+  html+=`<p style="font-size:13px;color:var(--ink-soft);margin-top:10px"><strong>Wenn es in dieser Woche schwer wird:</strong> Rund um die Uhr erreichbar: ${CRISIS_LINE}.${data.r_crisis?' Vor Ort: '+val('r_crisis')+'.':''} Sie müssen nicht bis zu unserem nächsten Treffen warten.</p>`;
+  html+=`<p style="font-size:11.5px;color:var(--ink-soft);margin-top:8px">Bibeltexte nach der Lutherbibel 1912.</p>`;
+  html+=`</div>`;
+
+  html+=`<div class="disclaimerbar">Dieses Instrument unterstützt die seelsorgerliche Unterscheidung; es stellt keine Diagnose. Es gründet auf geistlicher Kampfführung im Alltag, auf Unterscheidung an der Frucht (die sieben Prüfungen), auf einer Einordnung in drei Bereiche und einem Muster des Befreiungsdienstes in fünf Schritten mit anschließender Füllung. Die Liste der Einfallstore übernimmt Kategorien aus Peter J. Bellini, <em>Unleashed: The C1-13 Integrative Deliverance Needs Assessment</em> (Wipf and Stock, 2018). Fragen der psychischen und körperlichen Gesundheit sowie der Sicherheit gehören in die Hände qualifizierter Fachleute. Vertraulich behandeln. Bibeltexte nach der Lutherbibel 1912 (gemeinfrei), Psalmen in deutscher Verszählung.</div>`;
+  rep.innerHTML=html;
+}
+
+/* ============================== DRUCKEN ============================== */
+function printFull(){buildReport();document.body.classList.remove('print-handout');window.print();}
+function printHandout(){
+  buildReport();document.body.classList.add('print-handout');
+  const done=()=>{document.body.classList.remove('print-handout');window.removeEventListener('afterprint',done);};
+  window.addEventListener('afterprint',done);
+  window.print();
+  setTimeout(done,1500);
+}
+
+/* ============================== SPEICHERN / LADEN ============================== */
+function saveSession(){
+  data.savedAt=new Date().toISOString();
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const a=document.createElement('a');const who=(data.p_name||data.c_name||'sitzung').replace(/[^a-z0-9äöüß]/gi,'_');
+  const tag=data.mode==='client'?'fragebogen':'sitzung';
+  a.href=URL.createObjectURL(blob);a.download=`seelsorge_${tag}_${who}.json`;a.click();URL.revokeObjectURL(a.href);
+  markClean();
+}
+function loadSession(e){const file=e.target.files[0];if(!file)return;const r=new FileReader();
+  r.onload=()=>{try{const L=JSON.parse(r.result);Object.keys(data).forEach(k=>delete data[k]);Object.assign(data,L);
+    ['safety','triage','opp','inv','tests','ministry'].forEach(b=>data[b]=data[b]||{});
+    data.history=Array.isArray(data.history)?data.history:[];
+    // ein geladener Fragebogen öffnet sich im Seelsorgemodus, damit der Seelsorger damit arbeiten kann
+    mode = (data.mode==='client') ? 'minister' : (data.mode||'minister');
+    data.mode=mode; cur=0;
+    document.getElementById('gate').style.display='none';
+    document.getElementById('app').style.display='block';
+    document.body.classList.toggle('client',false);
+    enterMode(mode);
+    rehydrate();
+    renderHist();renderPriorMarks();markClean();
+    alert('Geladen. '+(L.mode==='client'?'Die Antworten aus dem Fragebogen stehen jetzt im Reiter Aufnahme.':'Sitzung wiederhergestellt.'));
+  }catch(err){alert('Diese Datei konnte nicht gelesen werden.');}};
+  r.readAsText(file);
+  e.target.value='';
+}
+function rehydrate(){
+  document.querySelectorAll('[data-k]').forEach(el=>{if(data[el.dataset.k]!=null)el.value=data[el.dataset.k];});
+  const pairs=[['c_reason','i_reason'],['c_family','i_family'],['c_pain','i_pain'],['c_joy','i_joy'],['c_faith','i_spirhist'],['c_close','i_consol'],['c_far','i_desol'],['c_name','p_name']];
+  pairs.forEach(([c,i])=>{if(data[c]&&!data[i]){const t=document.querySelector(`[data-k="${i}"]`);if(t){t.value=data[c];data[i]=data[c];}}});
+  document.querySelectorAll('[data-radio]').forEach(grp=>{const v=data[grp.dataset.radio];grp.querySelectorAll('input[type=radio]').forEach(rb=>{if(rb.value===v){rb.checked=true;rb.closest('.choice').classList.add('on');}});});
+  Object.keys(data.safety||{}).forEach(i=>{if(data.safety[i]){const b=document.querySelector(`#safe_${i} input`);if(b){b.checked=true;document.getElementById('safe_'+i).classList.add('on');}}});
+  Object.keys(data.triage||{}).forEach(i=>{if(data.triage[i]){const b=document.querySelector(`#tri_${i} input`);if(b){b.checked=true;document.getElementById('tri_'+i).classList.add('on');}}});
+  Object.keys(data.opp||{}).forEach(j=>{if(data.opp[j]){const box=document.querySelectorAll('#oppsub input')[j];if(box)box.checked=true;}});
+  Object.keys(data.inv||{}).forEach(cid=>Object.keys(data.inv[cid]).forEach(idx=>{const r=data.inv[cid][idx];const root=document.getElementById(`inv_${cid}_${idx}`);if(!root)return;if(r.on){root.querySelector('input[type=checkbox]').checked=true;root.classList.add('on');}const nt=root.querySelector('input[type=text]');if(nt&&r.note)nt.value=r.note;}));
+  Object.keys(data.tests||{}).forEach(id=>{const grp=document.getElementById('test_'+id);if(!grp)return;const map={pass:0,concern:1,fail:2};const b=grp.querySelectorAll('button')[map[data.tests[id]]];if(b)b.classList.add('sel');});
+  Object.keys(data.ministry||{}).forEach(id=>{if(data.ministry[id]){const el=document.getElementById('min_'+id);if(el){el.querySelector('input').checked=true;el.classList.add('on');}}});
+  updateNext();
+}
+function clearAll(){if(!confirm('Alle Eingaben leeren und neu beginnen? Dabei wird auch der Begleitungsverlauf geleert. Nicht Gespeichertes geht verloren.'))return;
+  Object.keys(data).forEach(k=>delete data[k]);['safety','triage','opp','inv','tests','ministry'].forEach(b=>data[b]={});data.history=[];data.mode=mode;
+  renderSafety();renderTriage();renderInv();renderTests();renderMinistry();renderHist();renderPriorMarks();markClean();
+  document.querySelectorAll('[data-k]').forEach(el=>el.value='');
+  document.querySelectorAll('[data-radio] .choice').forEach(c=>c.classList.remove('on'));
+  document.querySelectorAll('[data-radio] input[type=radio]').forEach(r=>r.checked=false);
+  document.querySelectorAll('.triad button').forEach(b=>b.classList.remove('sel'));
+  updateNext();cur=0;showStep();
+}
+
+/* dynamische Inhalte einmalig aufbauen */
+renderSafety();renderTriage();renderInv();renderTests();renderMinistry();bindFields();
+</script>
+</body>
+</html>
