@@ -1,5 +1,23 @@
 # Changelog
 
+## v4.1: Prayer pauses (2026-11-03)
+
+Seven places to stop and pray, each with a suggested prayer (folded away; "use your own words" comes first), a listening prompt, and a place to note what you sensed.
+
+1. **Before they arrive** (Home, just you): heart searching, wisdom, discerning of spirits, covering, agreeing together.
+2. **Opening** (Intake): ask permission first; welcome the Holy Spirit; peace and a safe place.
+3. **When there is a safety concern** (Safety, appears only when a risk is marked): act on safety first, then pray alongside it.
+4. **Before you discern** (Discern): ask for discernment and be quiet together. A reminder that impressions are weighed, not obeyed (1 Cor 14:29).
+5. **Listen before you pray** (Ministry): ask if they are ready, then listen. Prayers of authority stay within the five steps.
+6. **Sending** (Plan): the blessing of Numbers 6:24-26, filling, and prayer over their steps.
+7. **After they leave** (Plan, just you): release the person to God, rest, and follow-up.
+
+- Notes from every pause go into the confidential record under "Prayer and listening," never on the handout.
+- Notes save with the file; a new session with the same person starts with fresh prayer notes.
+- Menu: "Suggested prayers" shows or hides the written prayers (remembered on that device). The listening spaces always stay.
+- Learn: new foundation lesson, "Praying through a session."
+- Spirits are addressed only within the five steps of ministry, never in the opening or sending prayers.
+
 ## v4.0: New layout (2026-11-03)
 
 The whole tool now uses the layout and type of Akouō. Everything it did before still works the same way.

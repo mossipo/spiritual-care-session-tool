@@ -300,6 +300,23 @@
     .reportwrap{border:0;box-shadow:none;padding:0}
   }
 
+  /* ===== prayer pauses ===== */
+  .pray{background:var(--sheet);border:1px solid var(--rule);border-left:4px solid var(--amber);border-radius:12px;padding:14px 16px;margin:16px 0 22px;display:flex;flex-direction:column;gap:10px;box-shadow:var(--shadow)}
+  .pray .eyebrow{color:var(--amber)}
+  .pray-title{font-family:var(--f-display);font-size:1.3rem;font-weight:600;margin:2px 0 0;line-height:1.2}
+  .pray-lead{margin:0;font-size:1rem}
+  details.pray-sugg{background:var(--paper);border-radius:10px}
+  details.pray-sugg > summary{list-style:none;cursor:pointer;padding:10px 12px;color:var(--blue);font-weight:500}
+  details.pray-sugg > summary::-webkit-details-marker{display:none}
+  details.pray-sugg > summary::before{content:"+ "}
+  details.pray-sugg[open] > summary::before{content:"\2212\00a0"}
+  .pray-sugg .own{margin:0 12px 6px;font-size:.9rem;color:var(--muted)}
+  .pray-text{margin:0 12px 12px;font-family:var(--f-display);font-size:1.1rem;line-height:1.6}
+  .nm-slot{font-style:italic;background:var(--rubric-soft);color:var(--rubric);border-radius:6px;padding:0 6px;white-space:nowrap}
+  .pray-weigh{margin:0;background:var(--warn-soft);border-radius:9px;padding:9px 12px;font-size:.95rem}
+  body.prayers-off .pray-sugg{display:none}
+  @media print{.pray{display:none!important}}
+
   /* ===== genogram ===== */
   :root{
     --t-faith:#a8801f;--t-addiction:#c0602f;--t-occult:#6b4c8a;--t-abuse:#8a2b20;--t-sexual:#b84b7d;
@@ -421,6 +438,13 @@
         <button type="button" class="act" onclick="enterMode('client')"><span class="glyph">&#9998;</span><span><b>Client intake</b><span>For the person seeking care</span></span></button>
       </div>
       <div class="guide-slot" data-guide="home"></div>
+      <div class="pray" style="margin:0">
+        <div><p class="eyebrow">PAUSE TO PRAY · JUST YOU</p><h3 class="pray-title">Before they arrive</h3></div>
+        <p class="pray-lead">Take a few minutes alone, or with those ministering with you. Agree together in prayer (Matt 18:19), and take a moment to pray in the Spirit (1 Cor 14:15).</p>
+        <details class="pray-sugg"><summary>Suggested prayer</summary><p class="own">Use your own words, or start here.</p><p class="pray-text">Father, search my heart and know me, and show me anything in me that would get in the way today (Ps 139:23-24). I stand in what Jesus finished on the cross, and in His authority, not my own. Give me wisdom (Jas 1:5) and the discerning of spirits (1 Cor 12:10). Guard <span class="nm-slot">name</span>, those ministering with me, this place, and my family. Let me carry Your compassion and not my own agenda. Holy Spirit, lead this time. In Jesus' name, amen.</p></details>
+        <p class="askline" style="margin:0">Lord, is there anything You want me to know before they come?</p>
+        <label class="fld" style="margin:0"><span class="lab">What came to mind as you prepared</span><textarea data-k="pr_prep"></textarea></label>
+      </div>
       <div class="card flat"><h3 class="sec">YOUR FILES STAY WITH YOU</h3><p>This tool runs entirely on your device. Nothing is stored here or sent anywhere. Each person has one file, locked with your passphrase. Open their file to continue where you left off.</p></div>
       <div class="card flat" id="installCard"><h3 class="sec">USE IT WITHOUT INTERNET</h3><p>Add this tool to your home screen and it opens like an app, even with no signal. On iPhone or iPad, open it in Safari, tap Share, then Add to Home Screen. On Android, tap Install app in Chrome's menu.</p><button type="button" class="btn ghost" id="installBtn" hidden style="align-self:flex-start">Install on this device</button></div>
     </div>
@@ -489,6 +513,13 @@
     <!-- 0 INTAKE -->
     <section class="step" data-mode="minister" data-step="0">
       <div class="guide-slot" data-guide="intake"></div>
+      <div class="pray">
+        <div><p class="eyebrow">PAUSE TO PRAY</p><h3 class="pray-title">Opening</h3></div>
+        <p class="pray-lead">First ask: <i>&ldquo;Would it be all right if I pray before we begin?&rdquo;</i> Pray only with their permission, and ask again before laying on hands.</p>
+        <details class="pray-sugg"><summary>Suggested prayer</summary><p class="own">Use your own words, or start here.</p><p class="pray-text">Holy Spirit, You are welcome here. Thank You for bringing <span class="nm-slot">name</span> today. Give us Your peace in this room, and make it a safe place to speak honestly. Give me ears to hear what <span class="nm-slot">name</span> is saying, and what You are saying. Let nothing happen here that is not from You. In Jesus' name, amen.</p></details>
+        <p class="askline" style="margin:0">Lord, what are You saying as we begin?</p>
+        <label class="fld" style="margin:0"><span class="lab">Anything you sensed as you opened</span><textarea data-k="pr_open"></textarea></label>
+      </div>
       <div id="histMount"></div>
       <p class="lede">Build rapport first. Let them tell their story before you reach for a category.</p>
       <h2 class="sec">Session identification</h2>
@@ -547,6 +578,13 @@
       <p class="askline">Any thoughts of harming yourself or others? Is anyone unsafe at home? Substances or addictions right now?</p>
       <div id="safetyList" class="clist"></div>
       <div id="safetyVerdict"></div>
+      <div class="pray" id="prSafety" hidden>
+        <div><p class="eyebrow">PAUSE TO PRAY</p><h3 class="pray-title">When there is a safety concern</h3></div>
+        <p class="pray-lead">Act on safety first: make the referral, or call for help if there is immediate danger. Then pray alongside it, never instead of it.</p>
+        <details class="pray-sugg"><summary>Suggested prayer</summary><p class="own">Use your own words, or start here.</p><p class="pray-text">Lord Jesus, You are close to the brokenhearted. Hold <span class="nm-slot">name</span> in Your care right now. Keep them safe tonight and in the days ahead. Lead us to the right help, and give them courage to receive it. Let them know they are not alone. In Jesus' name, amen.</p></details>
+        
+        <label class="fld" style="margin:0"><span class="lab">Notes on the prayer and the next step for safety</span><textarea data-k="pr_safety"></textarea></label>
+      </div>
       <label class="fld" style="margin-top:16px"><span class="lab">Notes, context, or referral already made</span><textarea data-k="s_notes"></textarea></label>
       <h2 class="sec">Your referral resources</h2>
       <p class="note">Fill these in once with the counsellors, agencies, and crisis lines you actually refer to in your area. They save with the file, carry forward from session to session, and appear automatically in the plan whenever a safety flag is set. The crisis line also prints on the take-home handout.</p>
@@ -587,6 +625,14 @@
     <!-- 4 DISCERNMENT -->
     <section class="step" data-mode="minister" data-step="4">
       <div class="guide-slot" data-guide="discern"></div>
+      <div class="pray">
+        <div><p class="eyebrow">PAUSE TO PRAY</p><h3 class="pray-title">Before you discern</h3></div>
+        <p class="pray-lead">Before you weigh what you have heard, ask the Spirit for discernment. Then be quiet together for a moment.</p>
+        <details class="pray-sugg"><summary>Suggested prayer</summary><p class="own">Use your own words, or start here.</p><p class="pray-text">Holy Spirit, You lead us into all truth (John 16:13). Show us what is really happening in <span class="nm-slot">name</span>'s life: what is of the flesh, what is a wound, and what, if anything, is of the enemy. Keep us from seeing what is not there, and from missing what is. Let anything we sense honour Jesus and agree with Your Word. In Jesus' name, amen.</p></details>
+        <p class="askline" style="margin:0">Holy Spirit, what do You want to show us?</p>
+        <label class="fld" style="margin:0"><span class="lab">Words, pictures, or Scriptures that came to mind</span><textarea data-k="pr_discern"></textarea></label>
+        <p class="pray-weigh">Impressions are weighed, not obeyed. Test them by the seven tests below, and with the others present (1 Cor 14:29), before acting on any of them.</p>
+      </div>
       <p class="lede">The seven tests. The form of a thing is not its identity. Test the source, not the spectacle.</p>
       <div class="guard"><b>Tests over time vs. tests in the room</b>The Christological, Scripture, self-control, and edification tests can be applied now. The fruit and life-trajectory tests need weeks and months. Mark what you can; leave the rest for follow-up.</div>
       <h2 class="sec">The seven tests</h2>
@@ -618,9 +664,13 @@
       <div class="guide-slot" data-guide="ministry"></div>
       <p class="lede">When you discern a demonic element and the person is willing, this is the five-step pattern. Walk it; do not rush it. The house must be filled.</p>
       <div class="flagcard"><b>What not to do</b><p>No drama or theatrics. No extended conversation with a spirit; command, do not converse. Not in public; protect dignity. Never alone; minister as a team. Do not assume every problem is demonic, and do not create fear or fascination with demons.</p></div>
-      <h2 class="sec">Listen before you pray</h2>
-      <p class="note">Stop for listening prayer before ministering. Ask the Holy Spirit to bring to mind anything you need to know; He knows what the person may have forgotten.</p>
-      <label class="fld"><span class="lab">What the Spirit brought to mind</span><textarea data-k="m_listen"></textarea></label>
+      <div class="pray">
+        <div><p class="eyebrow">PAUSE TO PRAY</p><h3 class="pray-title">Listen before you pray</h3></div>
+        <p class="pray-lead">Only if you are moving into ministry. Ask the person if they are ready, then stop and listen before you pray.</p>
+        <details class="pray-sugg"><summary>Suggested prayer</summary><p class="own">Use your own words, or start here.</p><p class="pray-text">Lord Jesus, all authority in heaven and on earth is Yours (Matt 28:18). We come in Your name, not in our own strength. Show us where to begin and where to stop. Give <span class="nm-slot">name</span> courage to renounce what You show them, and keep them in Your peace. Let everything that happens here be done in love and in order. In Jesus' name, amen.</p></details>
+        <p class="askline" style="margin:0">Lord, where do You want us to begin?</p>
+        <label class="fld" style="margin:0"><span class="lab">What the Spirit brought to mind</span><textarea data-k="m_listen"></textarea></label>
+      </div>
       <h2 class="sec">The five steps, record what was done</h2>
       <div id="ministryList"></div>
       <h2 class="sec">Fill the house</h2>
@@ -644,12 +694,26 @@
     <section class="step" data-mode="minister" data-step="6">
       <div class="guide-slot" data-guide="plan"></div>
       <p class="lede">Review the plan. Print the full record for your confidential file, or print only the handout for the person. The two never mix: the handout carries no session notes, flags, or assessments.</p>
+      <div class="pray">
+        <div><p class="eyebrow">PAUSE TO PRAY</p><h3 class="pray-title">Sending</h3></div>
+        <p class="pray-lead">Before they leave, bless them and pray over their steps for the week.</p>
+        <details class="pray-sugg"><summary>Suggested prayer</summary><p class="own">Use your own words, or start here.</p><p class="pray-text">The LORD bless you and keep you; the LORD make his face shine on you and be gracious to you; the LORD turn his face toward you and give you peace (Num 6:24-26). Holy Spirit, fill <span class="nm-slot">name</span> afresh. Where something was removed today, fill that place with Yourself. Strengthen them for the steps they will take this week, and guard what You have done. In Jesus' name, amen.</p></details>
+        
+        <label class="fld" style="margin:0"><span class="lab">Anything you sensed while blessing them</span><textarea data-k="pr_send"></textarea></label>
+      </div>
       <div class="printrow">
         <button type="button" class="act" onclick="printFull()"><span class="glyph">&#9636;</span><span><b>Full plan</b><span>Confidential, for your file</span></span></button>
         <button type="button" class="act" onclick="printHandout()"><span class="glyph">&#9993;</span><span><b>Handout</b><span>Scripture and steps for them</span></span></button>
       </div>
       <button type="button" class="btn ghost" onclick="buildReport()" style="margin-top:10px">Refresh the plan</button>
       <div id="report" class="reportwrap" style="margin-top:18px"></div>
+      <div class="pray">
+        <div><p class="eyebrow">PAUSE TO PRAY · JUST YOU</p><h3 class="pray-title">After they leave</h3></div>
+        <p class="pray-lead">When they have gone, take a few minutes for yourself before the next thing.</p>
+        <details class="pray-sugg"><summary>Suggested prayer</summary><p class="own">Use your own words, or start here.</p><p class="pray-text">Father, I release <span class="nm-slot">name</span> into Your hands. They are Yours, not mine to carry. Thank You for what You did today, and for what You will keep doing that I will never see. Wash me from anything I picked up in this time, and give me Your rest (Matt 11:28; Mark 6:31). Show me if there is anything I need to follow up, and let me leave the rest with You. In Jesus' name, amen.</p></details>
+        
+        <label class="fld" style="margin:0"><span class="lab">Follow-up, and anything to bring to your own prayer or supervision</span><textarea data-k="pr_after"></textarea></label>
+      </div>
     </section>
 
   </div>
@@ -670,6 +734,7 @@
       <li><button type="button" class="mitem" onclick="closeSheets();saveSession()"><span class="tn">&#10003;</span><span><b id="menuSaveLabel">Save and lock</b><small>Download this person's file, locked with your passphrase</small></span></button></li>
       <li class="m-min"><label class="mitem"><span class="tn">&#8635;</span><span><b>Open a saved file</b><small>Continue with another person</small></span><input type="file" accept=".json" hidden onchange="closeSheets();loadSession(event)"></label></li>
       <li class="m-min"><button type="button" class="mitem" id="nextSessBtn" onclick="closeSheets();newSession()"><span class="tn">+</span><span><b>New session, same person</b><small>Archive this session and begin the next one</small></span></button></li>
+      <li class="m-min"><button type="button" class="mitem" onclick="togglePrayers()"><span class="tn">&#10022;</span><span><b id="prayLabel">Suggested prayers: shown</b><small>Show or hide the written prayers; the listening spaces stay</small></span></button></li>
       <li><button type="button" class="mitem" id="lockBtn" onclick="closeSheets();changePass()"><span class="tn">&#9919;</span><span><b id="lockLabel">Passphrase: not set</b><small>Set or change the passphrase that locks files</small></span></button></li>
       <li class="m-min"><a class="mitem" href="#learn" onclick="closeSheets()"><span class="tn">?</span><span><b>Learn</b><small>The teaching behind each step</small></span></a></li>
       <li><button type="button" class="mitem" onclick="closeSheets();nav('#home')"><span class="tn">&#8962;</span><span><b>Home</b><small>Your session stays open until you clear it</small></span></button></li>
@@ -841,20 +906,21 @@ let view='home',lastSave=null,installEvt=null;
 const done=new Set();
 const GUIDES={
   home:{lead:'A session moves through seven steps, in order. Safety always comes before ministry.',items:['<b>Intake</b>: their story and the family genogram','<b>Safety</b> and <b>Triage</b>: what you are really looking at','<b>Doors</b> and <b>Discern</b>: entry points and the seven tests','<b>Ministry</b> and <b>Plan</b>: walk the steps, then send them home with Scripture'],learn:'foundations'},
-  intake:{lead:'Warmth first, information second. Let them tell their story before you reach for a category.',items:['Italic lines are questions you can ask aloud.','If they filled out an intake, open their file and their words appear here.','The family genogram is further down this step.'],learn:'intake'},
+  intake:{lead:'Warmth first, information second. Let them tell their story before you reach for a category.',items:['Open with the prayer pause, with their permission.','Italic lines are questions you can ask aloud.','If they filled out an intake, open their file and their words appear here.','The family genogram is further down this step.'],learn:'intake'},
   genogram:{lead:'Draw the family, mark the patterns, then listen together before praying.',items:['Guided questions walk you through it; tap anyone on the diagram to edit or add relatives.','Findings count blood relatives only.','Nothing is marked on the Doors step unless you press the button.'],learn:'genogram'},
   safety:{lead:'Spiritual care never substitutes for safety. If you mark anything, the plan leads with a referral.',items:['Ask plainly and gently, and believe what you are told.','Where there is immediate danger, call 911.'],learn:'safety'},
   triage:{lead:'Do not treat an ordinary struggle as a demon, and do not miss a real one.',items:['Step 1: mark every kind that applies; most situations are layered.','Step 2: choose how deep, only if a spirit may be involved.','The clue list is clues, not proof.'],learn:'triage'},
   doors:{lead:'Entry points, not a diagnosis. A long list does not mean a heavy case.',items:['Open a group and mark only what applies.','An asterisk marks a door that can open from a single occurrence.','Wounds are things done to the person: healing, not confession.'],learn:'doors'},
   discern:{lead:'The form of a thing is not its identity. Test the source, not the spectacle.',items:['Four tests can be judged in the room; fruit and trajectory need time.','Your pastoral assessment shapes the whole plan.'],learn:'discern'},
   ministry:{lead:'Only when a demonic element is discerned and the person is willing. Walk it; do not rush it.',items:['Listen before you pray.','Command, do not converse. Never alone.','The house must be filled (Luke 11:24-26).'],learn:'ministry'},
-  plan:{lead:'Everything you entered, gathered into one plan.',items:['Print the full plan for your confidential file.','Print only the handout for the person.','Save and lock the file before you close.'],learn:'plan'}
+  plan:{lead:'Everything you entered, gathered into one plan.',items:['Bless them with the sending prayer before they go.','Print the full plan for your confidential file.','Print only the handout for the person.','Save and lock the file before you close.'],learn:'plan'}
 };
 const FOUNDATIONS=[
   ['seven','The seven tests','How do we test what we sense?',['The form of a thing is not its identity. Saul prophesied under the Spirit and under an evil spirit, and demons can quote true theology.','Four tests can be applied in the room: Christ confessed, agreement with Scripture, self-control intact, and edification.','Three need others and time: weighing by the body, fruit, and the trajectory of a life.'],'Test the source, not the spectacle. Convergence across several tests, confirmed over time, is what discernment rests on.'],
   ['possession','Possession or oppression','Can a believer have a demon?',['A believer belongs to Christ and cannot be possessed.','A believer can be oppressed, or give the enemy a foothold in one area of life (Eph 4:27).','A person is more than one room. You are dealing with an area, not the whole person.'],'Most problems are ordinary or rooted in a wound. The genuinely demonic is the rarer case.'],
   ['fill','Fill the house','Why is cleansing not enough?',['A swept, empty house ends worse than before (Luke 11:24-26).','Filling means the Holy Spirit, daily disciplines in the Word and prayer, and real community.','Deliverance opens a door; discipleship decides what walks through it.'],'Filling is not optional.'],
   ['generational','Generational patterns','What passes down, and what does not?',['Guilt is not inherited: each person answers for their own sin (Ezek 18:20).','The effects of a pattern can carry on where it is repeated (Ex 20:5), yet God\'s love reaches a thousand generations (Ex 20:6).','Christ became a curse for us (Gal 3:13). Forgive the line, confess, repent, break the pattern, then take authority only where a spirit is discerned.'],'This is not about judging family members. It is about the pattern ending here.'],
+  ['pray','Praying through a session','Where does prayer fit?',['Seven pauses mark the natural moments to pray: before they arrive, opening, when there is a safety concern, before discerning, before ministry, sending, and after they leave.','Pray with permission. Ask before you pray, and again before laying on hands.','The written prayers are starting points. Use your own words, or hide them from the Menu.','Listen as well as speak. Write down what you sense, then weigh it by the seven tests and with others before acting on it (1 Cor 14:29).','Address spirits only within the five steps of ministry, never in the opening or sending prayers.'],'Prayer is the posture of the whole session, not one step in it.'],
   ['refer','When to refer','Where does pastoral care stop?',['Safety comes before ministry, every time.','Thoughts of suicide, self-harm, hearing voices, or danger at home call for a professional first.','Referring is not failure; ministering past your competence can cause harm.'],'Pastoral care continues alongside treatment, never instead of it.']
 ];
 const STEP_LESSONS=[['intake','Intake','Listening to their story'],['genogram','Family genogram','Seeing patterns across generations'],['safety','Safety','Why it always comes first'],['triage','Triage','Naming what you are looking at'],['doors','Doors','Entry points, not a diagnosis'],['discern','Discernment','The seven tests in practice'],['ministry','Ministry','The five steps and filling the house'],['plan','Plan','The record and the handout']];
@@ -954,10 +1020,16 @@ function renderLearn(){
   }
 }
 
+/* suggested prayers: shown or hidden, remembered on this device only */
+function prayersOff(){try{return localStorage.getItem('sct-prayers-off')==='1';}catch(e){return false;}}
+function applyPrayerPref(){document.body.classList.toggle('prayers-off',prayersOff());const l=document.getElementById('prayLabel');if(l)l.textContent='Suggested prayers: '+(prayersOff()?'hidden':'shown');}
+function togglePrayers(){try{prayersOff()?localStorage.removeItem('sct-prayers-off'):localStorage.setItem('sct-prayers-off','1');}catch(e){}applyPrayerPref();toast(prayersOff()?'Suggested prayers hidden. The listening spaces stay.':'Suggested prayers shown.');}
+
 /* live verdicts on Safety and Discern */
 function updateSafetyVerdict(){
   const el=document.getElementById('safetyVerdict');if(!el)return;
   const n=SAFETY.filter((s,i)=>data.safety[i]).length;
+  const sp=document.getElementById('prSafety');if(sp)sp.hidden=!n;
   const ref=[data.r_crisis,data.r_counsel].filter(Boolean).map(esc).join(' · ');
   el.innerHTML=n?`<div class="live" data-v="stop"><b>Referral indicated</b><p>Pastoral care continues, but involve a licensed professional before or alongside any deliverance or healing work. Where there is immediate danger, call 911.</p>${ref?`<p class="next">YOUR REFERRAL: ${ref}</p>`:'<p class="next">ADD YOUR REFERRAL RESOURCES BELOW</p>'}</div>`
     :`<div class="live" data-v="go"><b>No risks marked</b><p>Continue to triage. Come back here if anything changes during the session.</p></div>`;
@@ -1045,7 +1117,7 @@ function newSession(){
   // reset session-specific work; keep identity, intake background, doors, resources, history
   data.safety={};data.triage={};data.opp={};data.tests={};data.ministry={};
   ['s_notes','t_posopp','d_ignatian','d_rebcap','d_assess','d_why','d_ready',
-   'm_fill','m_word','m_accountable','m_next','m_homework','m_checkin','m_open','m_listen','i_reason'].forEach(k=>delete data[k]);
+   'm_fill','m_word','m_accountable','m_next','m_homework','m_checkin','m_open','m_listen','i_reason','pr_prep','pr_open','pr_safety','pr_discern','pr_send','pr_after'].forEach(k=>delete data[k]);
   const sessOrder=['1','2','3','4','5','6+'];
   const curIdx=sessOrder.indexOf(String(data.p_session||'1'));
   data.p_session=sessOrder[Math.min(curIdx+1,sessOrder.length-1)];
@@ -1056,7 +1128,7 @@ function newSession(){
   document.querySelectorAll('.triad button').forEach(b=>b.classList.remove('sel'));
   document.querySelectorAll('[data-radio] .choice').forEach(c=>c.classList.remove('on'));
   document.querySelectorAll('[data-radio] input[type=radio]').forEach(r=>r.checked=false);
-  ['s_notes','t_posopp','d_ignatian','d_why','m_word','m_accountable','m_next','m_homework','m_checkin','m_open','m_listen','i_reason'].forEach(k=>{const el=document.querySelector(`[data-k="${k}"]`);if(el)el.value='';});
+  ['s_notes','t_posopp','d_ignatian','d_why','m_word','m_accountable','m_next','m_homework','m_checkin','m_open','m_listen','i_reason','pr_prep','pr_open','pr_safety','pr_discern','pr_send','pr_after'].forEach(k=>{const el=document.querySelector(`[data-k="${k}"]`);if(el)el.value='';});
   const sel=document.querySelector('[data-k="p_session"]');if(sel)sel.value=data.p_session;
   const dt=document.querySelector('[data-k="p_date"]');if(dt)dt.value=data.p_date;
   updateNext();renderHist();renderPriorMarks();markDirty();
@@ -1160,7 +1232,6 @@ function buildReport(){
   html+=repLine('Rebellion or captivity',val('d_rebcap'));
   html+=repLine('Reasoning (fruit and evidence)',val('d_why'));
   html+=repLine('Readiness',val('d_ready'));
-  html+=repLine('Listening prayer before ministry',val('m_listen'));
   html+=`</div>`;
 
   html+=`<div class="rep-sec"><h3>Entry points identified</h3>`;
@@ -1195,6 +1266,11 @@ function buildReport(){
   html+=repLine('Check-in date',val('m_checkin'));
   html+=repLine('Still open',val('m_open'));
   html+=`<ul class="clean" style="margin-top:10px"><li>Cleansing is necessary but not sufficient. A swept, empty house ends worse (Luke 11:24-26).</li><li>Deliverance opens a door; discipleship decides what walks through it.</li><li>Confirm willingness before any renunciation or deliverance prayer. Never rush.</li></ul></div>`;
+
+  // prayer and listening notes (confidential record only)
+  {const PR=[['pr_prep','Before they arrive'],['pr_open','Opening'],['pr_safety','Safety concern'],['pr_discern','Before discerning'],['m_listen','Before ministry'],['pr_send','Sending'],['pr_after','After they left']];
+   const pl=PR.filter(([k])=>data[k]);
+   if(pl.length)html+=`<div class="rep-sec"><h3>Prayer and listening</h3>`+pl.map(([k,l])=>repLine(l,val(k))).join('')+`<p class="note" style="margin-top:8px">Impressions recorded here are weighed, not obeyed: test them by Scripture, the seven tests, and with others over time.</p></div>`;}
 
   // ===== TAKE-HOME HANDOUT =====
   html+=`<hr class="handout-divider"><div class="rep-sec handout-sec"><div class="handout-note">Take-home handout, print this part for the person</div><h3 style="border:0;margin-bottom:6px">Scripture and prayer to carry this week</h3>`;
@@ -1303,7 +1379,7 @@ function loadSession(e){const file=e.target.files[0];if(!file)return;const r=new
   e.target.value='';
 }
 function applyLoaded(L,wasLocked){
-  try{Object.keys(data).forEach(k=>delete data[k]);Object.assign(data,L);
+  try{const prep=data.pr_prep;Object.keys(data).forEach(k=>delete data[k]);Object.assign(data,L);if(prep&&!data.pr_prep)data.pr_prep=prep;
     ['safety','triage','opp','inv','tests','ministry'].forEach(b=>data[b]=data[b]||{});
     data.history=Array.isArray(data.history)?data.history:[];
     // a loaded client file goes into minister mode so the pastor can work from it
@@ -1751,7 +1827,7 @@ function gnReportHTML(){
 /* init dynamic content once */
 const LESSON_HTML={"intake": "<p>This is the listening stage. Your aim is not to fill every box but to let the person tell their story while you capture what matters. Warmth first, information second.</p> <p>The lines in italics and quotation marks are questions you can ask aloud. Use them or your own. If the person filled out a self-intake form, load it from the toolbar above and these boxes will already hold their words; your job then is to listen for what is underneath them.</p> <p class=\"look\">What to look for: the wound beneath the presenting problem, the spiritual climate they grew up in, and where they sense God is near or far. Those three often matter more than the facts.</p> <p><b>Family genogram:</b> further down this tab you can draw the family across three generations, mark patterns on each person, and see where they repeat. It carries forward with the file to every later session.</p> <p><b>Walking with someone over weeks:</b> load their last session file, review it, then press <b>New session, same person</b> in the toolbar. The prior session is archived inside the same file as a course of care, their background and flagged doors carry forward, and the session work (safety, triage, tests, ministry) resets fresh. Keep saving to one file per person and the whole journey stays together.</p>", "genogram": "<p>A genogram is a family diagram across at least three generations. It shows at a glance where patterns repeat: down the line from grandparent to parent, sideways from aunt to aunt or cousin to cousin, and sometimes skipping a generation.</p> <p><b>Guided questions</b> walks you through the family one question at a time, in words you can ask aloud. <b>Edit a person</b> opens when you tap anyone on the diagram, so you can correct details or add relatives the questions did not cover: great-grandparents, aunts, cousins, remarriages, or adopted children.</p> <p>Mark patterns with the coloured chips on each person. The findings below the diagram count <b>blood relatives only</b>; people who married in are shown but not counted in this person's line (they are part of their children's line). You are looking for patterns, not one-off sins.</p> <p>When a pattern repeats across generations, the findings offer a button to mark the matching Generational Door. Nothing is marked unless you press it.</p> <p class=\"look\">Remember: this is not about judging family members. It is about the pattern ending here. Stop for listening prayer at the last question before praying over anything you have found.</p>", "safety": "<p>This comes before anything else for a reason. Spiritual care never substitutes for safety. None of these items means a person needs deliverance; each means a person may need protection, medical help, or a professional, first.</p> <p><b>If you tick any item,</b> the printed plan will lead with a referral note ahead of everything else. Referring is not failure; it is wisdom. Ministering past your competence can cause harm.</p> <p class=\"look\">What to look for: any present danger to the person or others. When in doubt, ask plainly and gently, and believe what you are told.</p>", "triage": "<p>This is a thinking stage, not an action stage. You are naming what you are actually dealing with so the rest of the session knows its road. The single discipline this teaches is the most important one in the whole tool: do not treat an ordinary struggle as a demon, and do not miss a real one.</p> <p><b>Step 1</b> lets you mark more than one kind of problem, because most situations are layered. <b>Step 2</b> asks one question only: if a spirit may be involved, how deep does it go. A believer cannot be possessed, but can be oppressed or hold a foothold in one area. A person is more than one room.</p> <p>The clue list that opens under the third box is exactly that, clues, not proof. They tell you to look closer, not to conclude.</p> <p class=\"look\">What to look for: honesty over speed. Most problems are ordinary or rooted in a wound. The genuinely demonic is the rarer case, and the tool is built to keep it that way.</p>", "doors": "<p>These are entry points, places where the enemy may have gained access. They are doors, not a diagnosis. A long list of marks does not mean a heavy case; the discernment stage decides what any of it means.</p> <p>Mark only what genuinely applies, and use the note line under each to record specifics, names, or how long. The asterisk marks a door that can open from a single occurrence, so it deserves attention even if it happened once.</p> <p>The <b>Wounds</b> group is different in kind. Those are things done to the person, not sins they committed. They call for healing, not confession, and the plan will treat them that way.</p> <p>The <b>Generational Doors</b> can be marked straight from the genogram on the Intake tab. Count blood relatives only, and look for patterns rather than one-off sins.</p> <p class=\"look\">What to look for: patterns that line up with the wounds and the family history you already heard. A door rarely stands alone.</p>", "discern": "<p>This is the heart of the discernment, the seven tests. The governing principle is that the form of a thing is not its identity. Saul prophesied under both the Holy Spirit and an evil spirit. Demons quote true theology. So you test the source, not the spectacle.</p> <p>Each test is a question with a Scripture reference and three buttons: passes, concern, or fails. Tap the one that fits. Some tests are marked <b>over time</b>, the fruit and life-trajectory tests, because they cannot be judged honestly in one sitting. Leave those for later sessions.</p> <p>Below the tests, three quick reads narrow your conclusion, and your <b>pastoral assessment</b> is the single most important choice in the tool. It decides the shape of the plan: repentance, healing, professional help, deliverance, or a mix.</p> <p class=\"look\">What to look for: convergence. One unusual sign proves little. A pattern across several tests, confirmed over time and weighed with others, is what discernment rests on.</p>", "ministry": "<p>Come here only when you have genuinely discerned a demonic element and the person is willing. This is not a formula to rush; it is a path to walk with them. If your assessment was sin, trauma, or a mental-health concern, you can skip this stage entirely.</p> <p>The five steps are a sequence: establish authority, address the spirit rather than the person, break the agreements that gave it ground, command release, and then fill the house. Tick each as you do it so the encounter is recorded.</p> <p><b>Filling is not optional.</b> Cleansing without filling leaves a swept, empty house that ends worse (Luke 11:24-26). Deliverance opens a door; discipleship decides what walks through it.</p> <p class=\"look\">What to look for: the guardrails below, which are easy to forget in the moment. Command, do not converse. No theatrics. Protect dignity. Never alone.</p>", "plan": "<p>Everything you entered is assembled here into one ordered plan: the picture, the triage, the discernment, the doors, the Scripture and prayers for the road in, the ministry record if any, and the follow-up. Safety leads if any flag was set.</p> <p>The lower part is a <b>handout</b>, Scripture and prayers gathered for the person to take home. You can print the whole plan for your file, or print just the handout for them. Read any prayer before you pray it; make it yours.</p> <p>To edit anything, step back to its tab, change it, and the plan rebuilds.</p>"};
 LESSON_BODY=LESSON_HTML;
-renderSafety();renderTriage();renderInv();renderTests();renderMinistry();bindFields();gnInit();updateSafetyVerdict();updateDoorCounts();renderTop();onHash();
+renderSafety();renderTriage();renderInv();renderTests();renderMinistry();bindFields();gnInit();updateSafetyVerdict();updateDoorCounts();applyPrayerPref();renderTop();onHash();
 </script>
 </body>
 </html>
