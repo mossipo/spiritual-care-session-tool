@@ -1,5 +1,16 @@
 # Changelog
 
+## v3.1: Passphrase-locked files (2026-11-03)
+
+- Saved session files are now locked with a passphrase (AES-256 encryption, done on the device). A locked file shows only scrambled text to anyone without the passphrase.
+- The first save asks you to choose a passphrase (at least 8 characters; a short sentence works well). Later saves in the same sitting lock with it automatically.
+- Opening a locked file asks for its passphrase. A wrong passphrase is refused and the file stays closed.
+- "Passphrase" button in the toolbar shows whether one is set and lets you change it.
+- Older unlocked files still open; the next save locks them.
+- Client intake: locking is optional. If the person locks their answers, they tell the passphrase to the minister in person.
+- There is no way to recover a forgotten passphrase. Keep it somewhere safe and separate from the files.
+- Save and load messages now appear as short notices instead of pop-up boxes.
+
 ## v3: Family genogram (2026-11-03)
 
 **Family genogram on the Intake tab**

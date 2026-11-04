@@ -23,7 +23,15 @@ To use it with no internet at all, download `index.html` and open it in any brow
 
 The tool runs entirely in the browser. It sends nothing anywhere and stores nothing on the device. A session exists only on the screen until the minister saves it as a file.
 
-**Saved session files (`.json`) must never be uploaded to this repository.** The `.gitignore` file blocks them, but keep session files in a private folder on your own device regardless.
+Saved session files are **locked with a passphrase** (AES-256 encryption on the device). Without the passphrase a file is unreadable, and a forgotten passphrase cannot be recovered.
+
+Recommended practice:
+- Keep one file per person, named by initials or a code, in one private folder.
+- Back the folder up (an encrypted drive, or a private cloud folder; the files are locked either way).
+- Keep the passphrase somewhere safe and separate from the files.
+- Print the full plan only if your policy requires a paper file, and keep it locked away.
+
+**Saved session files (`.json`) must never be uploaded to this repository.** The `.gitignore` file blocks them.
 
 ## What is in it
 

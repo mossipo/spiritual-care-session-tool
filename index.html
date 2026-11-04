@@ -257,6 +257,20 @@
   .gn-caution{margin-top:10px;font-size:13px;background:#f1efe4;border-radius:8px;padding:10px 12px;line-height:1.6}
   .gn-repsvg svg{max-width:100%;height:auto;display:block;margin:6px auto}
   @media(pointer:coarse){.gn-tchip{padding:9px 10px}.gn-chip{padding:9px 11px}}
+  /* ===== passphrase lock ===== */
+  [hidden]{display:none!important}
+  .lockback{position:fixed;inset:0;z-index:50;background:rgba(33,36,31,.45);display:grid;place-items:center;padding:16px}
+  .lockcard{background:var(--card);border:1px solid var(--rule);border-radius:12px;box-shadow:var(--shadow);max-width:440px;width:100%;padding:22px;display:grid;gap:12px}
+  .lockcard h2{margin:0;font-size:21px;color:var(--accent-deep)}
+  .lockcard p{margin:0;font-size:14.5px;color:var(--ink-soft)}
+  .lockcard label.fld{margin:0}
+  .lockcard input[type=password],.lockcard input[type=text]{font-size:16px}
+  .lockerr{background:var(--flag-bg);color:var(--flag);border-radius:8px;padding:9px 11px;font-size:14px}
+  .lockwarn{background:#f4ecd9;border-radius:8px;padding:9px 11px;font-size:13.5px;color:var(--ink)}
+  #lockBtn.on{border-color:var(--accent);color:var(--accent)}
+  .sct-toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:11px 16px;border-radius:9px;font-size:14.5px;z-index:60;max-width:calc(100% - 32px);box-shadow:var(--shadow)}
+  @media print{.lockback,.sct-toast{display:none!important}}
+
   @media print{.gn-card,.gn-tabs,.gn-panel,.gn-find{display:none!important}}
 
   @media print{
@@ -299,13 +313,14 @@
       <p class="eyebrow" id="modeEyebrow"></p>
       <h1 class="title" id="modeTitle"></h1>
       <p class="subtitle" id="modeSub"></p>
-      <p class="conf">Confidential. Runs entirely on this device. Nothing is saved or sent unless you choose to download it.</p>
+      <p class="conf">Confidential. Runs entirely on this device. Nothing is saved or sent unless you choose to download it. Saved files are locked with your passphrase.</p>
     </header>
 
     <div class="toolbar">
       <span class="tb-label" id="tbLabel">Session</span>
       <button class="mini home" onclick="goHome()">Start screen</button>
       <button class="mini" onclick="saveSession()" id="saveBtn">Save / download</button>
+      <button class="mini" onclick="changePass()" id="lockBtn" title="The passphrase that locks saved files">Passphrase: not set</button>
       <label class="mini" style="cursor:pointer">Load saved<input type="file" accept=".json" style="display:none" onchange="loadSession(event)"></label>
       <button class="mini" onclick="newSession()" id="nextSessBtn" style="display:none">New session, same person</button>
       <button class="mini" onclick="clearAll()">Clear</button>
@@ -572,6 +587,20 @@
   </div>
 </div>
 
+<div class="lockback" id="lockModal" hidden role="dialog" aria-modal="true" aria-labelledby="lockTitle">
+  <div class="lockcard">
+    <h2 id="lockTitle">Lock this file</h2>
+    <p id="lockText"></p>
+    <label class="fld" id="lockPwWrap"><span class="lab">Passphrase</span><input type="password" id="lockPw" autocomplete="off" spellcheck="false"></label>
+    <label class="fld" id="lockPw2Wrap"><span class="lab">Type it again</span><input type="password" id="lockPw2" autocomplete="off" spellcheck="false"></label>
+    <label class="gn-check" id="lockShowWrap"><input type="checkbox" id="lockShow"> Show passphrase</label>
+    <p class="lockwarn" id="lockWarn"></p>
+    <p class="lockerr" id="lockErr" hidden></p>
+    <div class="gn-btns"><button type="button" class="btn" id="lockOk">Lock and save</button><button type="button" class="btn ghost" id="lockCancel">Cancel</button></div>
+    <button type="button" class="btn ghost" id="lockPlain" hidden style="justify-self:start">Save without a passphrase</button>
+  </div>
+</div>
+<div class="sct-toast" id="sctToast" role="status" hidden></div>
 <script>
 /* ============================== DATA ============================== */
 const SAFETY=[
@@ -993,31 +1022,89 @@ function printHandout(){
 }
 
 /* ============================== SAVE / LOAD ============================== */
-function saveSession(){
+/* passphrase lock: files are encrypted on this device with AES-GCM; the passphrase never leaves memory */
+let sessionPass=null;
+const canLock=()=>!!(window.crypto&&crypto.subtle&&window.isSecureContext!==false);
+function b64(buf){const b=new Uint8Array(buf);let s='';for(let i=0;i<b.length;i+=0x8000)s+=String.fromCharCode.apply(null,b.subarray(i,i+0x8000));return btoa(s);}
+function unb64(s){const bin=atob(s),b=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)b[i]=bin.charCodeAt(i);return b;}
+async function sctKey(pass,salt,iter){const base=await crypto.subtle.importKey('raw',new TextEncoder().encode(pass),'PBKDF2',false,['deriveKey']);
+  return crypto.subtle.deriveKey({name:'PBKDF2',salt,iterations:iter,hash:'SHA-256'},base,{name:'AES-GCM',length:256},false,['encrypt','decrypt']);}
+async function sctEncrypt(obj,pass){const salt=crypto.getRandomValues(new Uint8Array(16)),iv=crypto.getRandomValues(new Uint8Array(12)),iter=310000;
+  const key=await sctKey(pass,salt,iter);const ct=await crypto.subtle.encrypt({name:'AES-GCM',iv},key,new TextEncoder().encode(JSON.stringify(obj)));
+  return {format:'spiritual-care-locked',v:1,note:'This file is locked. Open it in the Spiritual Care Session Tool with its passphrase.',kdf:'PBKDF2-SHA256',iter,salt:b64(salt),iv:b64(iv),data:b64(ct)};}
+async function sctDecrypt(env,pass){const key=await sctKey(pass,unb64(env.salt),env.iter);const pt=await crypto.subtle.decrypt({name:'AES-GCM',iv:unb64(env.iv)},key,unb64(env.data));return JSON.parse(new TextDecoder().decode(pt));}
+function toast(msg){const t=document.getElementById('sctToast');t.textContent=msg;t.hidden=false;clearTimeout(toast._t);toast._t=setTimeout(()=>{t.hidden=true;},4200);}
+function updateLockBtn(){const b=document.getElementById('lockBtn');if(!b)return;b.textContent=sessionPass?'Passphrase: set':'Passphrase: not set';b.classList.toggle('on',!!sessionPass);}
+/* kind: 'set' (choose a passphrase) or 'open' (unlock a file). verify(pass) may throw to keep the dialog open. */
+function askPass(kind,opt){opt=opt||{};return new Promise(resolve=>{
+  const M=document.getElementById('lockModal'),pw=document.getElementById('lockPw'),pw2=document.getElementById('lockPw2'),err=document.getElementById('lockErr'),
+    ok=document.getElementById('lockOk'),cancel=document.getElementById('lockCancel'),plain=document.getElementById('lockPlain'),show=document.getElementById('lockShow');
+  const client=data.mode==='client',crypt=canLock();
+  document.getElementById('lockTitle').textContent=kind==='open'?'Unlock this file':(client?'Lock your answers (optional)':'Lock this file');
+  document.getElementById('lockText').textContent=kind==='open'
+    ?(opt.name?opt.name+' is locked. ':'This file is locked. ')+'Type its passphrase to open it.'
+    :!crypt?'This browser cannot lock files. Open the tool from its web address, or in an up-to-date browser, to lock saved files.'
+    :client?'You can lock your answers with a passphrase. If you do, tell it to the person caring for you in person, never by email or text message.'
+    :'Choose a passphrase for this person\'s file. You will need it every time you open the file. A short sentence of four or more words is strong and easy to remember.';
+  document.getElementById('lockWarn').textContent=kind==='open'?'If the passphrase is lost, the file cannot be opened by anyone.':'There is no way to recover a forgotten passphrase, so keep it somewhere safe and separate from the files.';
+  document.getElementById('lockPwWrap').hidden=!crypt&&kind!=='open';document.getElementById('lockShowWrap').hidden=!crypt&&kind!=='open';
+  document.getElementById('lockPw2Wrap').hidden=kind==='open'||!crypt;
+  ok.hidden=!crypt&&kind!=='open';ok.textContent=kind==='open'?'Unlock':'Lock and save';
+  plain.hidden=kind==='open'||(!client&&crypt&&!opt.allowPlain);plain.textContent=client||!crypt?'Save without a passphrase':'Save without a passphrase (not recommended)';
+  pw.value='';pw2.value='';show.checked=false;pw.type=pw2.type='password';err.hidden=true;M.hidden=false;setTimeout(()=>{(crypt||kind==='open')?pw.focus():plain.focus();},30);
+  const close=v=>{M.hidden=true;ok.onclick=cancel.onclick=plain.onclick=show.onchange=pw.onkeydown=pw2.onkeydown=null;M.onkeydown=null;resolve(v);};
+  const fail=m=>{err.textContent=m;err.hidden=false;ok.disabled=false;ok.textContent=kind==='open'?'Unlock':'Lock and save';};
+  ok.onclick=async()=>{const p=pw.value;
+    if(kind==='set'){if(p.length<8)return fail('Use at least 8 characters. A short sentence works well.');if(p!==pw2.value)return fail('The two passphrases do not match.');close({pass:p});return;}
+    if(!p)return fail('Type the passphrase.');
+    if(opt.verify){ok.disabled=true;ok.textContent='Unlocking';try{const r=await opt.verify(p);ok.disabled=false;close({pass:p,result:r});}catch(e){fail('That passphrase did not open this file. Check it and try again.');pw.select();}return;}
+    close({pass:p});};
+  cancel.onclick=()=>close(null);plain.onclick=()=>close({plain:true});
+  show.onchange=()=>{pw.type=pw2.type=show.checked?'text':'password';};
+  pw.onkeydown=pw2.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();ok.click();}};
+  M.onkeydown=e=>{if(e.key==='Escape')close(null);};
+});}
+function downloadJSON(obj,fname){const blob=new Blob([JSON.stringify(obj,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=fname;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);}
+async function saveSession(){
   data.savedAt=new Date().toISOString();
-  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
-  const a=document.createElement('a');const who=(data.p_name||data.c_name||'session').replace(/[^a-z0-9]/gi,'_');
+  const who=(data.p_name||data.c_name||'session').replace(/[^a-z0-9]/gi,'_');
   const tag=data.mode==='client'?'intake':'session';
-  a.href=URL.createObjectURL(blob);a.download=`spiritual_care_${tag}_${who}.json`;a.click();URL.revokeObjectURL(a.href);
-  markClean();
+  const fname=`spiritual_care_${tag}_${who}.json`;
+  let pass=sessionPass;
+  if(!pass||!canLock()){const r=await askPass('set');if(!r)return;
+    if(r.plain){downloadJSON(data,fname);markClean();toast(data.mode==='client'?'Your answers are saved. Hand or send the file to the person caring for you.':'Saved without a passphrase. Anyone with the file can read it.');return;}
+    pass=r.pass;sessionPass=pass;updateLockBtn();}
+  try{const env=await sctEncrypt(data,pass);downloadJSON(env,fname);markClean();toast('Saved and locked: '+fname);}
+  catch(e){toast('The file could not be locked, so nothing was saved. Try again.');}
 }
+async function changePass(){const r=await askPass('set',{allowPlain:true});if(!r)return;
+  if(r.plain){sessionPass=null;updateLockBtn();toast('Passphrase removed. The next save will ask again.');return;}
+  sessionPass=r.pass;updateLockBtn();markDirty();toast('New passphrase set. Save the file to lock it with the new passphrase.');}
 function loadSession(e){const file=e.target.files[0];if(!file)return;const r=new FileReader();
-  r.onload=()=>{try{const L=JSON.parse(r.result);Object.keys(data).forEach(k=>delete data[k]);Object.assign(data,L);
+  r.onload=async()=>{let L;try{L=JSON.parse(r.result);}catch(err){alert('Could not read that file.');return;}
+    if(L&&L.format==='spiritual-care-locked'){
+      if(!canLock()){alert('This file is locked, and this browser cannot unlock files. Open the tool from its web address or in an up-to-date browser.');return;}
+      const res=await askPass('open',{name:file.name,verify:p=>sctDecrypt(L,p)});if(!res)return;
+      sessionPass=res.pass;applyLoaded(res.result,true);return;}
+    sessionPass=null;applyLoaded(L,false);};
+  r.readAsText(file);
+  e.target.value='';
+}
+function applyLoaded(L,wasLocked){
+  try{Object.keys(data).forEach(k=>delete data[k]);Object.assign(data,L);
     ['safety','triage','opp','inv','tests','ministry'].forEach(b=>data[b]=data[b]||{});
     data.history=Array.isArray(data.history)?data.history:[];
-    // entering: a loaded client file goes into minister mode so the pastor can work from it
+    // a loaded client file goes into minister mode so the pastor can work from it
     mode = (data.mode==='client') ? 'minister' : (data.mode||'minister');
     data.mode=mode; cur=0;
     document.getElementById('gate').style.display='none';
     document.getElementById('app').style.display='block';
     document.body.classList.toggle('client',false);
-    enterMode(mode); // sets headers
+    enterMode(mode);
     rehydrate();
-    renderHist();renderPriorMarks();markClean();
-    alert('Loaded. '+(L.mode==='client'?'Client intake answers are now in your Intake tab.':'Session restored.'));
-  }catch(err){alert('Could not read that file.');}};
-  r.readAsText(file);
-  e.target.value='';
+    renderHist();renderPriorMarks();markClean();updateLockBtn();
+    toast((L.mode==='client'?'Intake loaded. The person\'s answers are now in your Intake tab.':'Session restored.')+(wasLocked?'':' This file was not locked; the next save will lock it.'));
+  }catch(err){alert('Could not read that file.');}
 }
 function rehydrate(){
   document.querySelectorAll('[data-k]').forEach(el=>{if(data[el.dataset.k]!=null)el.value=data[el.dataset.k];});
@@ -1042,7 +1129,7 @@ function rehydrate(){
 }
 function clearAll(){if(!confirm('Clear all entries and start over? This also clears the course of care. Anything not saved will be lost.'))return;
   Object.keys(data).forEach(k=>delete data[k]);['safety','triage','opp','inv','tests','ministry'].forEach(b=>data[b]={});data.history=[];data.mode=mode;
-  renderSafety();renderTriage();renderInv();renderTests();renderMinistry();renderHist();renderPriorMarks();GN.sel=null;GN.lens=null;GN.mode='ask';gnRender();markClean();
+  renderSafety();renderTriage();renderInv();renderTests();renderMinistry();renderHist();renderPriorMarks();GN.sel=null;GN.lens=null;GN.mode='ask';gnRender();sessionPass=null;updateLockBtn();markClean();
   document.querySelectorAll('[data-k]').forEach(el=>el.value='');
   document.querySelectorAll('[data-radio] .choice').forEach(c=>c.classList.remove('on'));
   document.querySelectorAll('[data-radio] input[type=radio]').forEach(r=>r.checked=false);
