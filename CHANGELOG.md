@@ -1,5 +1,13 @@
 # Changelog
 
+## v4.1.2: Plainer wording (2026-11-03)
+
+- Rewrote text throughout in plainer language: step headings, guide cards, Learn lessons, triage results, the plan, and the handout. Removed slogan-style lines and repeated catchphrases.
+- Fixed: Ministry step 2 said "never on the person's dignity"; it now says to protect the person's dignity.
+- Fixed: the Triage "What happens next" box repeated itself when only the demonic box was ticked.
+- Fixed: Learn lessons still referred to the old toolbar and tabs; they now point to the Menu and steps.
+- Door group names are now in sentence case.
+
 ## v4.1.1: Learn page tidy (2026-11-03)
 
 - Removed the large numbers from the Learn lessons; each lesson now opens with a plus sign, like the door groups.

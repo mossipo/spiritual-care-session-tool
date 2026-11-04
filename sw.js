@@ -1,7 +1,7 @@
 // Offline support: keeps the tool available without signal.
 // It caches only the tool itself. Session files are never stored here; they stay where you save them.
 // Bump CACHE when you publish changes so installed copies pick up the new version.
-const CACHE = "sct-v4.1.1";
+const CACHE = "sct-v4.1.2";
 const SHELL = ["./", "./index.html", "./manifest.webmanifest", "./icons/icon-192.png", "./icons/icon-512.png", "./icons/apple-touch-icon.png"];
 const CACHEABLE = [self.location.origin, "https://fonts.googleapis.com", "https://fonts.gstatic.com"];
 
