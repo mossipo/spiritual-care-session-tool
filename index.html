@@ -2,182 +2,302 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Spiritual Care Session Tool</title>
+<meta name="description" content="A pastoral instrument for spiritual care, discernment, and the steps of freedom.">
+<meta name="theme-color" content="#FFFDF8" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1F2218" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Spiritual Care">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Alegreya+Sans:ital,wght@0,400;0,500;0,700;1,400&family=Alegreya+Sans+SC:wght@500;700&display=swap">
 <style>
+  /* v4 layout: Akouō's shell and type. Phone: slim top bar + fixed bottom stepper. Laptop (900px+): steps in the top bar. */
   :root{
-    --ink:#21241f;--ink-soft:#50564a;--paper:#f5f2ea;--card:#fffdf8;--rule:#ddd6c5;--rule-soft:#e8e2d4;
-    --accent:#5d6b3f;--accent-deep:#3f4a2b;--amber:#9a7b2e;--flag:#8a3324;--flag-bg:#f3e2dd;--shade:#ede7d8;
-    --shadow:0 1px 2px rgba(33,36,31,.05),0 10px 30px rgba(33,36,31,.06);
+    --paper:#F5F2EA; --sheet:#FFFDF8; --ink:#2A2E22; --muted:#666A58; --rule:#DCD7C8; --rule-soft:#ECE8DC;
+    --rubric:#5D6B3F; --rubric-soft:#E7EADB; --on-rubric:#FFFFFF; --blue:#4A5632; --blue-soft:#EEF0E3; --amber:#B07A1E;
+    --good:#2B6B58; --good-soft:#DDEEE7; --warn:#8A5A0E; --warn-soft:#F6E9D2; --stop:#A3332A; --stop-soft:#F5E1DD;
+    --shadow:0 1px 2px rgba(50,45,25,.06),0 4px 16px rgba(50,45,25,.05);
+    --f-display:"Alegreya",Georgia,"Times New Roman",serif;
+    --f-body:"Alegreya Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+    --f-label:"Alegreya Sans SC","Alegreya Sans",system-ui,sans-serif;
+    --nav-h:66px;
+    /* names used by the genogram, report and lock code */
+    --card:var(--sheet); --ink-soft:var(--muted); --accent:var(--rubric); --accent-deep:var(--blue); --shade:var(--rule-soft);
+    --flag:var(--stop); --flag-bg:var(--stop-soft);
+    color-scheme:light;
   }
-  *{box-sizing:border-box}html,body{margin:0;padding:0}
-  body{background:var(--paper);color:var(--ink);
-    font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;line-height:1.55;-webkit-font-smoothing:antialiased}
-  .wrap{max-width:900px;margin:0 auto;padding:30px 22px 110px}
+  @media (prefers-color-scheme: dark){:root{
+    --paper:#16180F; --sheet:#1F2218; --ink:#ECEADF; --muted:#A6A894; --rule:#353A29; --rule-soft:#2A2E20;
+    --rubric:#AABA7E; --rubric-soft:#2E3522; --on-rubric:#16180F; --blue:#C3D09A; --blue-soft:#272D1D; --amber:#E0B25C;
+    --good:#7FC8AE; --good-soft:#1B3029; --warn:#E5B866; --warn-soft:#3A2F17; --stop:#E68A7F; --stop-soft:#3B2420;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 20px rgba(0,0,0,.25); color-scheme:dark}}
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  html,body{margin:0;padding:0}
+  body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:17px;line-height:1.5;-webkit-tap-highlight-color:transparent;-webkit-font-smoothing:antialiased}
+  button,input,select,textarea{font:inherit;color:inherit}
+  button{cursor:pointer}
+  a{color:var(--blue)}
+  :focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+  .gut{padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env(safe-area-inset-right))}
+  .col{max-width:760px;margin:0 auto}
 
-  header.mast{border-bottom:2px solid var(--ink);padding-bottom:14px}
-  .eyebrow{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--accent);margin:0 0 6px}
-  h1.title{font-size:31px;line-height:1.08;margin:0;font-weight:600;letter-spacing:-.015em}
-  .subtitle{margin:7px 0 0;color:var(--ink-soft);font-size:15px;font-style:italic}
-  .conf{margin-top:10px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-soft)}
+  /* top bar */
+  .top{position:sticky;top:0;z-index:5;background:var(--sheet);border-bottom:1px solid var(--rule);padding-top:env(safe-area-inset-top)}
+  .top .col{display:flex;align-items:center;gap:10px;min-height:54px;max-width:1060px}
+  .brand{font-family:var(--f-display);font-style:italic;font-weight:600;font-size:1.2rem;white-space:nowrap;text-decoration:none;color:var(--ink)}
+  .brand b{color:var(--amber)}
+  .who{font-family:var(--f-label);font-size:.86rem;letter-spacing:.05em;color:var(--rubric);background:var(--rubric-soft);border-radius:999px;padding:3px 11px;white-space:nowrap;max-width:46vw;overflow:hidden;text-overflow:ellipsis}
+  .spacer{flex:1}
+  .steplinks{display:none;gap:2px}
+  .steplinks a{font-family:var(--f-label);font-weight:500;letter-spacing:.04em;color:var(--muted);text-decoration:none;padding:6px 9px;border-radius:7px;font-size:.92rem;white-space:nowrap}
+  .steplinks a[aria-current=page]{color:var(--rubric);background:var(--rubric-soft)}
+  .steplinks a.done::after{content:" \2713";color:var(--good)}
+  .sync{display:inline-flex;align-items:center;gap:6px;font-size:.84rem;color:var(--muted);white-space:nowrap;border:0;background:transparent;padding:8px 4px}
+  .sync i{width:8px;height:8px;border-radius:50%;background:var(--rule)}
+  .sync[data-s=unsaved] i,.sync[data-s=plain] i{background:var(--warn)}
+  .sync[data-s=locked] i{background:var(--good)}
+  .hdr-link{display:inline-flex;align-items:center;gap:5px;font-family:var(--f-label);font-weight:500;letter-spacing:.04em;color:var(--muted);text-decoration:none;padding:6px 8px;border-radius:7px;border:0;background:transparent;white-space:nowrap}
+  .hdr-link[aria-current=page]{color:var(--rubric);background:var(--rubric-soft)}
+  .hdr-link svg{width:19px;height:19px;flex:none}
+  @media (max-width:640px){body[data-view=session] .brand{display:none}.hdr-link span{display:none}}
+  @media (min-width:900px){.steplinks{display:flex}}
 
-  /* mode gate */
-  .gate{max-width:760px;margin:60px auto;text-align:center}
-  .gate h1{font-size:30px;margin:0 0 8px;color:var(--accent-deep)}
-  .gate p{color:var(--ink-soft);font-size:16px;margin:0 0 34px}
-  .gatecards{display:grid;grid-template-columns:1fr 1fr;gap:18px}
-  @media(max-width:640px){.gatecards{grid-template-columns:1fr}}
-  .gatecard{border:1px solid var(--rule);background:var(--card);border-radius:12px;padding:28px 24px;cursor:pointer;
-    text-align:left;transition:border-color .15s,box-shadow .15s,transform .08s;box-shadow:var(--shadow)}
-  .gatecard:hover{border-color:var(--accent);transform:translateY(-2px)}
-  .gatecard .gi{font-size:13px;font-family:ui-monospace,Menlo,Consolas,monospace;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:10px}
-  .gatecard h2{margin:0 0 8px;font-size:21px;color:var(--ink)}
-  .gatecard p{margin:0;font-size:14px;color:var(--ink-soft);line-height:1.5}
-  .gate .resume{margin-top:26px;font-size:13.5px;color:var(--ink-soft)}
-  .gate .resume label{color:var(--accent);text-decoration:underline;cursor:pointer}
+  /* bottom stepper */
+  .stepbar{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--sheet);border-top:1px solid var(--rule);display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:8px;min-height:var(--nav-h);padding:6px max(12px,env(safe-area-inset-right)) calc(6px + env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left))}
+  .stepbar .nav{border:1px solid var(--rule);background:var(--sheet);border-radius:10px;min-height:46px;padding:0 16px;font-weight:500;color:var(--blue);white-space:nowrap}
+  .stepbar .nav.primary{background:var(--rubric);border-color:var(--rubric);color:var(--on-rubric)}
+  .stepbar .nav:disabled{opacity:.35;cursor:default}
+  .stepnow{border:0;background:transparent;text-align:center;min-width:0;padding:4px}
+  .stepnow small{display:block;font-family:var(--f-label);letter-spacing:.06em;font-size:.78rem;color:var(--muted)}
+  .stepnow b{display:block;font-family:var(--f-display);font-size:1.12rem;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .dots{display:flex;gap:4px;justify-content:center;margin-top:3px}
+  .dots i{width:7px;height:7px;border-radius:50%;background:var(--rule)}
+  .dots i.done{background:var(--good)}.dots i.now{background:var(--rubric);width:16px;border-radius:4px}
+  @media (min-width:900px){.stepnow{visibility:hidden}.stepbar{padding-left:calc(50vw - 380px);padding-right:calc(50vw - 380px)}}
+  main{padding-top:18px;padding-bottom:48px}
+  body[data-view=session] main{padding-bottom:calc(var(--nav-h) + env(safe-area-inset-bottom) + 30px)}
 
-  .toolbar{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin:18px 0 0;padding:11px 13px;background:var(--card);border:1px solid var(--rule);border-radius:8px}
-  .toolbar .tb-label{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft);margin-right:auto}
-  button.mini{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;letter-spacing:.05em;text-transform:uppercase;padding:8px 12px;border-radius:6px;cursor:pointer;border:1px solid var(--rule);background:transparent;color:var(--ink)}
-  button.mini:hover{background:var(--shade)}
-  button.mini.home{border-color:var(--accent);color:var(--accent)}
+  /* bottom sheets (step list, menu) */
+  .sheet-back{position:fixed;inset:0;background:rgba(20,22,15,.42);z-index:8;display:flex;align-items:flex-end;justify-content:center}
+  .sheet{background:var(--sheet);width:100%;max-width:560px;border-radius:16px 16px 0 0;padding:12px 16px calc(18px + env(safe-area-inset-bottom));box-shadow:var(--shadow);max-height:86vh;overflow:auto}
+  @media (min-width:900px){.sheet-back{align-items:center}.sheet{border-radius:14px}}
+  .sheet .grab{width:40px;height:4px;border-radius:2px;background:var(--rule);margin:0 auto 10px}
+  .sheet h3{margin:0 0 10px}
+  .mlist{list-style:none;margin:0;padding:0;background:var(--sheet);border:1px solid var(--rule);border-radius:12px;overflow:hidden}
+  .mlist li + li{border-top:1px solid var(--rule-soft)}
+  .mitem{display:grid;grid-template-columns:30px minmax(0,1fr) auto;gap:10px;align-items:center;width:100%;text-align:left;border:0;background:transparent;padding:13px 14px;text-decoration:none;color:var(--ink);cursor:pointer;font-size:1rem}
+  .mitem:hover{background:var(--rule-soft)}
+  .mitem b{font-family:var(--f-display);font-size:1.06rem;font-weight:600;display:block}
+  .mitem small{display:block;color:var(--muted);font-size:.86rem}
+  .mitem.danger b{color:var(--stop)}
+  .tn{display:inline-grid;place-items:center;width:1.6em;height:1.6em;border-radius:50%;background:var(--rubric-soft);color:var(--rubric);font-size:.8rem;font-weight:700}
 
-  nav.rail{display:flex;flex-wrap:wrap;gap:0;margin:18px 0 26px;border:1px solid var(--rule);border-radius:9px;overflow:hidden;background:var(--card)}
-  nav.rail button{flex:1 1 auto;min-width:104px;border:0;background:transparent;cursor:pointer;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);padding:11px 7px;border-right:1px solid var(--rule);transition:background .15s,color .15s}
-  nav.rail button:last-child{border-right:0}
-  nav.rail button .num{display:block;font-size:14px;color:var(--accent);font-weight:700;margin-bottom:2px;font-family:inherit}
-  nav.rail button.active{background:var(--ink);color:#fff}
-  nav.rail button.active .num{color:#cdbb6a}
-  nav.rail button.done .num::after{content:" \2713";color:var(--accent)}
-  nav.rail button:hover:not(.active){background:var(--shade)}
-
-  .step{display:none;animation:fade .22s ease}.step.show{display:block}
+  /* type */
+  .eyebrow{font-family:var(--f-label);letter-spacing:.06em;font-size:.9rem;color:var(--muted);margin:0}
+  h2.big{font-family:var(--f-display);font-weight:600;font-size:1.9rem;line-height:1.15;margin:2px 0 0;text-wrap:balance}
+  h3.sec{font-family:var(--f-label);font-weight:700;letter-spacing:.06em;font-size:.92rem;color:var(--rubric);margin:0}
+  .muted{color:var(--muted)}.small{font-size:.9rem}
+  .stack{display:flex;flex-direction:column;gap:14px}
+  .stack-lg{display:flex;flex-direction:column;gap:24px}
+  .ref{color:var(--muted);font-size:.92rem;margin:4px 0 0}
+  .sess-head{margin:0 0 18px}
+  .step{display:none}.step.show{display:block;animation:fade .2s ease}
   @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
-
-  .lede{font-size:16px;color:var(--ink-soft);margin:0 0 18px;max-width:64ch}
-  h2.sec{font-size:12.5px;font-family:ui-monospace,Menlo,Consolas,monospace;letter-spacing:.17em;text-transform:uppercase;color:var(--accent);margin:30px 0 4px;padding-bottom:6px;border-bottom:1px solid var(--rule)}
-  h2.sec:first-of-type{margin-top:0}
-  p.note{font-size:13.5px;color:var(--ink-soft);font-style:italic;margin:4px 0 14px;max-width:66ch}
-  .askline{font-size:14px;color:var(--accent-deep);margin:2px 0 10px;font-style:italic}
+  .lede{font-size:1.02rem;color:var(--muted);margin:0 0 18px;max-width:64ch}
+  h2.sec{font-family:var(--f-label);font-weight:700;letter-spacing:.06em;font-size:.92rem;color:var(--rubric);margin:28px 0 8px;text-transform:uppercase}
+  h2.sec:first-of-type{margin-top:6px}
+  p.note{font-size:.93rem;color:var(--muted);margin:2px 0 12px;max-width:66ch}
+  .askline{font-family:var(--f-display);font-style:italic;color:var(--blue);margin:2px 0 8px;font-size:1.08rem}
   .askline::before{content:"\201C"}.askline::after{content:"\201D"}
 
-  /* instruction panel, collapsible, minister-facing */
-  .howto{border:1px solid var(--rule);background:#f1efe4;border-radius:9px;margin:0 0 20px;overflow:hidden}
-  .howto > summary{cursor:pointer;list-style:none;padding:12px 15px;font-family:ui-monospace,Menlo,Consolas,monospace;
-    font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent-deep);display:flex;align-items:center;gap:8px}
-  .howto > summary::-webkit-details-marker{display:none}
-  .howto > summary::before{content:"\25B8";color:var(--accent);transition:transform .15s}
-  .howto[open] > summary::before{transform:rotate(90deg)}
-  .howto .hbody{padding:2px 16px 15px 16px;font-size:14px;line-height:1.6;color:var(--ink)}
-  .howto .hbody p{margin:8px 0}
-  .howto .hbody b{color:var(--accent-deep)}
-  .howto .hbody ul{margin:8px 0;padding-left:20px}.howto .hbody li{margin:5px 0}
-  .howto .look{font-size:12px;font-family:ui-monospace,Menlo,Consolas,monospace;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);margin-top:10px}
+  /* home */
+  .homeacts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+  @media (max-width:640px){.homeacts{grid-template-columns:minmax(0,1fr)}}
+  .act{display:flex;flex-direction:column;gap:2px;text-align:left;background:var(--sheet);border:1px solid var(--rule);border-radius:12px;padding:16px;box-shadow:var(--shadow);min-width:0;cursor:pointer;color:var(--ink);text-decoration:none;font-size:1rem}
+  @media (max-width:640px){.act{flex-direction:row;align-items:center;gap:14px}}
+  .act .glyph{font-family:var(--f-display);font-weight:700;font-size:2rem;line-height:1;color:var(--amber);width:1.3em;flex:none}
+  .act b{font-family:var(--f-display);font-size:1.2rem;display:block}
+  .act span{color:var(--muted);font-size:.92rem;display:block}
+  .act:hover{border-color:var(--muted)}
+  .act.resume{border-color:var(--rubric);background:var(--rubric-soft)}
+  .card{background:var(--sheet);border:1px solid var(--rule);border-radius:12px;padding:16px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:10px;min-width:0}
+  .card.flat{box-shadow:none}
+  .card p{margin:0}
 
-  label.fld{display:block;margin:14px 0}
-  label.fld span.lab{display:block;font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:5px;font-family:ui-monospace,Menlo,Consolas,monospace}
-  input[type=text],input[type=date],textarea,select{width:100%;font-family:inherit;font-size:15px;color:var(--ink);background:var(--card);border:1px solid var(--rule);border-radius:6px;padding:9px 11px}
-  textarea{min-height:70px;resize:vertical;line-height:1.5}
-  input:focus,textarea:focus,select:focus{outline:2px solid var(--accent);outline-offset:0;border-color:var(--accent)}
-  .row2{display:grid;grid-template-columns:1fr 1fr;gap:14px}.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+  /* guide card that shrinks to a bar */
+  .guide{background:var(--blue-soft);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:9px;margin:0 0 20px}
+  .guide-head{display:flex;justify-content:space-between;align-items:center;gap:10px}
+  .guide-lead{margin:0;font-family:var(--f-display);font-size:1.08rem;line-height:1.4}
+  .guide ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:5px;font-size:.96rem}
+  .guide ul li::marker{color:var(--amber)}
+  .guide .glink{align-self:flex-start;color:var(--blue);font-weight:500;font-size:.95rem}
+  .guide-hide{border:0;background:transparent;color:var(--blue);font-weight:500;padding:4px 2px}
+  .guide-mini{display:flex;justify-content:space-between;align-items:center;gap:10px;width:100%;border:1px dashed var(--rule);background:transparent;border-radius:12px;padding:10px 14px;font-family:var(--f-display);font-size:1.02rem;text-align:left;margin:0 0 20px}
+  .guide-show{font-family:var(--f-body);font-size:.9rem;color:var(--blue);font-weight:500}
+
+  /* learn */
+  details.lesson{background:var(--sheet);border:1px solid var(--rule);border-radius:12px;box-shadow:var(--shadow)}
+  details.lesson > summary{list-style:none;cursor:pointer;padding:14px 16px;display:grid;grid-template-columns:auto minmax(0,1fr);gap:14px;align-items:center}
+  details.lesson > summary::-webkit-details-marker{display:none}
+  .lnum{font-family:var(--f-display);font-weight:700;font-size:1.9rem;line-height:1;color:var(--amber);width:1.1em;text-align:center}
+  .ltitle b{display:block;font-family:var(--f-display);font-size:1.15rem;line-height:1.25}
+  .ltitle span{display:block;color:var(--muted);font-size:.92rem;margin-top:2px}
+  .lbody{padding:0 16px 18px;display:flex;flex-direction:column;gap:10px;font-size:1rem}
+  .lbody p{margin:0;max-width:66ch}
+  .lbody ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;max-width:66ch}
+  .lbody ul li::marker{color:var(--amber)}
+  .lbody b{color:var(--blue)}
+  .lbody .look{font-family:var(--f-label);letter-spacing:.04em;color:var(--rubric);font-size:.95rem}
+  .balance{background:var(--rubric-soft);border-radius:10px;padding:12px 14px}
+  .balance b{font-family:var(--f-display);color:var(--ink)}
+
+  /* fields */
+  label.fld{display:flex;flex-direction:column;gap:5px;margin:12px 0;min-width:0}
+  label.fld span.lab{font-size:.86rem;color:var(--muted);font-weight:500}
+  input[type=text],input[type=date],input[type=password],textarea,select{width:100%;font-family:var(--f-body);font-size:16px;color:var(--ink);background:var(--sheet);border:1px solid var(--rule);border-radius:9px;padding:10px 12px;line-height:1.45}
+  textarea{min-height:80px;resize:vertical;font-family:var(--f-display);font-size:1.06rem}
+  input:focus,textarea:focus,select:focus{outline:2px solid var(--rubric);outline-offset:0;border-color:var(--rubric)}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
   @media(max-width:640px){.row2,.row3{grid-template-columns:1fr}}
+  .row2 label.fld,.row3 label.fld{margin:6px 0}
 
-  .clist{margin:6px 0 0}
-  .citem{border:1px solid var(--rule);border-radius:8px;margin:7px 0;background:var(--card);overflow:hidden;transition:border-color .15s,box-shadow .15s}
-  .citem.on{border-color:var(--accent);box-shadow:var(--shadow)}
-  .chead{display:flex;align-items:flex-start;gap:11px;padding:11px 13px;cursor:pointer}
-  .chead input{width:18px;height:18px;flex:none;margin-top:2px;accent-color:var(--accent);cursor:pointer}
-  .chead .nm{flex:1;font-size:14.5px}
-  .chead .nm small{display:block;color:var(--ink-soft);font-size:12.5px;font-style:italic;margin-top:2px}
-  .chead .star{color:var(--flag);font-weight:700;font-size:13px;margin-left:3px}
-  .sub{display:none;padding:0 13px 13px 42px;border-top:1px dashed var(--rule-soft);margin-top:-1px}
-  .citem.on .sub{display:block;padding-top:11px}
-  .sub input[type=text]{font-size:13.5px}
+  /* checklists (safety, triage, doors, ministry) */
+  .clist{margin:6px 0 0;background:var(--sheet);border:1px solid var(--rule);border-radius:12px;overflow:hidden}
+  .citem{border-top:1px solid var(--rule-soft);background:transparent;transition:background .15s}
+  .citem:first-child{border-top:0}
+  .citem.on{background:var(--rubric-soft)}
+  #safetyList .citem.on{background:var(--stop-soft)}
+  .chead{display:grid;grid-template-columns:auto minmax(0,1fr);gap:12px;align-items:start;padding:12px 14px;cursor:pointer}
+  .chead input{width:22px;height:22px;margin:2px 0 0;accent-color:var(--rubric);cursor:pointer}
+  #safetyList .chead input{accent-color:var(--stop)}
+  .chead .nm{font-family:var(--f-display);font-size:1.06rem;line-height:1.3}
+  .chead .nm small{display:block;font-family:var(--f-body);color:var(--muted);font-size:.88rem;margin-top:2px}
+  .chead .star{color:var(--stop);font-weight:700;margin-left:3px}
+  .sub{display:none;padding:0 14px 12px 48px}
+  .citem.on .sub{display:block}
+  .sub label{font-size:.95rem}
+  .sub input[type=text]{font-size:16px;padding:8px 10px}
 
+  /* folding door groups */
+  details.more{background:var(--sheet);border:1px solid var(--rule);border-radius:12px;margin:0 0 12px}
+  details.more > summary{list-style:none;cursor:pointer;padding:13px 14px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+  details.more > summary::-webkit-details-marker{display:none}
+  details.more > summary b{font-family:var(--f-display);font-size:1.12rem;font-weight:600}
+  details.more > summary .sum-r{display:inline-flex;align-items:center;gap:10px;flex:none}
+  details.more > summary .sum-r::after{content:"+";color:var(--blue);font-size:1.35rem;line-height:1}
+  details.more[open] > summary .sum-r::after{content:"\2212"}
+  details.more > p.note{padding:0 14px;margin:0 0 10px}
+  details.more > .clist{border:0;border-top:1px solid var(--rule-soft);border-radius:0 0 12px 12px;margin:0}
+  .pill{display:inline-block;font-size:.74rem;font-family:var(--f-label);font-weight:700;letter-spacing:.05em;padding:2px 9px;border-radius:999px;background:var(--rule-soft);color:var(--muted);white-space:nowrap}
+  .pill[data-v=stop]{background:var(--stop-soft);color:var(--stop)}
+  .pill[data-v=warn]{background:var(--warn-soft);color:var(--warn)}
+  .pill[data-v=go]{background:var(--good-soft);color:var(--good)}
+
+  /* radio choices */
   .choices{display:grid;gap:8px;margin:8px 0 4px}
-  .choice{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--rule);border-radius:8px;padding:10px 12px;cursor:pointer;background:var(--card);transition:border-color .15s,background .15s}
-  .choice:hover{background:var(--shade)}
-  .choice.on{border-color:var(--accent);background:#f7f5ec}
-  .choice input{margin-top:3px;accent-color:var(--accent)}
-  .choice .ctxt b{display:block;font-size:14px}
-  .choice .ctxt small{color:var(--ink-soft);font-size:12.5px}
+  .choice{display:flex;gap:12px;align-items:flex-start;border:1px solid var(--rule);border-radius:12px;padding:12px 14px;cursor:pointer;background:var(--sheet);transition:border-color .15s,background .15s}
+  .choice:hover{border-color:var(--muted)}
+  .choice.on{border-color:var(--rubric);background:var(--rubric-soft)}
+  .choice input{margin-top:4px;width:19px;height:19px;accent-color:var(--rubric);flex:none}
+  .choice .ctxt b{display:block;font-family:var(--f-display);font-size:1.08rem;font-weight:600;line-height:1.3}
+  .choice .ctxt small{color:var(--muted);font-size:.9rem}
 
-  .triad{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin:6px 0}
-  @media(max-width:640px){.triad{grid-template-columns:1fr}}
-  .triad button{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:10.5px;letter-spacing:.04em;text-transform:uppercase;padding:9px 6px;border-radius:6px;border:1px solid var(--rule);background:var(--card);color:var(--ink-soft);cursor:pointer;transition:all .13s}
-  .triad button:hover{background:var(--shade)}
-  .triad button.sel{border-color:var(--accent);background:var(--accent);color:#fff}
-  .testrow{border:1px solid var(--rule);border-radius:8px;padding:11px 13px;margin:8px 0;background:var(--card)}
-  .testrow .tq{font-size:14.5px;margin:0 0 3px}
-  .testrow .tref{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--accent);margin-bottom:7px}
+  /* seven tests: same buttons as Weigh a Word */
+  .testrow{display:flex;flex-direction:column;gap:8px;padding:13px 0;border-top:1px solid var(--rule-soft)}
+  #testList{background:var(--sheet);border:1px solid var(--rule);border-radius:12px;padding:4px 16px 4px;box-shadow:var(--shadow)}
+  #testList .testrow:first-child{border-top:0}
+  .testrow .tq{font-family:var(--f-display);font-size:1.08rem;line-height:1.35;margin:0}
+  .testrow .tref{font-family:var(--f-label);letter-spacing:.05em;font-size:.86rem;color:var(--muted)}
+  .seg{display:inline-flex;align-self:flex-start;border:1px solid var(--rule);border-radius:9px;overflow:hidden;flex:none}
+  .seg button{border:0;background:var(--sheet);padding:8px 14px;font-size:.95rem;min-width:44px;min-height:42px;color:var(--ink)}
+  .seg button + button{border-left:1px solid var(--rule)}
+  .seg button.sel[data-v=pass]{background:var(--good-soft);color:var(--good);font-weight:700}
+  .seg button.sel[data-v=concern]{background:var(--warn-soft);color:var(--warn);font-weight:700}
+  .seg button.sel[data-v=fail]{background:var(--stop-soft);color:var(--stop);font-weight:700}
+  .overtime{display:inline-block;font-size:.72rem;font-family:var(--f-label);font-weight:700;letter-spacing:.05em;padding:1px 8px;border-radius:999px;background:var(--rule-soft);color:var(--muted);margin-left:6px;vertical-align:.15em}
 
-  .flagcard{border:1px solid var(--flag);background:var(--flag-bg);border-radius:8px;padding:13px 15px;margin:14px 0}
-  .flagcard b{color:var(--flag);font-size:12.5px;letter-spacing:.04em;text-transform:uppercase;font-family:ui-monospace,Menlo,Consolas,monospace}
-  .flagcard p{margin:6px 0 0;font-size:14px}
-  .guard{border:1px solid var(--rule);background:#f7f5ec;border-radius:8px;padding:12px 15px;margin:14px 0;font-size:13.5px}
-  .guard b{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent-deep);display:block;margin-bottom:5px}
-  .nextbox{border:1px solid var(--accent);background:#f1efe4;border-radius:8px;padding:14px 16px;font-size:14.5px;line-height:1.6;color:var(--ink)}
-  .nextbox b{color:var(--accent-deep)}
-  .nextbox .arrow{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);display:block;margin-top:8px}
+  /* boxes */
+  .flagcard{background:var(--stop-soft);border-radius:12px;padding:13px 16px;margin:14px 0}
+  .flagcard b{color:var(--stop);font-family:var(--f-label);letter-spacing:.05em;font-size:.95rem}
+  .flagcard p{margin:5px 0 0;font-size:.98rem}
+  .guard{background:var(--rubric-soft);border-radius:12px;padding:13px 16px;margin:14px 0;font-size:.98rem}
+  .guard b{font-family:var(--f-label);letter-spacing:.05em;color:var(--rubric);display:block;margin-bottom:4px}
+  .nextbox,.live{border-radius:12px;padding:14px 16px;font-size:1rem;line-height:1.55;background:var(--rule-soft);color:var(--ink);margin:10px 0}
+  .nextbox b{color:var(--ink)}
+  .nextbox .arrow{font-family:var(--f-label);letter-spacing:.05em;font-size:.88rem;color:var(--muted);display:block;margin-top:8px}
+  .nextbox[data-v=go],.live[data-v=go]{background:var(--good-soft)}
+  .nextbox[data-v=warn],.live[data-v=warn]{background:var(--warn-soft)}
+  .nextbox[data-v=stop],.live[data-v=stop]{background:var(--stop-soft)}
+  .live b{display:block;font-family:var(--f-display);font-size:1.2rem}
+  .live[data-v=go] b{color:var(--good)}.live[data-v=warn] b{color:var(--warn)}.live[data-v=stop] b{color:var(--stop)}
+  .live p{margin:3px 0 0}
+  .live .next{font-family:var(--f-label);letter-spacing:.05em;font-size:.88rem;color:var(--muted);margin-top:6px}
 
-  .actions{display:flex;justify-content:space-between;gap:12px;margin-top:32px;padding-top:18px;border-top:1px solid var(--rule)}
-  button.btn{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;letter-spacing:.09em;text-transform:uppercase;padding:12px 20px;border-radius:7px;cursor:pointer;border:1px solid var(--ink);background:var(--ink);color:#fff;transition:transform .08s,opacity .15s}
-  button.btn:hover{opacity:.88}button.btn:active{transform:translateY(1px)}
-  button.btn.ghost{background:transparent;color:var(--ink)}button.btn.ghost:hover{background:var(--shade);opacity:1}
-  button.btn:disabled{opacity:.3;cursor:not-allowed}
+  /* buttons */
+  button.btn,.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:1px solid var(--rubric);background:var(--rubric);color:var(--on-rubric);border-radius:10px;padding:9px 16px;font-family:var(--f-body);font-weight:500;font-size:1rem;min-height:44px;cursor:pointer;white-space:nowrap;text-transform:none;letter-spacing:0}
+  button.btn:hover{filter:brightness(1.05)}
+  button.btn.ghost,.btn.ghost{background:var(--sheet);border-color:var(--rule);color:var(--blue)}
+  button.btn:disabled{opacity:.35;cursor:not-allowed}
+  button.mini{font-family:var(--f-body);font-size:.92rem;padding:7px 12px;border-radius:9px;cursor:pointer;border:1px solid var(--rule);background:var(--sheet);color:var(--blue);min-height:38px}
+  button.mini:hover{border-color:var(--muted)}
+  .printrow{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:6px 0 0}
+  @media (max-width:640px){.printrow{grid-template-columns:minmax(0,1fr)}}
 
-  .reportwrap{background:var(--card);border:1px solid var(--rule);border-radius:10px;padding:34px 38px;box-shadow:var(--shadow)}
-  @media(max-width:640px){.reportwrap{padding:22px 17px}}
+  /* report and handout */
+  .reportwrap{background:var(--sheet);border:1px solid var(--rule);border-radius:12px;padding:28px 30px;box-shadow:var(--shadow)}
+  @media(max-width:640px){.reportwrap{padding:20px 16px}}
   .rep-h{border-bottom:2px solid var(--ink);padding-bottom:12px;margin-bottom:16px}
-  .rep-h h2{margin:0;font-size:24px}
-  .rep-meta{font-size:13px;color:var(--ink-soft);margin-top:6px;line-height:1.7}
+  .rep-h h2{margin:0;font-family:var(--f-display);font-size:1.6rem}
+  .rep-meta{font-size:.92rem;color:var(--muted);margin-top:6px;line-height:1.7}
   .rep-sec{margin:24px 0}
-  .rep-sec h3{font-size:11.5px;font-family:ui-monospace,Menlo,Consolas,monospace;letter-spacing:.15em;text-transform:uppercase;color:var(--accent);border-bottom:1px solid var(--rule);padding-bottom:5px;margin:0 0 12px}
-  .verdict{border-radius:9px;padding:15px 17px;margin:10px 0;border:1px solid var(--rule)}
-  .verdict .vt{font-weight:700;font-size:16px;margin-bottom:3px}
-  .verdict .vd{font-size:13.5px;color:var(--ink-soft)}
-  .verdict.flesh{background:#eef1e8;border-color:#cdd6b8}.verdict.trauma{background:#eaeef1;border-color:#bcc9d4}
-  .verdict.mh{background:var(--flag-bg);border-color:var(--flag)}.verdict.oppression{background:#f4ecd9;border-color:#dec88f}
-  .verdict.mixed{background:#efeadb;border-color:#d8cda6}
-  .itemline{display:flex;justify-content:space-between;gap:13px;padding:8px 0;border-bottom:1px dotted var(--rule);font-size:14px;align-items:baseline}
+  .rep-sec h3{font-family:var(--f-label);font-weight:700;letter-spacing:.06em;font-size:.92rem;color:var(--rubric);border-bottom:1px solid var(--rule);padding-bottom:5px;margin:0 0 12px}
+  .rep-sec h4{font-family:var(--f-display)}
+  .verdict{border-radius:10px;padding:14px 16px;margin:10px 0;background:var(--rule-soft)}
+  .verdict .vt{font-family:var(--f-display);font-weight:700;font-size:1.15rem;margin-bottom:3px}
+  .verdict .vd{font-size:.96rem;color:var(--ink)}
+  .verdict.flesh{background:var(--rubric-soft)}.verdict.trauma{background:var(--blue-soft)}
+  .verdict.mh{background:var(--stop-soft)}.verdict.oppression{background:var(--warn-soft)}.verdict.mixed{background:var(--rule-soft)}
+  .itemline{display:flex;justify-content:space-between;gap:13px;padding:8px 0;border-bottom:1px dotted var(--rule);font-size:.98rem;align-items:baseline}
   .itemline:last-child{border-bottom:0}
-  .itemline .il-name{flex:1}
-  .itemline .il-cat{font-size:10.5px;color:var(--ink-soft);font-family:ui-monospace,Menlo,Consolas,monospace;text-transform:uppercase;letter-spacing:.05em}
-  blockquote.scr{margin:9px 0;padding:9px 15px;border-left:3px solid var(--accent);background:#f7f5ec;font-size:14.5px}
-  blockquote.scr cite{display:block;font-style:normal;font-size:11.5px;color:var(--accent);margin-top:4px;font-family:ui-monospace,Menlo,Consolas,monospace;letter-spacing:.05em}
-  .prayer{font-size:14.5px;background:#f7f5ec;border:1px solid var(--rule);border-radius:8px;padding:13px 15px;margin:8px 0}
-  .prayer .pl{font-size:10px;font-family:ui-monospace,Menlo,Consolas,monospace;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);display:block;margin-bottom:6px}
-  ul.clean{margin:8px 0;padding-left:20px}ul.clean li{margin:5px 0;font-size:14.5px}
-  ol.steps{margin:8px 0;padding-left:22px}ol.steps li{margin:7px 0;font-size:14.5px}
-  .empty{color:var(--ink-soft);font-style:italic;font-size:14px}
-  .disclaimerbar{font-size:12px;color:var(--ink-soft);background:var(--shade);border:1px solid var(--rule);border-radius:8px;padding:12px 15px;margin:18px 0 0;line-height:1.6}
-  .printrow{display:flex;gap:12px;flex-wrap:wrap;margin:18px 0 0}
+  .itemline .il-name{flex:1;min-width:0}
+  .itemline .il-cat{font-family:var(--f-label);font-size:.82rem;color:var(--muted);letter-spacing:.05em}
+  blockquote.scr{margin:9px 0;padding:9px 15px;border-left:3px solid var(--amber);background:var(--paper);font-family:var(--f-display);font-size:1.04rem;border-radius:0 8px 8px 0}
+  blockquote.scr cite{display:block;font-style:normal;font-family:var(--f-label);font-size:.86rem;color:var(--rubric);margin-top:4px;letter-spacing:.04em}
+  .prayer{font-family:var(--f-display);font-size:1.04rem;background:var(--paper);border:1px solid var(--rule);border-radius:10px;padding:13px 15px;margin:8px 0}
+  .prayer .pl{font-family:var(--f-label);font-size:.82rem;letter-spacing:.06em;color:var(--rubric);display:block;margin-bottom:6px}
+  ul.clean{margin:8px 0;padding-left:20px}ul.clean li{margin:5px 0;font-size:.98rem}
+  ol.steps{margin:8px 0;padding-left:22px}ol.steps li{margin:7px 0;font-size:.98rem}
+  .empty{color:var(--muted);font-style:italic;font-size:.95rem}
+  .disclaimerbar{font-size:.84rem;color:var(--muted);background:var(--rule-soft);border-radius:10px;padding:12px 15px;margin:18px 0 0;line-height:1.6}
   .handout-divider{border:0;border-top:2px dashed var(--rule);margin:26px 0 18px}
-  .handout-note{font-size:12px;font-family:ui-monospace,Menlo,Consolas,monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin-bottom:4px}
+  .handout-note{font-family:var(--f-label);font-size:.86rem;letter-spacing:.06em;color:var(--amber);margin-bottom:4px}
 
-  /* client mode tinting */
-  body.client{--accent:#4a6b6b;--accent-deep:#2f4a4a}
-  body.client .gatecard,body.client header.mast{}
+  /* client door */
+  body.client{--rubric:#4A6B6B;--blue:#2F4A4A;--rubric-soft:#E1EAE8}
 
-  /* course of care (session history) */
-  .histpanel{border:1px solid var(--rule);background:var(--card);border-radius:9px;margin:0 0 20px;overflow:hidden}
-  .histpanel .hp-head{padding:11px 15px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent-deep);border-bottom:1px solid var(--rule-soft);background:#f1efe4}
-  .histrow{display:flex;flex-wrap:wrap;gap:6px 16px;padding:10px 15px;border-bottom:1px dotted var(--rule);font-size:13.5px;align-items:baseline}
-  .histrow:last-child{border-bottom:0}
-  .histrow .hn{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);flex:none}
-  .histrow .hd{color:var(--ink-soft);font-size:12.5px}
-  .prior{display:inline-block;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--amber);border:1px dashed var(--amber);border-radius:5px;padding:2px 7px;margin-left:8px;vertical-align:middle}
+  /* course of care */
+  .histpanel{background:var(--sheet);border:1px solid var(--rule);border-radius:12px;margin:0 0 20px;overflow:hidden}
+  .histpanel .hp-head{padding:11px 15px;font-family:var(--f-label);font-weight:700;letter-spacing:.06em;font-size:.9rem;color:var(--rubric);border-bottom:1px solid var(--rule-soft);background:var(--rubric-soft)}
+  .histrow{display:flex;flex-wrap:wrap;gap:4px 14px;padding:10px 15px;border-top:1px solid var(--rule-soft);font-size:.96rem;align-items:baseline}
+  .histrow:first-of-type{border-top:0}
+  .histrow .hn{font-family:var(--f-label);font-weight:700;letter-spacing:.05em;color:var(--rubric);flex:none}
+  .histrow .hd{color:var(--muted);font-size:.9rem}
+  .prior{display:inline-block;font-size:.84rem;color:var(--warn);margin-left:8px}
 
-  /* unsaved-work indicator */
-  #saveBtn.dirty{border-color:var(--amber);color:var(--amber)}
-  #saveBtn.dirty::after{content:" \25CF"}
-
-  /* larger touch targets on tablets and phones */
-  @media(pointer:coarse){
-    .chead input,.choice input{width:22px;height:22px}
-    .chead{padding:13px 15px}
-    .triad button{padding:13px 8px}
-    button.mini{padding:11px 14px}
+  @media print{
+    :root{--paper:#fff;--sheet:#fff;--ink:#2A2E22;--muted:#555a4b;--rule:#ccc6b6;--rule-soft:#ece8dc;--rubric:#5D6B3F;--rubric-soft:#eef0e4;--blue:#4A5632;--blue-soft:#eef0e3;--amber:#9a6a14;
+      --good:#2B6B58;--good-soft:#e5f1ec;--warn:#8A5A0E;--warn-soft:#f6ecd9;--stop:#A3332A;--stop-soft:#f5e4e0;color-scheme:light}
+    body{background:#fff}
+    .top,.stepbar,.sheet-back,#homeView,#learnView,.guide,.guide-mini,.sess-head,.sct-toast{display:none!important}
+    main{padding:0!important}
+    .reportwrap{border:0;box-shadow:none;padding:0}
   }
 
   /* ===== genogram ===== */
@@ -191,7 +311,7 @@
   .gn-ll{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft);margin-right:4px}
   .gn-chip{display:inline-flex;align-items:center;gap:6px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;padding:6px 9px;border-radius:20px;border:1px solid var(--rule);background:transparent;color:var(--ink);cursor:pointer}
   .gn-chip i{width:9px;height:9px;border-radius:50%;display:inline-block}
-  .gn-chip.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .gn-chip.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
   .gn-reltog{margin-left:auto;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;display:inline-flex;gap:6px;align-items:center;color:var(--ink-soft);cursor:pointer}
   .gn-reltog input{accent-color:var(--accent);width:16px;height:16px}
   .gn-svg{overflow-x:auto;padding:6px 0}
@@ -254,7 +374,7 @@
   .gn-badge.bless{border-color:var(--t-faith);color:var(--t-faith)}
   .gn-who{font-size:13.5px;color:var(--ink-soft)}
   .gn-guide{font-size:13.5px;grid-column:2;display:grid;gap:6px;justify-items:start}
-  .gn-caution{margin-top:10px;font-size:13px;background:#f1efe4;border-radius:8px;padding:10px 12px;line-height:1.6}
+  .gn-caution{margin-top:10px;font-size:13px;background:var(--rubric-soft);border-radius:8px;padding:10px 12px;line-height:1.6}
   .gn-repsvg svg{max-width:100%;height:auto;display:block;margin:6px auto}
   @media(pointer:coarse){.gn-tchip{padding:9px 10px}.gn-chip{padding:9px 11px}}
   /* ===== passphrase lock ===== */
@@ -266,9 +386,10 @@
   .lockcard label.fld{margin:0}
   .lockcard input[type=password],.lockcard input[type=text]{font-size:16px}
   .lockerr{background:var(--flag-bg);color:var(--flag);border-radius:8px;padding:9px 11px;font-size:14px}
-  .lockwarn{background:#f4ecd9;border-radius:8px;padding:9px 11px;font-size:13.5px;color:var(--ink)}
+  .lockwarn{background:var(--warn-soft);border-radius:8px;padding:9px 11px;font-size:13.5px;color:var(--ink)}
   #lockBtn.on{border-color:var(--accent);color:var(--accent)}
-  .sct-toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:11px 16px;border-radius:9px;font-size:14.5px;z-index:60;max-width:calc(100% - 32px);box-shadow:var(--shadow)}
+  .sct-toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:11px 16px;border-radius:9px;font-size:15px;z-index:60;max-width:calc(100% - 32px);box-shadow:var(--shadow)}
+  body[data-view=session] .sct-toast{bottom:calc(var(--nav-h) + env(safe-area-inset-bottom) + 14px)}
   @media print{.lockback,.sct-toast{display:none!important}}
 
   @media print{.gn-card,.gn-tabs,.gn-panel,.gn-find{display:none!important}}
@@ -285,48 +406,38 @@
   }
 </style>
 </head>
-<body>
-<div class="wrap">
+<body data-view="home">
+<header class="top gut" id="topbar"></header>
+<main class="gut" id="main"><div class="col">
 
-  <!-- ============ MODE GATE ============ -->
-  <div id="gate" class="gate">
-    <h1>Spiritual Care Session Tool</h1>
-    <p>A pastoral instrument for spiritual care, discernment, and the steps of freedom.<br>Choose how you are using it today.</p>
-    <div class="gatecards">
-      <div class="gatecard" onclick="enterMode('client')">
-        <div class="gi">For the person seeking care</div>
-        <h2>Fill out my intake</h2>
-        <p>A few gentle questions about you and your story, so the person caring for you can begin with some background already in hand. Takes about ten minutes. When you finish, you save a file to hand or send to them.</p>
+  <!-- ============ HOME ============ -->
+  <section id="homeView">
+    <div class="stack-lg">
+      <div><p class="eyebrow">SPIRITUAL CARE SESSION TOOL</p><h2 class="big">"He has sent me to bind up the brokenhearted."</h2><p class="ref">Isaiah 61:1</p></div>
+      <div id="resumeSlot"></div>
+      <div class="homeacts">
+        <button type="button" class="act" onclick="enterMode('minister')"><span class="glyph">+</span><span><b>New session</b><span>Begin with someone new</span></span></button>
+        <label class="act"><span class="glyph">&#8635;</span><span><b>Continue</b><span>Open a person's locked file</span></span><input type="file" id="gateLoad" accept=".json" hidden onchange="loadSession(event)"></label>
+        <button type="button" class="act" onclick="enterMode('client')"><span class="glyph">&#9998;</span><span><b>Client intake</b><span>For the person seeking care</span></span></button>
       </div>
-      <div class="gatecard" onclick="enterMode('minister')">
-        <div class="gi">For the minister</div>
-        <h2>Open a care session</h2>
-        <p>The full instrument: intake, safety, triage, entry points, the seven tests of discernment, the steps of ministry, and a printable plan with Scripture and prayer to send home.</p>
-      </div>
+      <div class="guide-slot" data-guide="home"></div>
+      <div class="card flat"><h3 class="sec">YOUR FILES STAY WITH YOU</h3><p>This tool runs entirely on your device. Nothing is stored here or sent anywhere. Each person has one file, locked with your passphrase. Open their file to continue where you left off.</p></div>
+      <div class="card flat" id="installCard"><h3 class="sec">USE IT WITHOUT INTERNET</h3><p>Add this tool to your home screen and it opens like an app, even with no signal. On iPhone or iPad, open it in Safari, tap Share, then Add to Home Screen. On Android, tap Install app in Chrome's menu.</p><button type="button" class="btn ghost" id="installBtn" hidden style="align-self:flex-start">Install on this device</button></div>
     </div>
-    <p class="resume">Returning to a session already started? <label>Load a saved file<input type="file" id="gateLoad" accept=".json" style="display:none" onchange="loadSession(event)"></label> and you will pick up where you left off.</p>
-  </div>
+  </section>
 
-  <!-- ============ APP SHELL (hidden until a mode is chosen) ============ -->
-  <div id="app" style="display:none">
-    <header class="mast">
-      <p class="eyebrow" id="modeEyebrow"></p>
-      <h1 class="title" id="modeTitle"></h1>
-      <p class="subtitle" id="modeSub"></p>
-      <p class="conf">Confidential. Runs entirely on this device. Nothing is saved or sent unless you choose to download it. Saved files are locked with your passphrase.</p>
-    </header>
-
-    <div class="toolbar">
-      <span class="tb-label" id="tbLabel">Session</span>
-      <button class="mini home" onclick="goHome()">Start screen</button>
-      <button class="mini" onclick="saveSession()" id="saveBtn">Save / download</button>
-      <button class="mini" onclick="changePass()" id="lockBtn" title="The passphrase that locks saved files">Passphrase: not set</button>
-      <label class="mini" style="cursor:pointer">Load saved<input type="file" accept=".json" style="display:none" onchange="loadSession(event)"></label>
-      <button class="mini" onclick="newSession()" id="nextSessBtn" style="display:none">New session, same person</button>
-      <button class="mini" onclick="clearAll()">Clear</button>
+  <!-- ============ LEARN ============ -->
+  <section id="learnView" hidden>
+    <div class="stack-lg">
+      <div><p class="eyebrow">LEARN</p><h2 class="big">The teaching behind each step</h2><p class="ref">For your own review, and for training others who minister with you.</p></div>
+      <section class="stack"><h3 class="sec">FOUNDATIONS</h3><div class="stack" id="learnFoundations"></div></section>
+      <section class="stack"><h3 class="sec">USING EACH STEP</h3><div class="stack" id="learnSteps"></div></section>
     </div>
+  </section>
 
-    <nav class="rail" id="rail"></nav>
+  <!-- ============ SESSION ============ -->
+  <div id="app" hidden>
+    <div class="sess-head"><p class="eyebrow" id="stepEyebrow"></p><h2 class="big" id="stepTitle"></h2></div>
 
     <!-- ===== CLIENT STEPS ===== -->
     <section class="step" data-mode="client" data-step="0">
@@ -377,13 +488,7 @@
 
     <!-- 0 INTAKE -->
     <section class="step" data-mode="minister" data-step="0">
-      <details class="howto"><summary>How to use this section</summary><div class="hbody">
-        <p>This is the listening stage. Your aim is not to fill every box but to let the person tell their story while you capture what matters. Warmth first, information second.</p>
-        <p>The lines in italics and quotation marks are questions you can ask aloud. Use them or your own. If the person filled out a self-intake form, load it from the toolbar above and these boxes will already hold their words; your job then is to listen for what is underneath them.</p>
-        <p class="look">What to look for: the wound beneath the presenting problem, the spiritual climate they grew up in, and where they sense God is near or far. Those three often matter more than the facts.</p>
-        <p><b>Family genogram:</b> further down this tab you can draw the family across three generations, mark patterns on each person, and see where they repeat. It carries forward with the file to every later session.</p>
-        <p><b>Walking with someone over weeks:</b> load their last session file, review it, then press <b>New session, same person</b> in the toolbar. The prior session is archived inside the same file as a course of care, their background and flagged doors carry forward, and the session work (safety, triage, tests, ministry) resets fresh. Keep saving to one file per person and the whole journey stays together.</p>
-      </div></details>
+      <div class="guide-slot" data-guide="intake"></div>
       <div id="histMount"></div>
       <p class="lede">Build rapport first. Let them tell their story before you reach for a category.</p>
       <h2 class="sec">Session identification</h2>
@@ -410,13 +515,7 @@
       <p class="askline">What was faith like in your family? Any occult or false-religion involvement?</p>
       <label class="fld"><span class="lab">Spiritual history</span><textarea data-k="i_spirhist"></textarea></label>
       <h2 class="sec">Family genogram</h2>
-      <details class="howto"><summary>How to use the genogram</summary><div class="hbody">
-        <p>A genogram is a family diagram across at least three generations. It shows at a glance where patterns repeat: down the line from grandparent to parent, sideways from aunt to aunt or cousin to cousin, and sometimes skipping a generation.</p>
-        <p><b>Guided questions</b> walks you through the family one question at a time, in words you can ask aloud. <b>Edit a person</b> opens when you tap anyone on the diagram, so you can correct details or add relatives the questions did not cover: great-grandparents, aunts, cousins, remarriages, or adopted children.</p>
-        <p>Mark patterns with the coloured chips on each person. The findings below the diagram count <b>blood relatives only</b>; people who married in are shown but not counted in this person's line (they are part of their children's line). You are looking for patterns, not one-off sins.</p>
-        <p>When a pattern repeats across generations, the findings offer a button to mark the matching Generational Door. Nothing is marked unless you press it.</p>
-        <p class="look">Remember: this is not about judging family members. It is about the pattern ending here. Stop for listening prayer at the last question before praying over anything you have found.</p>
-      </div></details>
+      <div class="guide-slot" data-guide="genogram"></div>
       <p class="note">Draw the family, mark the patterns, then listen together before praying. The genogram saves with this file and carries forward to every session with this person.</p>
       <div class="gn-card">
         <div class="gn-lens" id="gnLens"></div>
@@ -441,16 +540,13 @@
 
     <!-- 1 SAFETY -->
     <section class="step" data-mode="minister" data-step="1">
-      <details class="howto"><summary>How to use this section</summary><div class="hbody">
-        <p>This comes before anything else for a reason. Spiritual care never substitutes for safety. None of these items means a person needs deliverance; each means a person may need protection, medical help, or a professional, first.</p>
-        <p><b>If you tick any item,</b> the printed plan will lead with a referral note ahead of everything else. Referring is not failure; it is wisdom. Ministering past your competence can cause harm.</p>
-        <p class="look">What to look for: any present danger to the person or others. When in doubt, ask plainly and gently, and believe what you are told.</p>
-      </div></details>
+      <div class="guide-slot" data-guide="safety"></div>
       <p class="lede">First, always. Read the list and mark anything true right now.</p>
       <div class="flagcard"><b>Why this comes first</b><p>If any item is marked, the plan leads with a referral note. Where there is immediate danger, contact emergency services rather than continuing.</p></div>
       <h2 class="sec">Risk and safety screen</h2>
       <p class="askline">Any thoughts of harming yourself or others? Is anyone unsafe at home? Substances or addictions right now?</p>
       <div id="safetyList" class="clist"></div>
+      <div id="safetyVerdict"></div>
       <label class="fld" style="margin-top:16px"><span class="lab">Notes, context, or referral already made</span><textarea data-k="s_notes"></textarea></label>
       <h2 class="sec">Your referral resources</h2>
       <p class="note">Fill these in once with the counsellors, agencies, and crisis lines you actually refer to in your area. They save with the file, carry forward from session to session, and appear automatically in the plan whenever a safety flag is set. The crisis line also prints on the take-home handout.</p>
@@ -463,12 +559,7 @@
 
     <!-- 2 TRIAGE -->
     <section class="step" data-mode="minister" data-step="2">
-      <details class="howto"><summary>How to use this section</summary><div class="hbody">
-        <p>This is a thinking stage, not an action stage. You are naming what you are actually dealing with so the rest of the session knows its road. The single discipline this teaches is the most important one in the whole tool: do not treat an ordinary struggle as a demon, and do not miss a real one.</p>
-        <p><b>Step 1</b> lets you mark more than one kind of problem, because most situations are layered. <b>Step 2</b> asks one question only: if a spirit may be involved, how deep does it go. A believer cannot be possessed, but can be oppressed or hold a foothold in one area. A person is more than one room.</p>
-        <p>The clue list that opens under the third box is exactly that, clues, not proof. They tell you to look closer, not to conclude.</p>
-        <p class="look">What to look for: honesty over speed. Most problems are ordinary or rooted in a wound. The genuinely demonic is the rarer case, and the tool is built to keep it that way.</p>
-      </div></details>
+      <div class="guide-slot" data-guide="triage"></div>
       <p class="lede">Name what you are actually looking at, so the rest of the session knows which road it is on. Nothing happens mechanically here; what you mark shapes the plan at the end.</p>
       <div class="guard"><b>Hold the tension</b>Do not quench the Spirit (1 Thess 5:19), but do test the spirits (1 John 4:1). Not every problem is a demon, and not every smooth surface is clean. The fruit test takes weeks and months, not minutes.</div>
       <h2 class="sec">Step 1. What kind of problem is this?</h2>
@@ -488,29 +579,19 @@
 
     <!-- 3 DOORS -->
     <section class="step" data-mode="minister" data-step="3">
-      <details class="howto"><summary>How to use this section</summary><div class="hbody">
-        <p>These are entry points, places where the enemy may have gained access. They are doors, not a diagnosis. A long list of marks does not mean a heavy case; the discernment stage decides what any of it means.</p>
-        <p>Mark only what genuinely applies, and use the note line under each to record specifics, names, or how long. The asterisk marks a door that can open from a single occurrence, so it deserves attention even if it happened once.</p>
-        <p>The <b>Wounds</b> group is different in kind. Those are things done to the person, not sins they committed. They call for healing, not confession, and the plan will treat them that way.</p>
-        <p>The <b>Generational Doors</b> can be marked straight from the genogram on the Intake tab. Count blood relatives only, and look for patterns rather than one-off sins.</p>
-        <p class="look">What to look for: patterns that line up with the wounds and the family history you already heard. A door rarely stands alone.</p>
-      </div></details>
+      <div class="guide-slot" data-guide="doors"></div>
       <p class="lede">Entry points, not a verdict. Five kinds of door: occult, sexual, persistent sin, generational, and the wounds done to a person. An asterisk (<span style="color:var(--flag);font-weight:700">*</span>) marks a door that can open from a single occurrence. Check only what applies.</p>
       <div id="invMount"></div>
     </section>
 
     <!-- 4 DISCERNMENT -->
     <section class="step" data-mode="minister" data-step="4">
-      <details class="howto"><summary>How to use this section</summary><div class="hbody">
-        <p>This is the heart of the discernment, the seven tests. The governing principle is that the form of a thing is not its identity. Saul prophesied under both the Holy Spirit and an evil spirit. Demons quote true theology. So you test the source, not the spectacle.</p>
-        <p>Each test is a question with a Scripture reference and three buttons: passes, concern, or fails. Tap the one that fits. Some tests are marked <b>over time</b>, the fruit and life-trajectory tests, because they cannot be judged honestly in one sitting. Leave those for later sessions.</p>
-        <p>Below the tests, three quick reads narrow your conclusion, and your <b>pastoral assessment</b> is the single most important choice in the tool. It decides the shape of the plan: repentance, healing, professional help, deliverance, or a mix.</p>
-        <p class="look">What to look for: convergence. One unusual sign proves little. A pattern across several tests, confirmed over time and weighed with others, is what discernment rests on.</p>
-      </div></details>
+      <div class="guide-slot" data-guide="discern"></div>
       <p class="lede">The seven tests. The form of a thing is not its identity. Test the source, not the spectacle.</p>
       <div class="guard"><b>Tests over time vs. tests in the room</b>The Christological, Scripture, self-control, and edification tests can be applied now. The fruit and life-trajectory tests need weeks and months. Mark what you can; leave the rest for follow-up.</div>
       <h2 class="sec">The seven tests</h2>
       <div id="testList"></div>
+      <div id="testVerdict"></div>
       <h2 class="sec">Consolation or desolation read</h2>
       <p class="askline">When you sit with this, do you sense peace, or heaviness and confusion?</p>
       <label class="fld"><textarea data-k="d_ignatian"></textarea></label>
@@ -534,12 +615,7 @@
 
     <!-- 5 MINISTRY -->
     <section class="step" data-mode="minister" data-step="5">
-      <details class="howto"><summary>How to use this section</summary><div class="hbody">
-        <p>Come here only when you have genuinely discerned a demonic element and the person is willing. This is not a formula to rush; it is a path to walk with them. If your assessment was sin, trauma, or a mental-health concern, you can skip this stage entirely.</p>
-        <p>The five steps are a sequence: establish authority, address the spirit rather than the person, break the agreements that gave it ground, command release, and then fill the house. Tick each as you do it so the encounter is recorded.</p>
-        <p><b>Filling is not optional.</b> Cleansing without filling leaves a swept, empty house that ends worse (Luke 11:24-26). Deliverance opens a door; discipleship decides what walks through it.</p>
-        <p class="look">What to look for: the guardrails below, which are easy to forget in the moment. Command, do not converse. No theatrics. Protect dignity. Never alone.</p>
-      </div></details>
+      <div class="guide-slot" data-guide="ministry"></div>
       <p class="lede">When you discern a demonic element and the person is willing, this is the five-step pattern. Walk it; do not rush it. The house must be filled.</p>
       <div class="flagcard"><b>What not to do</b><p>No drama or theatrics. No extended conversation with a spirit; command, do not converse. Not in public; protect dignity. Never alone; minister as a team. Do not assume every problem is demonic, and do not create fear or fascination with demons.</p></div>
       <h2 class="sec">Listen before you pray</h2>
@@ -566,24 +642,39 @@
 
     <!-- 6 PLAN -->
     <section class="step" data-mode="minister" data-step="6">
-      <details class="howto"><summary>How to use this section</summary><div class="hbody">
-        <p>Everything you entered is assembled here into one ordered plan: the picture, the triage, the discernment, the doors, the Scripture and prayers for the road in, the ministry record if any, and the follow-up. Safety leads if any flag was set.</p>
-        <p>The lower part is a <b>handout</b>, Scripture and prayers gathered for the person to take home. You can print the whole plan for your file, or print just the handout for them. Read any prayer before you pray it; make it yours.</p>
-        <p>To edit anything, step back to its tab, change it, and the plan rebuilds.</p>
-      </div></details>
+      <div class="guide-slot" data-guide="plan"></div>
       <p class="lede">Review the plan. Print the full record for your confidential file, or print only the handout for the person. The two never mix: the handout carries no session notes, flags, or assessments.</p>
       <div class="printrow">
-        <button class="btn" onclick="printFull()">Print full plan (your file)</button>
-        <button class="btn" onclick="printHandout()">Print handout only (for them)</button>
-        <button class="btn ghost" onclick="buildReport()">Refresh</button>
+        <button type="button" class="act" onclick="printFull()"><span class="glyph">&#9636;</span><span><b>Full plan</b><span>Confidential, for your file</span></span></button>
+        <button type="button" class="act" onclick="printHandout()"><span class="glyph">&#9993;</span><span><b>Handout</b><span>Scripture and steps for them</span></span></button>
       </div>
+      <button type="button" class="btn ghost" onclick="buildReport()" style="margin-top:10px">Refresh the plan</button>
       <div id="report" class="reportwrap" style="margin-top:18px"></div>
     </section>
 
-    <div class="actions">
-      <button class="btn ghost" id="prevBtn" onclick="go(-1)">Back</button>
-      <button class="btn" id="nextBtn" onclick="go(1)">Continue</button>
-    </div>
+  </div>
+</div></main>
+
+<nav class="stepbar" id="stepbar" hidden aria-label="Step navigation">
+  <button type="button" class="nav" id="prevBtn" onclick="go(-1)">&lsaquo; Back</button>
+  <button type="button" class="stepnow" id="stepNow" onclick="openSheet('stepSheet')" aria-label="All steps"></button>
+  <button type="button" class="nav primary" id="nextBtn" onclick="goNext()">Next &rsaquo;</button>
+</nav>
+
+<div class="sheet-back" id="stepSheet" hidden onclick="if(event.target===this)closeSheets()">
+  <div class="sheet" role="dialog" aria-label="All steps"><div class="grab"></div><h3 class="sec">ALL STEPS</h3><ul class="mlist" id="stepSheetList"></ul></div>
+</div>
+<div class="sheet-back" id="menuSheet" hidden onclick="if(event.target===this)closeSheets()">
+  <div class="sheet" role="dialog" aria-label="Session menu"><div class="grab"></div><h3 class="sec" id="menuTitle">SESSION</h3>
+    <ul class="mlist">
+      <li><button type="button" class="mitem" onclick="closeSheets();saveSession()"><span class="tn">&#10003;</span><span><b id="menuSaveLabel">Save and lock</b><small>Download this person's file, locked with your passphrase</small></span></button></li>
+      <li class="m-min"><label class="mitem"><span class="tn">&#8635;</span><span><b>Open a saved file</b><small>Continue with another person</small></span><input type="file" accept=".json" hidden onchange="closeSheets();loadSession(event)"></label></li>
+      <li class="m-min"><button type="button" class="mitem" id="nextSessBtn" onclick="closeSheets();newSession()"><span class="tn">+</span><span><b>New session, same person</b><small>Archive this session and begin the next one</small></span></button></li>
+      <li><button type="button" class="mitem" id="lockBtn" onclick="closeSheets();changePass()"><span class="tn">&#9919;</span><span><b id="lockLabel">Passphrase: not set</b><small>Set or change the passphrase that locks files</small></span></button></li>
+      <li class="m-min"><a class="mitem" href="#learn" onclick="closeSheets()"><span class="tn">?</span><span><b>Learn</b><small>The teaching behind each step</small></span></a></li>
+      <li><button type="button" class="mitem" onclick="closeSheets();nav('#home')"><span class="tn">&#8962;</span><span><b>Home</b><small>Your session stays open until you clear it</small></span></button></li>
+      <li><button type="button" class="mitem danger" onclick="closeSheets();clearAll()"><span class="tn">&times;</span><span><b>Clear everything</b><small>Start over; anything not saved is lost</small></span></button></li>
+    </ul>
   </div>
 </div>
 
@@ -719,7 +810,7 @@ const HANDOUT_ALWAYS=[
 const HANDOUT_PRAYER="Father, thank You that You are near to me. Walk with me this week. When fear or the old pattern rises, remind me whose I am. Fill me with Your Spirit, give me people to lean on, and let me take one small step of obedience at a time. In Jesus' name, amen.";
 
 /* ============================== STATE ============================== */
-const MIN_STEPS=["Intake","Safety","Triage","Doors","Discernment","Ministry","Plan"];
+const MIN_STEPS=["Intake","Safety","Triage","Doors","Discern","Ministry","Plan"];
 const CLIENT_STEPS=["About You","Family","Faith","Finish"];
 let mode=null, cur=0, dirty=false;
 const data={mode:null,safety:{},triage:{},opp:{},inv:{},tests:{},ministry:{},history:[]};
@@ -727,48 +818,168 @@ const data={mode:null,safety:{},triage:{},opp:{},inv:{},tests:{},ministry:{},his
 function steps(){return mode==='client'?CLIENT_STEPS:MIN_STEPS;}
 
 /* unsaved-work protection: nothing is stored on the device, so warn before losing work */
-function markDirty(){dirty=true;const b=document.getElementById('saveBtn');if(b)b.classList.add('dirty');}
-function markClean(){dirty=false;const b=document.getElementById('saveBtn');if(b)b.classList.remove('dirty');}
+function markDirty(){if(!dirty){dirty=true;renderSync();}}
+function markClean(){dirty=false;renderSync();}
 window.addEventListener('beforeunload',e=>{if(dirty){e.preventDefault();e.returnValue='';}});
 
 function enterMode(m){
-  mode=m; data.mode=m; cur=0;
-  document.getElementById('gate').style.display='none';
-  document.getElementById('app').style.display='block';
+  mode=m; data.mode=m; cur=0; done.clear();
   document.body.classList.toggle('client',m==='client');
-  const eb=document.getElementById('modeEyebrow'), tt=document.getElementById('modeTitle'), sb=document.getElementById('modeSub'), tl=document.getElementById('tbLabel');
-  if(m==='client'){eb.textContent='Spiritual Care Session Tool';tt.textContent='Your Intake';sb.textContent='A few questions about you and your story.';tl.textContent='Your answers';document.getElementById('saveBtn').textContent='Save my answers';}
-  else{eb.textContent='Spiritual Care Session Tool';tt.textContent='Care Session';sb.textContent='Intake, discernment, and the steps of freedom.';tl.textContent='Session';document.getElementById('saveBtn').textContent='Save / download';}
-  document.getElementById('nextSessBtn').style.display=(m==='minister')?'':'none';
   renderHist();
   if(m==='minister')gnRender();
-  showStep();
+  nav('#s/0');
 }
-function goHome(){
-  if(confirm('Return to the start screen? Anything not saved will stay in memory only until you clear or close.')){
-    document.getElementById('app').style.display='none';
-    document.getElementById('gate').style.display='block';
-    window.scrollTo({top:0,behavior:'smooth'});
-  }
-}
+function goHome(){nav('#home');}
+/* ============================== v4 SHELL: views, top bar, stepper, guides, learn ============================== */
+const STEP_META={
+  minister:[['STEP 1 · LISTEN FIRST','Their story'],['STEP 2 · ALWAYS FIRST','Is everyone safe?'],['STEP 3 · NAME IT HONESTLY','What are we looking at?'],['STEP 4 · ENTRY POINTS','Open doors'],['STEP 5 · TEST THE SOURCE','The seven tests'],['STEP 6 · WALK IT, DO NOT RUSH IT','Ministry'],['STEP 7 · SEND THEM HOME','The plan']],
+  client:[['WELCOME','About you'],['YOUR STORY','Your family'],['YOUR STORY','Your faith'],['ALMOST DONE','Save your answers']]
+};
+const ICON_LEARN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5"/></svg>';
+const ICON_MORE='<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>';
+let view='home',lastSave=null,installEvt=null;
+const done=new Set();
+const GUIDES={
+  home:{lead:'A session moves through seven steps, in order. Safety always comes before ministry.',items:['<b>Intake</b>: their story and the family genogram','<b>Safety</b> and <b>Triage</b>: what you are really looking at','<b>Doors</b> and <b>Discern</b>: entry points and the seven tests','<b>Ministry</b> and <b>Plan</b>: walk the steps, then send them home with Scripture'],learn:'foundations'},
+  intake:{lead:'Warmth first, information second. Let them tell their story before you reach for a category.',items:['Italic lines are questions you can ask aloud.','If they filled out an intake, open their file and their words appear here.','The family genogram is further down this step.'],learn:'intake'},
+  genogram:{lead:'Draw the family, mark the patterns, then listen together before praying.',items:['Guided questions walk you through it; tap anyone on the diagram to edit or add relatives.','Findings count blood relatives only.','Nothing is marked on the Doors step unless you press the button.'],learn:'genogram'},
+  safety:{lead:'Spiritual care never substitutes for safety. If you mark anything, the plan leads with a referral.',items:['Ask plainly and gently, and believe what you are told.','Where there is immediate danger, call 911.'],learn:'safety'},
+  triage:{lead:'Do not treat an ordinary struggle as a demon, and do not miss a real one.',items:['Step 1: mark every kind that applies; most situations are layered.','Step 2: choose how deep, only if a spirit may be involved.','The clue list is clues, not proof.'],learn:'triage'},
+  doors:{lead:'Entry points, not a diagnosis. A long list does not mean a heavy case.',items:['Open a group and mark only what applies.','An asterisk marks a door that can open from a single occurrence.','Wounds are things done to the person: healing, not confession.'],learn:'doors'},
+  discern:{lead:'The form of a thing is not its identity. Test the source, not the spectacle.',items:['Four tests can be judged in the room; fruit and trajectory need time.','Your pastoral assessment shapes the whole plan.'],learn:'discern'},
+  ministry:{lead:'Only when a demonic element is discerned and the person is willing. Walk it; do not rush it.',items:['Listen before you pray.','Command, do not converse. Never alone.','The house must be filled (Luke 11:24-26).'],learn:'ministry'},
+  plan:{lead:'Everything you entered, gathered into one plan.',items:['Print the full plan for your confidential file.','Print only the handout for the person.','Save and lock the file before you close.'],learn:'plan'}
+};
+const FOUNDATIONS=[
+  ['seven','The seven tests','How do we test what we sense?',['The form of a thing is not its identity. Saul prophesied under the Spirit and under an evil spirit, and demons can quote true theology.','Four tests can be applied in the room: Christ confessed, agreement with Scripture, self-control intact, and edification.','Three need others and time: weighing by the body, fruit, and the trajectory of a life.'],'Test the source, not the spectacle. Convergence across several tests, confirmed over time, is what discernment rests on.'],
+  ['possession','Possession or oppression','Can a believer have a demon?',['A believer belongs to Christ and cannot be possessed.','A believer can be oppressed, or give the enemy a foothold in one area of life (Eph 4:27).','A person is more than one room. You are dealing with an area, not the whole person.'],'Most problems are ordinary or rooted in a wound. The genuinely demonic is the rarer case.'],
+  ['fill','Fill the house','Why is cleansing not enough?',['A swept, empty house ends worse than before (Luke 11:24-26).','Filling means the Holy Spirit, daily disciplines in the Word and prayer, and real community.','Deliverance opens a door; discipleship decides what walks through it.'],'Filling is not optional.'],
+  ['generational','Generational patterns','What passes down, and what does not?',['Guilt is not inherited: each person answers for their own sin (Ezek 18:20).','The effects of a pattern can carry on where it is repeated (Ex 20:5), yet God\'s love reaches a thousand generations (Ex 20:6).','Christ became a curse for us (Gal 3:13). Forgive the line, confess, repent, break the pattern, then take authority only where a spirit is discerned.'],'This is not about judging family members. It is about the pattern ending here.'],
+  ['refer','When to refer','Where does pastoral care stop?',['Safety comes before ministry, every time.','Thoughts of suicide, self-harm, hearing voices, or danger at home call for a professional first.','Referring is not failure; ministering past your competence can cause harm.'],'Pastoral care continues alongside treatment, never instead of it.']
+];
+const STEP_LESSONS=[['intake','Intake','Listening to their story'],['genogram','Family genogram','Seeing patterns across generations'],['safety','Safety','Why it always comes first'],['triage','Triage','Naming what you are looking at'],['doors','Doors','Entry points, not a diagnosis'],['discern','Discernment','The seven tests in practice'],['ministry','Ministry','The five steps and filling the house'],['plan','Plan','The record and the handout']];
+let LESSON_BODY={};
 
-function railRender(){
-  document.getElementById('rail').innerHTML=steps().map((s,i)=>
-    `<button class="${i===cur?'active':''} ${i<cur?'done':''}" onclick="jump(${i})"><span class="num">${i+1}</span>${s}</button>`).join('');
+function nav(h){if(location.hash===h)onHash();else location.hash=h;}
+function setView(v){
+  view=v;document.body.dataset.view=v;
+  document.getElementById('homeView').hidden=v!=='home';
+  document.getElementById('learnView').hidden=v!=='learn';
+  document.getElementById('app').hidden=v!=='session';
+  document.getElementById('stepbar').hidden=v!=='session';
+  if(v==='home')renderHome();
+  renderTop();
+}
+function onHash(){
+  closeSheets();
+  const h=location.hash||'#home';
+  if(h.startsWith('#s/')){
+    if(!mode){history.replaceState(null,'','#home');setView('home');return;}
+    const n=parseInt(h.slice(3),10);cur=isNaN(n)?0:Math.max(0,Math.min(steps().length-1,n));
+    setView('session');showStep();return;
+  }
+  if(h.startsWith('#learn')){setView('learn');renderLearn();const k=h.split('/')[1];
+    if(k){const d=document.getElementById('lesson-'+k);if(d){d.open=true;setTimeout(()=>d.scrollIntoView({behavior:'smooth',block:'start'}),60);}}else window.scrollTo(0,0);return;}
+  setView('home');window.scrollTo(0,0);
+}
+function whoLabel(){
+  if(mode==='client')return (data.c_name||'Your intake');
+  return (data.p_name||'New person')+' · Session '+(data.p_session||'1');
+}
+function syncHTML(){
+  const s=dirty?'unsaved':lastSave||'none';
+  const t=dirty?'Unsaved':lastSave==='locked'?'Saved and locked':lastSave==='plain'?'Saved, not locked':'Not saved yet';
+  return `<button type="button" class="sync" id="saveBtn" data-s="${s}" onclick="saveSession()" title="Save"><i></i><span>${t}</span></button>`;
+}
+function renderTop(){
+  const t=document.getElementById('topbar');const sess=view==='session',min=mode==='minister';
+  t.innerHTML=`<div class="col">
+    <a class="brand" href="#home"><b>Spiritual</b> Care</a>
+    ${sess?`<span class="who" id="whoChip">${esc(whoLabel())}</span>`:''}
+    ${sess?`<nav class="steplinks" aria-label="Steps">${steps().map((s,i)=>`<a href="#s/${i}" class="${done.has(i)&&i!==cur?'done':''}" aria-current="${i===cur?'page':'false'}">${s}</a>`).join('')}</nav>`:''}
+    <span class="spacer"></span>
+    ${sess?syncHTML():''}
+    ${(!sess||min)?`<a class="hdr-link" href="#learn" aria-current="${view==='learn'?'page':'false'}">${ICON_LEARN}<span>Learn</span></a>`:''}
+    ${sess?`<button type="button" class="hdr-link" onclick="openSheet('menuSheet')" aria-label="Session menu">${ICON_MORE}<span>Menu</span></button>`:''}
+  </div>`;
+}
+function renderSync(){const b=document.getElementById('saveBtn');if(b)b.outerHTML=syncHTML();}
+function renderWho(){const w=document.getElementById('whoChip');if(w)w.textContent=whoLabel();}
+function renderHome(){
+  const r=document.getElementById('resumeSlot');
+  r.innerHTML=mode?`<a class="act resume" href="#s/${cur}"><span class="glyph">&rarr;</span><span><b>Return to ${esc(mode==='client'?'the intake':(data.p_name||'this session'))}</b><span>${dirty?'Unsaved changes':'Open now'} &middot; ${esc(steps()[cur]||'')}</span></span></a>`:'';
+  document.getElementById('installBtn').hidden=!installEvt;
+  renderGuides();
+}
+function renderStepbar(){
+  const n=steps().length,last=cur===n-1;
+  document.getElementById('prevBtn').disabled=cur===0;
+  document.getElementById('stepNow').innerHTML=`<small>STEP ${cur+1} OF ${n}</small><b>${esc(steps()[cur])}</b><span class="dots">${steps().map((s,k)=>`<i class="${k===cur?'now':done.has(k)?'done':''}"></i>`).join('')}</span>`;
+  const nb=document.getElementById('nextBtn');nb.innerHTML=last?(mode==='client'?'Save answers':'Save and lock'):'Next &rsaquo;';
+  document.getElementById('stepSheetList').innerHTML=steps().map((s,i)=>`<li><a class="mitem" href="#s/${i}"><span class="tn">${i+1}</span><span><b>${esc(s)}</b><small>${esc(STEP_META[mode][i][1])}</small></span>${i===cur?'<span class="pill" data-v="go">HERE</span>':done.has(i)?'<span class="pill">DONE</span>':''}</a></li>`).join('');
 }
 function showStep(){
   document.querySelectorAll('.step').forEach(el=>el.classList.remove('show'));
   const sel=document.querySelector(`.step[data-mode="${mode}"][data-step="${cur}"]`);
-  if(sel) sel.classList.add('show');
-  document.getElementById('prevBtn').disabled=cur===0;
-  const last=steps().length-1;
-  document.getElementById('nextBtn').style.visibility=cur===last?'hidden':'visible';
-  railRender();
-  if(mode==='minister'&&cur===6) buildReport();
-  window.scrollTo({top:0,behavior:'smooth'});
+  if(sel)sel.classList.add('show');
+  const m=STEP_META[mode][cur];document.getElementById('stepEyebrow').textContent=m[0];document.getElementById('stepTitle').textContent=m[1];
+  renderStepbar();renderTop();renderGuides();
+  if(mode==='minister'&&cur===6)buildReport();
+  window.scrollTo({top:0});
 }
-function go(d){const n=cur+d;if(n<0||n>=steps().length)return;cur=n;showStep();}
-function jump(i){cur=i;showStep();}
+function go(d){const n=cur+d;if(n<0||n>=steps().length)return;if(d>0)done.add(cur);nav('#s/'+n);}
+function goNext(){if(cur===steps().length-1){done.add(cur);saveSession();return;}go(1);}
+function jump(i){nav('#s/'+i);}
+function openSheet(id){closeSheets();document.getElementById(id).hidden=false;}
+function closeSheets(){document.querySelectorAll('.sheet-back').forEach(s=>s.hidden=true);}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSheets();});
+
+/* guide cards: hide to a bar, remembered on this device only */
+function guideHidden(k){try{return localStorage.getItem('sct-guide-'+k)==='1';}catch(e){return false;}}
+function setGuideHidden(k,v){try{v?localStorage.setItem('sct-guide-'+k,'1'):localStorage.removeItem('sct-guide-'+k);}catch(e){}renderGuides();}
+function renderGuides(){
+  document.querySelectorAll('.guide-slot').forEach(el=>{
+    const k=el.dataset.guide,g=GUIDES[k];if(!g)return;
+    if(guideHidden(k)){el.innerHTML=`<button type="button" class="guide-mini" onclick="setGuideHidden('${k}',false)"><span>How to use this ${k==='home'?'tool':'step'}</span><span class="guide-show">Show</span></button>`;return;}
+    el.innerHTML=`<div class="guide"><div class="guide-head"><h3 class="sec">HOW TO USE THIS ${k==='home'?'TOOL':k==='genogram'?'GENOGRAM':'STEP'}</h3><button type="button" class="guide-hide" onclick="setGuideHidden('${k}',true)">Hide</button></div>
+      <p class="guide-lead">${g.lead}</p><ul>${g.items.map(x=>`<li>${x}</li>`).join('')}</ul><a class="glink" href="#learn/${g.learn}">Read the full teaching in Learn</a></div>`;
+  });
+}
+function renderLearn(){
+  const f=document.getElementById('learnFoundations');
+  if(!f.dataset.done){
+    f.innerHTML=`<span id="lesson-foundations"></span>`+FOUNDATIONS.map(([k,t,q,ideas,bal],i)=>`<details class="lesson" id="lesson-${k}"><summary><span class="lnum">${i+1}</span><span class="ltitle"><b>${t}</b><span>${q}</span></span></summary><div class="lbody"><ul>${ideas.map(x=>`<li>${x}</li>`).join('')}</ul><div class="balance"><b>Hold the balance.</b> ${bal}</div></div></details>`).join('');
+    document.getElementById('learnSteps').innerHTML=STEP_LESSONS.map(([k,t,q],i)=>`<details class="lesson" id="lesson-${k}"><summary><span class="lnum">${i+1}</span><span class="ltitle"><b>${t}</b><span>${q}</span></span></summary><div class="lbody">${LESSON_BODY[k]||''}</div></details>`).join('');
+    f.dataset.done='1';
+  }
+}
+
+/* live verdicts on Safety and Discern */
+function updateSafetyVerdict(){
+  const el=document.getElementById('safetyVerdict');if(!el)return;
+  const n=SAFETY.filter((s,i)=>data.safety[i]).length;
+  const ref=[data.r_crisis,data.r_counsel].filter(Boolean).map(esc).join(' · ');
+  el.innerHTML=n?`<div class="live" data-v="stop"><b>Referral indicated</b><p>Pastoral care continues, but involve a licensed professional before or alongside any deliverance or healing work. Where there is immediate danger, call 911.</p>${ref?`<p class="next">YOUR REFERRAL: ${ref}</p>`:'<p class="next">ADD YOUR REFERRAL RESOURCES BELOW</p>'}</div>`
+    :`<div class="live" data-v="go"><b>No risks marked</b><p>Continue to triage. Come back here if anything changes during the session.</p></div>`;
+}
+function updateTestVerdict(){
+  const el=document.getElementById('testVerdict');if(!el)return;
+  const v=Object.values(data.tests||{}),f=v.filter(x=>x==='fail').length,c=v.filter(x=>x==='concern').length;
+  if(!v.length){el.innerHTML='';return;}
+  el.innerHTML=f?`<div class="live" data-v="stop"><b>${f} test${f>1?'s':''} failed</b><p>Treat this with caution and weigh it with others before any ministry.</p></div>`
+    :c?`<div class="live" data-v="warn"><b>Still weighing</b><p>Leave the tests of concern open and watch the fruit in the weeks ahead.</p></div>`
+    :`<div class="live" data-v="go"><b>So far it holds</b><p>Keep testing over time. Fruit decides.</p></div>`;
+}
+function updateDoorCounts(){
+  CATS.forEach(cat=>{const el=document.getElementById('cnt_'+cat.id);if(!el)return;const c=data.inv[cat.id]?Object.values(data.inv[cat.id]).filter(r=>r.on).length:0;
+    el.textContent=c?c+' marked':'';el.hidden=!c;el.dataset.v=cat.id==='wounds'?'go':'warn';});
+}
+
+/* install and offline (only when served from the web, not a downloaded file) */
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installEvt=e;const b=document.getElementById('installBtn');if(b)b.hidden=false;});
+document.addEventListener('click',e=>{if(e.target&&e.target.id==='installBtn'&&installEvt){installEvt.prompt();installEvt=null;e.target.hidden=true;}});
+if('serviceWorker' in navigator&&location.protocol.startsWith('http'))window.addEventListener('load',()=>{navigator.serviceWorker.register('sw.js').catch(()=>{});});
+window.addEventListener('hashchange',onHash);
 
 /* render dynamic lists */
 function renderSafety(){document.getElementById('safetyList').innerHTML=SAFETY.map((s,i)=>`<div class="citem" id="safe_${i}"><label class="chead"><input type="checkbox" onchange="tog('safety',${i},this.checked,'safe_${i}')"><span class="nm">${s}</span></label></div>`).join('');}
@@ -780,6 +991,7 @@ function togOpp(j,on){data.opp[j]=on;markDirty();}
 function updateNext(){
   const box=document.getElementById('triageNext'); if(!box)return;
   const opp=data.t_posopp||''; const kinds=[];
+  box.dataset.v=opp.startsWith('No demonic')?'go':opp.startsWith('Heavy')?'stop':(opp.startsWith('Oppression')||opp.startsWith('Uncertain'))?'warn':'';
   if(data.triage[0])kinds.push('an ordinary struggle');
   if(data.triage[1])kinds.push('a spiritual root');
   if(data.triage[2])kinds.push('a possible demonic element');
@@ -800,19 +1012,19 @@ function renderInv(){
     const note=cat.note?`<p class="note">${cat.note}</p>`:'';
     const rows=cat.items.map((it,idx)=>{const nm=itext(it),star=istar(it)?'<span class="star">&lowast;</span>':'';
       return `<div class="citem" id="inv_${cat.id}_${idx}"><label class="chead"><input type="checkbox" onchange="togInv('${cat.id}',${idx},this.checked)"><span class="nm">${nm}${star}</span></label><div class="sub"><label class="fld" style="margin:0"><span class="lab">Note (specifics, names, how long)</span><input type="text" oninput="invNote('${cat.id}',${idx},this.value)"></label></div></div>`;}).join('');
-    return `<h2 class="sec">${cat.title}</h2>${note}<div class="clist">${rows}</div>`;}).join('');
+    return `<details class="more" id="grp_${cat.id}"><summary><b>${cat.title}</b><span class="sum-r"><span class="pill" id="cnt_${cat.id}" hidden></span></span></summary>${note}<div class="clist">${rows}</div></details>`;}).join('');
 }
 function ensureInv(cid,idx){data.inv[cid]=data.inv[cid]||{};data.inv[cid][idx]=data.inv[cid][idx]||{on:false,note:""};return data.inv[cid][idx];}
-function togInv(cid,idx,on){ensureInv(cid,idx).on=on;markDirty();document.getElementById(`inv_${cid}_${idx}`).classList.toggle('on',on);}
+function togInv(cid,idx,on){ensureInv(cid,idx).on=on;markDirty();updateDoorCounts();document.getElementById(`inv_${cid}_${idx}`).classList.toggle('on',on);}
 function invNote(cid,idx,v){ensureInv(cid,idx).note=v;markDirty();}
 function renderTests(){
-  document.getElementById('testList').innerHTML=TESTS.map(t=>{
-    const tag=t.over?' <span style="font-family:ui-monospace;font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--amber)">[over time]</span>':'';
-    return `<div class="testrow"><p class="tq">${t.q}${tag}</p><div class="tref">${t.ref}</div><div class="triad" id="test_${t.id}"><button onclick="setTest('${t.id}','pass',this)">Passes</button><button onclick="setTest('${t.id}','concern',this)">Concern</button><button onclick="setTest('${t.id}','fail',this)">Fails</button></div></div>`;}).join('');
+  document.getElementById('testList').innerHTML=TESTS.map((t,i)=>{
+    const tag=t.over?'<span class="overtime">OVER TIME</span>':'';
+    return `<div class="testrow"><p class="tq"><span class="tn">${i+1}</span> ${t.q}${tag}</p><div class="tref">${t.ref}</div><div class="seg triad" id="test_${t.id}" role="group" aria-label="Test ${i+1}"><button type="button" data-v="pass" onclick="setTest('${t.id}','pass',this)">Passes</button><button type="button" data-v="concern" onclick="setTest('${t.id}','concern',this)">Concern</button><button type="button" data-v="fail" onclick="setTest('${t.id}','fail',this)">Fails</button></div></div>`;}).join('');
 }
-function setTest(id,val,btn){data.tests[id]=val;markDirty();const grp=document.getElementById('test_'+id);grp.querySelectorAll('button').forEach(b=>b.classList.remove('sel'));btn.classList.add('sel');}
+function setTest(id,val,btn){data.tests[id]=val;markDirty();const grp=document.getElementById('test_'+id);grp.querySelectorAll('button').forEach(b=>b.classList.remove('sel'));btn.classList.add('sel');updateTestVerdict();}
 function renderMinistry(){document.getElementById('ministryList').innerHTML=MINISTRY.map(m=>`<div class="citem" id="min_${m.id}"><label class="chead"><input type="checkbox" onchange="tog('ministry','${m.id}',this.checked,'min_${m.id}')"><span class="nm">${m.t}<small>${m.d}</small></span></label></div>`).join('');}
-function tog(bucket,key,on,elid){data[bucket][key]=on;markDirty();document.getElementById(elid).classList.toggle('on',on);}
+function tog(bucket,key,on,elid){data[bucket][key]=on;markDirty();document.getElementById(elid).classList.toggle('on',on);if(bucket==='safety')updateSafetyVerdict();}
 
 /* ============================== COURSE OF CARE (MULTI-SESSION) ============================== */
 function snapshotSession(){
@@ -848,8 +1060,8 @@ function newSession(){
   const sel=document.querySelector('[data-k="p_session"]');if(sel)sel.value=data.p_session;
   const dt=document.querySelector('[data-k="p_date"]');if(dt)dt.value=data.p_date;
   updateNext();renderHist();renderPriorMarks();markDirty();
-  cur=0;showStep();
-  alert('Session archived. You are now in session '+data.p_session+'. Save to the same file when you finish.');
+  done.clear();updateSafetyVerdict();updateTestVerdict();updateDoorCounts();nav('#s/0');
+  toast('Session archived. You are now in session '+data.p_session+'. Save to the same file when you finish.');
 }
 function renderHist(){
   const mount=document.getElementById('histMount');if(!mount)return;
@@ -874,7 +1086,7 @@ function renderPriorMarks(){
 }
 
 function bindFields(){
-  document.querySelectorAll('[data-k]').forEach(el=>el.addEventListener('input',()=>{data[el.dataset.k]=el.value;markDirty();}));
+  document.querySelectorAll('[data-k]').forEach(el=>{const h2=()=>{data[el.dataset.k]=el.value;markDirty();const k=el.dataset.k;if(k==='p_name'||k==='c_name'||k==='p_session')renderWho();if(k==='r_crisis'||k==='r_counsel')updateSafetyVerdict();};el.addEventListener('input',h2);el.addEventListener('change',h2);});
   document.querySelectorAll('[data-radio]').forEach(grp=>{grp.querySelectorAll('input[type=radio]').forEach(rb=>rb.addEventListener('change',()=>{
     data[grp.dataset.radio]=rb.value;grp.querySelectorAll('.choice').forEach(c=>c.classList.remove('on'));rb.closest('.choice').classList.add('on');markDirty();
     if(grp.dataset.radio==='t_posopp')updateNext();}));});
@@ -1034,7 +1246,7 @@ async function sctEncrypt(obj,pass){const salt=crypto.getRandomValues(new Uint8A
   return {format:'spiritual-care-locked',v:1,note:'This file is locked. Open it in the Spiritual Care Session Tool with its passphrase.',kdf:'PBKDF2-SHA256',iter,salt:b64(salt),iv:b64(iv),data:b64(ct)};}
 async function sctDecrypt(env,pass){const key=await sctKey(pass,unb64(env.salt),env.iter);const pt=await crypto.subtle.decrypt({name:'AES-GCM',iv:unb64(env.iv)},key,unb64(env.data));return JSON.parse(new TextDecoder().decode(pt));}
 function toast(msg){const t=document.getElementById('sctToast');t.textContent=msg;t.hidden=false;clearTimeout(toast._t);toast._t=setTimeout(()=>{t.hidden=true;},4200);}
-function updateLockBtn(){const b=document.getElementById('lockBtn');if(!b)return;b.textContent=sessionPass?'Passphrase: set':'Passphrase: not set';b.classList.toggle('on',!!sessionPass);}
+function updateLockBtn(){const b=document.getElementById('lockLabel');if(b)b.textContent=sessionPass?'Passphrase: set':'Passphrase: not set';}
 /* kind: 'set' (choose a passphrase) or 'open' (unlock a file). verify(pass) may throw to keep the dialog open. */
 function askPass(kind,opt){opt=opt||{};return new Promise(resolve=>{
   const M=document.getElementById('lockModal'),pw=document.getElementById('lockPw'),pw2=document.getElementById('lockPw2'),err=document.getElementById('lockErr'),
@@ -1072,9 +1284,9 @@ async function saveSession(){
   const fname=`spiritual_care_${tag}_${who}.json`;
   let pass=sessionPass;
   if(!pass||!canLock()){const r=await askPass('set');if(!r)return;
-    if(r.plain){downloadJSON(data,fname);markClean();toast(data.mode==='client'?'Your answers are saved. Hand or send the file to the person caring for you.':'Saved without a passphrase. Anyone with the file can read it.');return;}
+    if(r.plain){downloadJSON(data,fname);lastSave='plain';markClean();toast(data.mode==='client'?'Your answers are saved. Hand or send the file to the person caring for you.':'Saved without a passphrase. Anyone with the file can read it.');return;}
     pass=r.pass;sessionPass=pass;updateLockBtn();}
-  try{const env=await sctEncrypt(data,pass);downloadJSON(env,fname);markClean();toast('Saved and locked: '+fname);}
+  try{const env=await sctEncrypt(data,pass);downloadJSON(env,fname);lastSave='locked';markClean();toast('Saved and locked: '+fname);}
   catch(e){toast('The file could not be locked, so nothing was saved. Try again.');}
 }
 async function changePass(){const r=await askPass('set',{allowPlain:true});if(!r)return;
@@ -1097,12 +1309,9 @@ function applyLoaded(L,wasLocked){
     // a loaded client file goes into minister mode so the pastor can work from it
     mode = (data.mode==='client') ? 'minister' : (data.mode||'minister');
     data.mode=mode; cur=0;
-    document.getElementById('gate').style.display='none';
-    document.getElementById('app').style.display='block';
-    document.body.classList.toggle('client',false);
     enterMode(mode);
     rehydrate();
-    renderHist();renderPriorMarks();markClean();updateLockBtn();
+    renderHist();renderPriorMarks();lastSave=wasLocked?'locked':'plain';markClean();updateLockBtn();
     toast((L.mode==='client'?'Intake loaded. The person\'s answers are now in your Intake tab.':'Session restored.')+(wasLocked?'':' This file was not locked; the next save will lock it.'));
   }catch(err){alert('Could not read that file.');}
 }
@@ -1126,6 +1335,7 @@ function rehydrate(){
   Object.keys(data.ministry||{}).forEach(id=>{if(data.ministry[id]){const el=document.getElementById('min_'+id);if(el){el.querySelector('input').checked=true;el.classList.add('on');}}});
   updateNext();
   GN.sel=null;GN.lens=null;GN.mode='ask';gnRender();
+  updateSafetyVerdict();updateTestVerdict();updateDoorCounts();
 }
 function clearAll(){if(!confirm('Clear all entries and start over? This also clears the course of care. Anything not saved will be lost.'))return;
   Object.keys(data).forEach(k=>delete data[k]);['safety','triage','opp','inv','tests','ministry'].forEach(b=>data[b]={});data.history=[];data.mode=mode;
@@ -1134,7 +1344,7 @@ function clearAll(){if(!confirm('Clear all entries and start over? This also cle
   document.querySelectorAll('[data-radio] .choice').forEach(c=>c.classList.remove('on'));
   document.querySelectorAll('[data-radio] input[type=radio]').forEach(r=>r.checked=false);
   document.querySelectorAll('.triad button').forEach(b=>b.classList.remove('sel'));
-  cur=0;showStep();
+  updateNext();done.clear();lastSave=null;renderSync();updateSafetyVerdict();updateTestVerdict();updateDoorCounts();nav('#s/0');
 }
 
 /* ============================== GENOGRAM ============================== */
@@ -1260,7 +1470,7 @@ function gnMarkDoor(name,who){
   const add='Genogram: '+who;if(!(r.note||'').includes(add))r.note=r.note?r.note+'; '+add:add;
   const root=document.getElementById('inv_generational_'+i);
   if(root){root.classList.add('on');root.querySelector('input[type=checkbox]').checked=true;const nt=root.querySelector('input[type=text]');if(nt)nt.value=r.note;}
-  markDirty();gnFind();
+  markDirty();gnFind();updateDoorCounts();
 }
 function gnWho(list,gens){return list.map(p=>`${esc(gName(p))} <span style="opacity:.7">(${esc(GN_GEN[gens[p.id]]||'')})</span>`).join(', ');}
 function gnPatternLine(f){
@@ -1539,7 +1749,9 @@ function gnReportHTML(){
 }
 
 /* init dynamic content once */
-renderSafety();renderTriage();renderInv();renderTests();renderMinistry();bindFields();gnInit();
+const LESSON_HTML={"intake": "<p>This is the listening stage. Your aim is not to fill every box but to let the person tell their story while you capture what matters. Warmth first, information second.</p> <p>The lines in italics and quotation marks are questions you can ask aloud. Use them or your own. If the person filled out a self-intake form, load it from the toolbar above and these boxes will already hold their words; your job then is to listen for what is underneath them.</p> <p class=\"look\">What to look for: the wound beneath the presenting problem, the spiritual climate they grew up in, and where they sense God is near or far. Those three often matter more than the facts.</p> <p><b>Family genogram:</b> further down this tab you can draw the family across three generations, mark patterns on each person, and see where they repeat. It carries forward with the file to every later session.</p> <p><b>Walking with someone over weeks:</b> load their last session file, review it, then press <b>New session, same person</b> in the toolbar. The prior session is archived inside the same file as a course of care, their background and flagged doors carry forward, and the session work (safety, triage, tests, ministry) resets fresh. Keep saving to one file per person and the whole journey stays together.</p>", "genogram": "<p>A genogram is a family diagram across at least three generations. It shows at a glance where patterns repeat: down the line from grandparent to parent, sideways from aunt to aunt or cousin to cousin, and sometimes skipping a generation.</p> <p><b>Guided questions</b> walks you through the family one question at a time, in words you can ask aloud. <b>Edit a person</b> opens when you tap anyone on the diagram, so you can correct details or add relatives the questions did not cover: great-grandparents, aunts, cousins, remarriages, or adopted children.</p> <p>Mark patterns with the coloured chips on each person. The findings below the diagram count <b>blood relatives only</b>; people who married in are shown but not counted in this person's line (they are part of their children's line). You are looking for patterns, not one-off sins.</p> <p>When a pattern repeats across generations, the findings offer a button to mark the matching Generational Door. Nothing is marked unless you press it.</p> <p class=\"look\">Remember: this is not about judging family members. It is about the pattern ending here. Stop for listening prayer at the last question before praying over anything you have found.</p>", "safety": "<p>This comes before anything else for a reason. Spiritual care never substitutes for safety. None of these items means a person needs deliverance; each means a person may need protection, medical help, or a professional, first.</p> <p><b>If you tick any item,</b> the printed plan will lead with a referral note ahead of everything else. Referring is not failure; it is wisdom. Ministering past your competence can cause harm.</p> <p class=\"look\">What to look for: any present danger to the person or others. When in doubt, ask plainly and gently, and believe what you are told.</p>", "triage": "<p>This is a thinking stage, not an action stage. You are naming what you are actually dealing with so the rest of the session knows its road. The single discipline this teaches is the most important one in the whole tool: do not treat an ordinary struggle as a demon, and do not miss a real one.</p> <p><b>Step 1</b> lets you mark more than one kind of problem, because most situations are layered. <b>Step 2</b> asks one question only: if a spirit may be involved, how deep does it go. A believer cannot be possessed, but can be oppressed or hold a foothold in one area. A person is more than one room.</p> <p>The clue list that opens under the third box is exactly that, clues, not proof. They tell you to look closer, not to conclude.</p> <p class=\"look\">What to look for: honesty over speed. Most problems are ordinary or rooted in a wound. The genuinely demonic is the rarer case, and the tool is built to keep it that way.</p>", "doors": "<p>These are entry points, places where the enemy may have gained access. They are doors, not a diagnosis. A long list of marks does not mean a heavy case; the discernment stage decides what any of it means.</p> <p>Mark only what genuinely applies, and use the note line under each to record specifics, names, or how long. The asterisk marks a door that can open from a single occurrence, so it deserves attention even if it happened once.</p> <p>The <b>Wounds</b> group is different in kind. Those are things done to the person, not sins they committed. They call for healing, not confession, and the plan will treat them that way.</p> <p>The <b>Generational Doors</b> can be marked straight from the genogram on the Intake tab. Count blood relatives only, and look for patterns rather than one-off sins.</p> <p class=\"look\">What to look for: patterns that line up with the wounds and the family history you already heard. A door rarely stands alone.</p>", "discern": "<p>This is the heart of the discernment, the seven tests. The governing principle is that the form of a thing is not its identity. Saul prophesied under both the Holy Spirit and an evil spirit. Demons quote true theology. So you test the source, not the spectacle.</p> <p>Each test is a question with a Scripture reference and three buttons: passes, concern, or fails. Tap the one that fits. Some tests are marked <b>over time</b>, the fruit and life-trajectory tests, because they cannot be judged honestly in one sitting. Leave those for later sessions.</p> <p>Below the tests, three quick reads narrow your conclusion, and your <b>pastoral assessment</b> is the single most important choice in the tool. It decides the shape of the plan: repentance, healing, professional help, deliverance, or a mix.</p> <p class=\"look\">What to look for: convergence. One unusual sign proves little. A pattern across several tests, confirmed over time and weighed with others, is what discernment rests on.</p>", "ministry": "<p>Come here only when you have genuinely discerned a demonic element and the person is willing. This is not a formula to rush; it is a path to walk with them. If your assessment was sin, trauma, or a mental-health concern, you can skip this stage entirely.</p> <p>The five steps are a sequence: establish authority, address the spirit rather than the person, break the agreements that gave it ground, command release, and then fill the house. Tick each as you do it so the encounter is recorded.</p> <p><b>Filling is not optional.</b> Cleansing without filling leaves a swept, empty house that ends worse (Luke 11:24-26). Deliverance opens a door; discipleship decides what walks through it.</p> <p class=\"look\">What to look for: the guardrails below, which are easy to forget in the moment. Command, do not converse. No theatrics. Protect dignity. Never alone.</p>", "plan": "<p>Everything you entered is assembled here into one ordered plan: the picture, the triage, the discernment, the doors, the Scripture and prayers for the road in, the ministry record if any, and the follow-up. Safety leads if any flag was set.</p> <p>The lower part is a <b>handout</b>, Scripture and prayers gathered for the person to take home. You can print the whole plan for your file, or print just the handout for them. Read any prayer before you pray it; make it yours.</p> <p>To edit anything, step back to its tab, change it, and the plan rebuilds.</p>"};
+LESSON_BODY=LESSON_HTML;
+renderSafety();renderTriage();renderInv();renderTests();renderMinistry();bindFields();gnInit();updateSafetyVerdict();updateDoorCounts();renderTop();onHash();
 </script>
 </body>
 </html>

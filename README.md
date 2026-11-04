@@ -17,7 +17,15 @@ Once GitHub Pages is turned on for this repository, the tool opens at:
 - English: https://mossipo.github.io/spiritual-care-session-tool/
 - German: https://mossipo.github.io/spiritual-care-session-tool/de/
 
-To use it with no internet at all, download `index.html` and open it in any browser.
+To use it with no internet at all, either install it or download `index.html` and open it in any browser.
+
+## Installing on a device
+
+- **iPhone or iPad:** open the web address in Safari, tap Share, then Add to Home Screen.
+- **Android:** open it in Chrome, then tap Install app (or menu, then Add to Home Screen).
+- **Laptop:** in Chrome or Edge, click the install icon in the address bar.
+
+Installed copies work without signal and update themselves the next time they open with a connection.
 
 ## Confidentiality
 
@@ -45,6 +53,16 @@ Recommended practice:
 | Discernment | The seven tests, consolation and desolation, rebellion or captivity, pastoral assessment |
 | Ministry | Listening prayer, the five steps, filling the house, homework |
 | Plan | Full confidential record, plus a separate take-home handout |
+
+## Files
+
+| File | Purpose |
+|---|---|
+| `index.html` | The tool (English), one self-contained file |
+| `de/index.html` | German version (Seelsorge-Werkzeug) |
+| `manifest.webmanifest`, `sw.js`, `icons/` | Make it installable and available offline |
+
+To publish an update: change the files, bump `CACHE` in `sw.js`, and push.
 
 ## Version history
 

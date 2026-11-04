@@ -1,5 +1,35 @@
 # Changelog
 
+## v4.0: New layout (2026-11-03)
+
+The whole tool now uses the layout and type of Akouō. Everything it did before still works the same way.
+
+**Layout**
+- Home screen with three doors: New session, Continue (open a locked file), and Client intake. A "Return to" card appears when a session is open.
+- On a phone: a slim top bar (person and session number, save status, Learn, Menu) and a fixed bottom bar with Back, the current step, and Next. Tap the step name to see all steps and jump to any of them.
+- On a laptop: the steps sit across the top bar.
+- Menu holds Save and lock, Open a saved file, New session (same person), Passphrase, Learn, Home, and Clear.
+- On the last step, Next becomes "Save and lock."
+- Save status always visible: Unsaved, Saved and locked, or Saved, not locked.
+
+**Easier to read and use**
+- Alegreya type at a larger size; fields at 16px so an iPhone no longer zooms in when you tap one.
+- Dark mode follows the device setting. Printing is always light.
+- Seven tests use green, amber and red buttons, the same as Weigh a Word in Akouō.
+- Safety and Discern show a live result box that changes colour as you mark; Safety shows your referral line when a risk is marked.
+- Triage "what happens next" box is colour-coded.
+- Doors fold into groups that show how many items are marked.
+- Plan offers two large choices: full plan or handout.
+
+**Learn**
+- The long "How to use this section" boxes moved into a Learn page: five foundation lessons (the seven tests, possession or oppression, fill the house, generational patterns, when to refer) and a lesson for each step.
+- Each step now opens with a short guide card that can be hidden to a small bar. The choice is remembered on that device.
+
+**Install and offline**
+- Can be added to a phone, tablet or laptop home screen and opens without signal (from the web address).
+- Session files are never stored by the app; they stay wherever you save them.
+- index.html is still one self-contained file, so a downloaded copy works anywhere.
+
 ## v3.1: Passphrase-locked files (2026-11-03)
 
 - Saved session files are now locked with a passphrase (AES-256 encryption, done on the device). A locked file shows only scrambled text to anyone without the passphrase.
