@@ -2,10 +2,7 @@
 
 A pastoral instrument for spiritual care, discernment, and the steps of freedom. It walks a minister through intake, safety, triage, entry points, the seven tests of discernment, the steps of ministry, and a printable plan with Scripture and prayer to send home.
 
-It has two doors:
-
-- **For the person seeking care:** a short, gentle intake they fill out and save as a file to hand to the minister.
-- **For the minister:** the full session, including a family genogram, course of care across sessions, and a take-home handout.
+It is for the minister's own records. Each person has one file, locked with a passphrase, that carries their course of care from session to session.
 
 ## Open the tool
 

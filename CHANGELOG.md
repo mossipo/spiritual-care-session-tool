@@ -1,5 +1,12 @@
 # Changelog
 
+## v4.2: Client intake removed (2026-11-04)
+
+- Removed the client self-intake (the "Client intake" door, its four screens, and the client mode). The tool is now for the minister's own records only.
+- Home has two doors: New session and Continue.
+- Cleaned up the code that served the intake: one set of steps, simpler saving and locking, no intake-to-session mapping.
+- The plan's "Review" note and "Refresh" button no longer print.
+
 ## v4.1.2: Plainer wording (2026-11-03)
 
 - Rewrote text throughout in plainer language: step headings, guide cards, Learn lessons, triage results, the plan, and the handout. Removed slogan-style lines and repeated catchphrases.

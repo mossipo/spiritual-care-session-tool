@@ -118,7 +118,7 @@
   .askline::before{content:"\201C"}.askline::after{content:"\201D"}
 
   /* home */
-  .homeacts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+  .homeacts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
   @media (max-width:640px){.homeacts{grid-template-columns:minmax(0,1fr)}}
   .act{display:flex;flex-direction:column;gap:2px;text-align:left;background:var(--sheet);border:1px solid var(--rule);border-radius:12px;padding:16px;box-shadow:var(--shadow);min-width:0;cursor:pointer;color:var(--ink);text-decoration:none;font-size:1rem}
   @media (max-width:640px){.act{flex-direction:row;align-items:center;gap:14px}}
@@ -281,8 +281,6 @@
   .handout-divider{border:0;border-top:2px dashed var(--rule);margin:26px 0 18px}
   .handout-note{font-family:var(--f-label);font-size:.86rem;letter-spacing:.06em;color:var(--amber);margin-bottom:4px}
 
-  /* client door */
-  body.client{--rubric:#4A6B6B;--blue:#2F4A4A;--rubric-soft:#E1EAE8}
 
   /* course of care */
   .histpanel{background:var(--sheet);border:1px solid var(--rule);border-radius:12px;margin:0 0 20px;overflow:hidden}
@@ -415,9 +413,9 @@
 
   @media print{
     body{background:#fff}
-    nav.rail,.actions,.toolbar,.printrow,header.mast .conf,.howto,.gate,.histpanel{display:none!important}
+    .printrow,.histpanel{display:none!important}
     .step{display:none!important}.step.show{display:block!important}
-    .reportwrap{border:0;box-shadow:none;padding:0}.wrap{max-width:100%;padding:0}
+    .reportwrap{border:0;box-shadow:none;padding:0}
     .print-hide{display:none!important}
     /* handout-only printing: hide the confidential record, keep the handout */
     body.print-handout .rep-sec:not(.handout-sec),body.print-handout .rep-h,body.print-handout .handout-divider,body.print-handout .disclaimerbar{display:none!important}
@@ -435,9 +433,8 @@
       <div><p class="eyebrow">SPIRITUAL CARE SESSION TOOL</p><h2 class="big">"He has sent me to bind up the brokenhearted."</h2><p class="ref">Isaiah 61:1</p></div>
       <div id="resumeSlot"></div>
       <div class="homeacts">
-        <button type="button" class="act" onclick="enterMode('minister')"><span class="glyph">+</span><span><b>New session</b><span>Begin with someone new</span></span></button>
-        <label class="act"><span class="glyph">&#8635;</span><span><b>Continue</b><span>Open a person's locked file</span></span><input type="file" id="gateLoad" accept=".json" hidden onchange="loadSession(event)"></label>
-        <button type="button" class="act" onclick="enterMode('client')"><span class="glyph">&#9998;</span><span><b>Client intake</b><span>For the person seeking care</span></span></button>
+        <button type="button" class="act" onclick="startSession()"><span class="glyph">+</span><span><b>New session</b><span>Begin with someone new</span></span></button>
+        <label class="act"><span class="glyph">&#8635;</span><span><b>Continue</b><span>Open a person's locked file</span></span><input type="file" id="homeLoad" accept=".json" hidden onchange="loadSession(event)"></label>
       </div>
       <div class="guide-slot" data-guide="home"></div>
       <div class="pray" style="margin:0">
@@ -465,55 +462,10 @@
   <div id="app" hidden>
     <div class="sess-head"><p class="eyebrow" id="stepEyebrow"></p><h2 class="big" id="stepTitle"></h2></div>
 
-    <!-- ===== CLIENT STEPS ===== -->
-    <section class="step" data-mode="client" data-step="0">
-      <p class="lede">Welcome. These questions are just to help the person you are meeting with understand a little about you before you sit down together. There are no right or wrong answers, and you can skip anything you are not ready to write. Take your time.</p>
-      <h2 class="sec">About you</h2>
-      <div class="row2">
-        <label class="fld"><span class="lab">Your name (or initials, if you prefer)</span><input type="text" data-k="c_name"></label>
-        <label class="fld"><span class="lab">Today's date</span><input type="date" data-k="c_date"></label>
-      </div>
-      <h2 class="sec">What brings you in</h2>
-      <p class="askline">In your own words, what made you want to talk with someone?</p>
-      <label class="fld"><textarea data-k="c_reason" placeholder="Whatever is on your heart. A sentence or two is plenty."></textarea></label>
-      <label class="fld"><span class="lab">How long has this been weighing on you?</span><input type="text" data-k="c_howlong"></label>
-    </section>
-
-    <section class="step" data-mode="client" data-step="1">
-      <h2 class="sec">Your family and upbringing</h2>
-      <p class="note">This helps the person you meet with understand where you have come from. Share what you are comfortable sharing.</p>
-      <p class="askline">Who raised you, and what was home like growing up?</p>
-      <label class="fld"><textarea data-k="c_family"></textarea></label>
-      <p class="askline">What are some good memories, times you felt loved or safe?</p>
-      <label class="fld"><textarea data-k="c_joy"></textarea></label>
-      <p class="askline">What were the harder parts, things that hurt or still weigh on you?</p>
-      <label class="fld"><textarea data-k="c_pain" placeholder="Only what you are ready to write. You can leave this for the conversation if you prefer."></textarea></label>
-    </section>
-
-    <section class="step" data-mode="client" data-step="2">
-      <h2 class="sec">Your faith and spiritual life</h2>
-      <p class="askline">What has faith looked like in your life, and in your family?</p>
-      <label class="fld"><textarea data-k="c_faith"></textarea></label>
-      <div class="row2">
-        <label class="fld"><span class="lab">When do you feel closest to God?</span><textarea data-k="c_close"></textarea></label>
-        <label class="fld"><span class="lab">When do you feel farthest from God?</span><textarea data-k="c_far"></textarea></label>
-      </div>
-      <label class="fld"><span class="lab">Is there anything you especially hope for from this time together?</span><textarea data-k="c_hope"></textarea></label>
-    </section>
-
-    <section class="step" data-mode="client" data-step="3">
-      <p class="lede">Thank you for taking the time. When you are ready, save your answers below and hand or send the file to the person you are meeting with. Nothing here is sent anywhere on its own.</p>
-      <div class="guard"><b>One gentle note</b>If you are in any danger right now, or thinking of harming yourself, please do not wait for an appointment. Reach out to someone you trust today, or call or text 988 (Canada and US) to talk with someone right away. You matter, and help is there.</div>
-      <div class="printrow">
-        <button class="btn" onclick="saveSession()">Save my answers to a file</button>
-      </div>
-      <p class="note" style="margin-top:14px">After you click save, a file will download to your device. Send that file to the person caring for you, or bring it with you.</p>
-    </section>
-
-    <!-- ===== MINISTER STEPS ===== -->
+    <!-- ===== SESSION STEPS ===== -->
 
     <!-- 0 INTAKE -->
-    <section class="step" data-mode="minister" data-step="0">
+    <section class="step" data-step="0">
       <div class="guide-slot" data-guide="intake"></div>
       <div class="pray">
         <div><p class="eyebrow">PAUSE TO PRAY</p><h3 class="pray-title">Opening</h3></div>
@@ -572,7 +524,7 @@
     </section>
 
     <!-- 1 SAFETY -->
-    <section class="step" data-mode="minister" data-step="1">
+    <section class="step" data-step="1">
       <div class="guide-slot" data-guide="safety"></div>
       <p class="lede">Go through this list before anything else, and mark anything that is true right now.</p>
       <div class="flagcard"><b>Why this comes first</b><p>If any item is marked, the plan leads with a referral note. Where there is immediate danger, contact emergency services rather than continuing.</p></div>
@@ -598,7 +550,7 @@
     </section>
 
     <!-- 2 TRIAGE -->
-    <section class="step" data-mode="minister" data-step="2">
+    <section class="step" data-step="2">
       <div class="guide-slot" data-guide="triage"></div>
       <p class="lede">Decide what you are dealing with. What you mark here shapes the plan at the end.</p>
       <div class="guard"><b>Keep both in view</b>Do not quench the Spirit (1 Thess 5:19), but do test the spirits (1 John 4:1). Not every problem is a demon, and not every smooth surface is clean. The fruit test takes weeks and months, not minutes.</div>
@@ -618,14 +570,14 @@
     </section>
 
     <!-- 3 DOORS -->
-    <section class="step" data-mode="minister" data-step="3">
+    <section class="step" data-step="3">
       <div class="guide-slot" data-guide="doors"></div>
       <p class="lede">There are five groups: occult, sexual, persistent sin, generational, and wounds done to the person. Open a group and mark only what applies. An asterisk (<span style="color:var(--flag);font-weight:700">*</span>) marks a door that can open from a single occurrence.</p>
       <div id="invMount"></div>
     </section>
 
     <!-- 4 DISCERNMENT -->
-    <section class="step" data-mode="minister" data-step="4">
+    <section class="step" data-step="4">
       <div class="guide-slot" data-guide="discern"></div>
       <div class="pray">
         <div><p class="eyebrow">PAUSE TO PRAY</p><h3 class="pray-title">Before you discern</h3></div>
@@ -662,7 +614,7 @@
     </section>
 
     <!-- 5 MINISTRY -->
-    <section class="step" data-mode="minister" data-step="5">
+    <section class="step" data-step="5">
       <div class="guide-slot" data-guide="ministry"></div>
       <p class="lede">These are the five steps. Go at the person's pace, and finish by filling the house.</p>
       <div class="flagcard"><b>What not to do</b><p>No drama or theatrics. Do not hold a conversation with a spirit; give commands. Never in public, and protect the person's dignity. Never alone. Do not assume every problem is demonic, and do not stir up fear of demons or fascination with them.</p></div>
@@ -694,9 +646,9 @@
     </section>
 
     <!-- 6 PLAN -->
-    <section class="step" data-mode="minister" data-step="6">
+    <section class="step" data-step="6">
       <div class="guide-slot" data-guide="plan"></div>
-      <p class="lede">Review the plan. Print the full record for your confidential file, or print only the handout for the person. The handout never includes your notes, flags, or assessments.</p>
+      <p class="lede print-hide">Review the plan. Print the full record for your confidential file, or print only the handout for the person. The handout never includes your notes, flags, or assessments.</p>
       <div class="pray">
         <div><p class="eyebrow">PAUSE TO PRAY</p><h3 class="pray-title">Sending</h3></div>
         <p class="pray-lead">Before they leave, bless them and pray over their steps for the week.</p>
@@ -708,7 +660,7 @@
         <button type="button" class="act" onclick="printFull()"><span class="glyph">&#9636;</span><span><b>Full plan</b><span>Confidential, for your file</span></span></button>
         <button type="button" class="act" onclick="printHandout()"><span class="glyph">&#9993;</span><span><b>Handout</b><span>Scripture and steps for them</span></span></button>
       </div>
-      <button type="button" class="btn ghost" onclick="buildReport()" style="margin-top:10px">Refresh the plan</button>
+      <button type="button" class="btn ghost print-hide" onclick="buildReport()" style="margin-top:10px">Refresh the plan</button>
       <div id="report" class="reportwrap" style="margin-top:18px"></div>
       <div class="pray">
         <div><p class="eyebrow">PAUSE TO PRAY · JUST YOU</p><h3 class="pray-title">After they leave</h3></div>
@@ -735,11 +687,11 @@
   <div class="sheet" role="dialog" aria-label="Session menu"><div class="grab"></div><h3 class="sec" id="menuTitle">SESSION</h3>
     <ul class="mlist">
       <li><button type="button" class="mitem" onclick="closeSheets();saveSession()"><span class="tn">&#10003;</span><span><b id="menuSaveLabel">Save and lock</b><small>Download this person's file, locked with your passphrase</small></span></button></li>
-      <li class="m-min"><label class="mitem"><span class="tn">&#8635;</span><span><b>Open a saved file</b><small>Continue with another person</small></span><input type="file" accept=".json" hidden onchange="closeSheets();loadSession(event)"></label></li>
-      <li class="m-min"><button type="button" class="mitem" id="nextSessBtn" onclick="closeSheets();newSession()"><span class="tn">+</span><span><b>New session, same person</b><small>Archive this session and begin the next one</small></span></button></li>
-      <li class="m-min"><button type="button" class="mitem" onclick="togglePrayers()"><span class="tn">&#10022;</span><span><b id="prayLabel">Suggested prayers: shown</b><small>Show or hide the written prayers; the listening spaces stay</small></span></button></li>
+      <li><label class="mitem"><span class="tn">&#8635;</span><span><b>Open a saved file</b><small>Continue with another person</small></span><input type="file" accept=".json" hidden onchange="closeSheets();loadSession(event)"></label></li>
+      <li><button type="button" class="mitem" id="nextSessBtn" onclick="closeSheets();newSession()"><span class="tn">+</span><span><b>New session, same person</b><small>Archive this session and begin the next one</small></span></button></li>
+      <li><button type="button" class="mitem" onclick="togglePrayers()"><span class="tn">&#10022;</span><span><b id="prayLabel">Suggested prayers: shown</b><small>Show or hide the written prayers; the listening spaces stay</small></span></button></li>
       <li><button type="button" class="mitem" id="lockBtn" onclick="closeSheets();changePass()"><span class="tn">&#9919;</span><span><b id="lockLabel">Passphrase: not set</b><small>Set or change the passphrase that locks files</small></span></button></li>
-      <li class="m-min"><a class="mitem" href="#learn" onclick="closeSheets()"><span class="tn">?</span><span><b>Learn</b><small>The teaching behind each step</small></span></a></li>
+      <li><a class="mitem" href="#learn" onclick="closeSheets()"><span class="tn">?</span><span><b>Learn</b><small>The teaching behind each step</small></span></a></li>
       <li><button type="button" class="mitem" onclick="closeSheets();nav('#home')"><span class="tn">&#8962;</span><span><b>Home</b><small>Your session stays open until you clear it</small></span></button></li>
       <li><button type="button" class="mitem danger" onclick="closeSheets();clearAll()"><span class="tn">&times;</span><span><b>Clear everything</b><small>Start over; anything not saved is lost</small></span></button></li>
     </ul>
@@ -878,38 +830,32 @@ const HANDOUT_ALWAYS=[
 const HANDOUT_PRAYER="Father, thank You that You are near to me. Walk with me this week. When fear or the old pattern rises, remind me whose I am. Fill me with Your Spirit, give me people to lean on, and let me take one small step of obedience at a time. In Jesus' name, amen.";
 
 /* ============================== STATE ============================== */
-const MIN_STEPS=["Intake","Safety","Triage","Doors","Discern","Ministry","Plan"];
-const CLIENT_STEPS=["About You","Family","Faith","Finish"];
+const STEPS=["Intake","Safety","Triage","Doors","Discern","Ministry","Plan"];
 let mode=null, cur=0, dirty=false;
 const data={mode:null,safety:{},triage:{},opp:{},inv:{},tests:{},ministry:{},history:[]};
 
-function steps(){return mode==='client'?CLIENT_STEPS:MIN_STEPS;}
 
 /* unsaved-work protection: nothing is stored on the device, so warn before losing work */
 function markDirty(){if(!dirty){dirty=true;renderSync();}}
 function markClean(){dirty=false;renderSync();}
 window.addEventListener('beforeunload',e=>{if(dirty){e.preventDefault();e.returnValue='';}});
 
-function enterMode(m){
-  mode=m; data.mode=m; cur=0; done.clear();
-  document.body.classList.toggle('client',m==='client');
+/* mode is 'minister' while a session is open, null on a fresh start */
+function startSession(){
+  mode='minister'; data.mode='minister'; cur=0; done.clear();
   renderHist();
-  if(m==='minister')gnRender();
+  gnRender();
   nav('#s/0');
 }
-function goHome(){nav('#home');}
 /* ============================== v4 SHELL: views, top bar, stepper, guides, learn ============================== */
-const STEP_META={
-  minister:[['STEP 1 OF 7','Their story'],['STEP 2 OF 7','Is everyone safe?'],['STEP 3 OF 7','What are we dealing with?'],['STEP 4 OF 7','Entry points'],['STEP 5 OF 7','The seven tests'],['STEP 6 OF 7','Ministry'],['STEP 7 OF 7','The plan']],
-  client:[['WELCOME','About you'],['YOUR STORY','Your family'],['YOUR STORY','Your faith'],['ALMOST DONE','Save your answers']]
-};
+const STEP_TITLES=['Their story','Is everyone safe?','What are we dealing with?','Entry points','The seven tests','Ministry','The plan'];
 const ICON_LEARN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5"/></svg>';
 const ICON_MORE='<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>';
 let view='home',lastSave=null,installEvt=null;
 const done=new Set();
 const GUIDES={
   home:{lead:'A session has seven steps. Go through them in order, and always deal with safety before ministry.',items:['<b>Intake</b>: their story and the family genogram','<b>Safety</b> and <b>Triage</b>: what you are dealing with','<b>Doors</b> and <b>Discern</b>: entry points and the seven tests','<b>Ministry</b> and <b>Plan</b>: the five steps, then Scripture and prayer to take home'],learn:'foundations'},
-  intake:{lead:'Start with warmth. Let them tell their story before you try to name anything.',items:['Open with prayer, if they are comfortable with it.','The lines in italics are questions you can ask aloud.','If they filled out an intake at home, open their file and their answers appear here.','The family genogram is further down this step.'],learn:'intake'},
+  intake:{lead:'Start with warmth. Let them tell their story before you try to name anything.',items:['Open with prayer, if they are comfortable with it.','The lines in italics are questions you can ask aloud.','The family genogram is further down this step.'],learn:'intake'},
   genogram:{lead:'Draw the family, mark the patterns, and pray together before acting on anything you find.',items:['The guided questions walk you through it. Tap anyone on the diagram to edit them or add relatives.','The findings count blood relatives only.','A Generational door is marked only if you press the button.'],learn:'genogram'},
   safety:{lead:'If any of these are true, the plan opens with a referral. Prayer goes alongside safety, never in place of it.',items:['Ask plainly and gently, and believe what you are told.','If there is immediate danger, call 911.'],learn:'safety'},
   triage:{lead:'Be careful not to treat an ordinary struggle as a demon, or to miss a real one.',items:['First, mark every kind of problem that applies. Most situations have more than one layer.','Then, only if a spirit may be involved, choose how deep it goes.','The list of signs gives clues, not proof.'],learn:'triage'},
@@ -937,7 +883,7 @@ function onHash(){
   const h=location.hash||'#home';
   if(h.startsWith('#s/')){
     if(!mode){history.replaceState(null,'','#home');setView('home');return;}
-    const n=parseInt(h.slice(3),10);cur=isNaN(n)?0:Math.max(0,Math.min(steps().length-1,n));
+    const n=parseInt(h.slice(3),10);cur=isNaN(n)?0:Math.max(0,Math.min(STEPS.length-1,n));
     setView('session');showStep();return;
   }
   if(h.startsWith('#learn')){setView('learn');renderLearn();const k=h.split('/')[1];
@@ -945,7 +891,6 @@ function onHash(){
   setView('home');window.scrollTo(0,0);
 }
 function whoLabel(){
-  if(mode==='client')return (data.c_name||'Your intake');
   return (data.p_name||'New person')+' · Session '+(data.p_session||'1');
 }
 function syncHTML(){
@@ -954,14 +899,14 @@ function syncHTML(){
   return `<button type="button" class="sync" id="saveBtn" data-s="${s}" onclick="saveSession()" title="Save"><i></i><span>${t}</span></button>`;
 }
 function renderTop(){
-  const t=document.getElementById('topbar');const sess=view==='session',min=mode==='minister';
+  const t=document.getElementById('topbar');const sess=view==='session';
   t.innerHTML=`<div class="col">
     <a class="brand" href="#home"><b>Spiritual</b> Care</a>
     ${sess?`<span class="who" id="whoChip">${esc(whoLabel())}</span>`:''}
-    ${sess?`<nav class="steplinks" aria-label="Steps">${steps().map((s,i)=>`<a href="#s/${i}" class="${done.has(i)&&i!==cur?'done':''}" aria-current="${i===cur?'page':'false'}">${s}</a>`).join('')}</nav>`:''}
+    ${sess?`<nav class="steplinks" aria-label="Steps">${STEPS.map((s,i)=>`<a href="#s/${i}" class="${done.has(i)&&i!==cur?'done':''}" aria-current="${i===cur?'page':'false'}">${s}</a>`).join('')}</nav>`:''}
     <span class="spacer"></span>
     ${sess?syncHTML():''}
-    ${(!sess||min)?`<a class="hdr-link" href="#learn" aria-current="${view==='learn'?'page':'false'}">${ICON_LEARN}<span>Learn</span></a>`:''}
+    <a class="hdr-link" href="#learn" aria-current="${view==='learn'?'page':'false'}">${ICON_LEARN}<span>Learn</span></a>
     ${sess?`<button type="button" class="hdr-link" onclick="openSheet('menuSheet')" aria-label="Session menu">${ICON_MORE}<span>Menu</span></button>`:''}
   </div>`;
 }
@@ -969,28 +914,28 @@ function renderSync(){const b=document.getElementById('saveBtn');if(b)b.outerHTM
 function renderWho(){const w=document.getElementById('whoChip');if(w)w.textContent=whoLabel();}
 function renderHome(){
   const r=document.getElementById('resumeSlot');
-  r.innerHTML=mode?`<a class="act resume" href="#s/${cur}"><span class="glyph">&rarr;</span><span><b>Return to ${esc(mode==='client'?'the intake':(data.p_name||'this session'))}</b><span>${dirty?'Unsaved changes':'Open now'} &middot; ${esc(steps()[cur]||'')}</span></span></a>`:'';
+  r.innerHTML=mode?`<a class="act resume" href="#s/${cur}"><span class="glyph">&rarr;</span><span><b>Return to ${esc(data.p_name||'this session')}</b><span>${dirty?'Unsaved changes':'Open now'} &middot; ${esc(STEPS[cur]||'')}</span></span></a>`:'';
   document.getElementById('installBtn').hidden=!installEvt;
   renderGuides();
 }
 function renderStepbar(){
-  const n=steps().length,last=cur===n-1;
+  const n=STEPS.length,last=cur===n-1;
   document.getElementById('prevBtn').disabled=cur===0;
-  document.getElementById('stepNow').innerHTML=`<small>STEP ${cur+1} OF ${n}</small><b>${esc(steps()[cur])}</b><span class="dots">${steps().map((s,k)=>`<i class="${k===cur?'now':done.has(k)?'done':''}"></i>`).join('')}</span>`;
-  const nb=document.getElementById('nextBtn');nb.innerHTML=last?(mode==='client'?'Save answers':'Save and lock'):'Next &rsaquo;';
-  document.getElementById('stepSheetList').innerHTML=steps().map((s,i)=>`<li><a class="mitem" href="#s/${i}"><span class="tn">${i+1}</span><span><b>${esc(s)}</b><small>${esc(STEP_META[mode][i][1])}</small></span>${i===cur?'<span class="pill" data-v="go">HERE</span>':done.has(i)?'<span class="pill">DONE</span>':''}</a></li>`).join('');
+  document.getElementById('stepNow').innerHTML=`<small>STEP ${cur+1} OF ${n}</small><b>${esc(STEPS[cur])}</b><span class="dots">${STEPS.map((s,k)=>`<i class="${k===cur?'now':done.has(k)?'done':''}"></i>`).join('')}</span>`;
+  const nb=document.getElementById('nextBtn');nb.innerHTML=last?'Save and lock':'Next &rsaquo;';
+  document.getElementById('stepSheetList').innerHTML=STEPS.map((s,i)=>`<li><a class="mitem" href="#s/${i}"><span class="tn">${i+1}</span><span><b>${esc(s)}</b><small>${esc(STEP_TITLES[i])}</small></span>${i===cur?'<span class="pill" data-v="go">HERE</span>':done.has(i)?'<span class="pill">DONE</span>':''}</a></li>`).join('');
 }
 function showStep(){
   document.querySelectorAll('.step').forEach(el=>el.classList.remove('show'));
-  const sel=document.querySelector(`.step[data-mode="${mode}"][data-step="${cur}"]`);
+  const sel=document.querySelector(`.step[data-step="${cur}"]`);
   if(sel)sel.classList.add('show');
-  const m=STEP_META[mode][cur];document.getElementById('stepEyebrow').textContent=m[0];document.getElementById('stepTitle').textContent=m[1];
+  document.getElementById('stepEyebrow').textContent='STEP '+(cur+1)+' OF '+STEPS.length;document.getElementById('stepTitle').textContent=STEP_TITLES[cur];
   renderStepbar();renderTop();renderGuides();
-  if(mode==='minister'&&cur===6)buildReport();
+  if(cur===STEPS.length-1)buildReport();
   window.scrollTo({top:0});
 }
-function go(d){const n=cur+d;if(n<0||n>=steps().length)return;if(d>0)done.add(cur);nav('#s/'+n);}
-function goNext(){if(cur===steps().length-1){done.add(cur);saveSession();return;}go(1);}
+function go(d){const n=cur+d;if(n<0||n>=STEPS.length)return;if(d>0)done.add(cur);nav('#s/'+n);}
+function goNext(){if(cur===STEPS.length-1){done.add(cur);saveSession();return;}go(1);}
 function jump(i){nav('#s/'+i);}
 function openSheet(id){closeSheets();document.getElementById(id).hidden=false;}
 function closeSheets(){document.querySelectorAll('.sheet-back').forEach(s=>s.hidden=true);}
@@ -1155,7 +1100,7 @@ function renderPriorMarks(){
 }
 
 function bindFields(){
-  document.querySelectorAll('[data-k]').forEach(el=>{const h2=()=>{data[el.dataset.k]=el.value;markDirty();const k=el.dataset.k;if(k==='p_name'||k==='c_name'||k==='p_session')renderWho();if(k==='r_crisis'||k==='r_counsel')updateSafetyVerdict();};el.addEventListener('input',h2);el.addEventListener('change',h2);});
+  document.querySelectorAll('[data-k]').forEach(el=>{const h2=()=>{data[el.dataset.k]=el.value;markDirty();const k=el.dataset.k;if(k==='p_name'||k==='p_session')renderWho();if(k==='r_crisis'||k==='r_counsel')updateSafetyVerdict();};el.addEventListener('input',h2);el.addEventListener('change',h2);});
   document.querySelectorAll('[data-radio]').forEach(grp=>{grp.querySelectorAll('input[type=radio]').forEach(rb=>rb.addEventListener('change',()=>{
     data[grp.dataset.radio]=rb.value;grp.querySelectorAll('.choice').forEach(c=>c.classList.remove('on'));rb.closest('.choice').classList.add('on');markDirty();
     if(grp.dataset.radio==='t_posopp')updateNext();}));});
@@ -1184,7 +1129,7 @@ function buildReport(){
 
   let html='';
   html+=`<div class="rep-h"><p class="eyebrow">Confidential Pastoral Record</p><h2>Care Session Plan</h2>
-    <div class="rep-meta"><strong>Participant:</strong> ${val('p_name')||val('c_name')||'&mdash;'} &nbsp;|&nbsp; <strong>Date:</strong> ${val('p_date')||val('c_date')||'&mdash;'} &nbsp;|&nbsp; <strong>Session:</strong> ${val('p_session')||'&mdash;'}<br>
+    <div class="rep-meta"><strong>Participant:</strong> ${val('p_name')||'&mdash;'} &nbsp;|&nbsp; <strong>Date:</strong> ${val('p_date')||'&mdash;'} &nbsp;|&nbsp; <strong>Session:</strong> ${val('p_session')||'&mdash;'}<br>
     <strong>Lead:</strong> ${val('p_pastor')||'&mdash;'} &nbsp;|&nbsp; <strong>Others present:</strong> ${val('p_team')||'&mdash;'}</div></div>`;
 
   if(safeFlags.length){
@@ -1203,13 +1148,13 @@ function buildReport(){
   }
 
   html+=`<div class="rep-sec"><h3>Presenting picture</h3>`;
-  html+=repLine('Reason for visit',val('i_reason')||val('c_reason'));
+  html+=repLine('Reason for visit',val('i_reason'));
   html+=repLine('Conversion or commitment',val('i_conv'));
   html+=repLine('Spiritual practices',val('i_practice'));
   html+=repLine('Maturity read',val('i_maturity'));
-  html+=repLine('Wounds identified',val('i_pain')||val('c_pain'));
+  html+=repLine('Wounds identified',val('i_pain'));
   html+=repLine('Generational patterns',val('i_gen'));
-  html+=repLine('Spiritual history',val('i_spirhist')||val('c_faith'));
+  html+=repLine('Spiritual history',val('i_spirhist'));
   html+=`</div>`;
 
   html+=gnReportHTML();
@@ -1324,18 +1269,17 @@ function updateLockBtn(){const b=document.getElementById('lockLabel');if(b)b.tex
 function askPass(kind,opt){opt=opt||{};return new Promise(resolve=>{
   const M=document.getElementById('lockModal'),pw=document.getElementById('lockPw'),pw2=document.getElementById('lockPw2'),err=document.getElementById('lockErr'),
     ok=document.getElementById('lockOk'),cancel=document.getElementById('lockCancel'),plain=document.getElementById('lockPlain'),show=document.getElementById('lockShow');
-  const client=data.mode==='client',crypt=canLock();
-  document.getElementById('lockTitle').textContent=kind==='open'?'Unlock this file':(client?'Lock your answers (optional)':'Lock this file');
+  const crypt=canLock();
+  document.getElementById('lockTitle').textContent=kind==='open'?'Unlock this file':'Lock this file';
   document.getElementById('lockText').textContent=kind==='open'
     ?(opt.name?opt.name+' is locked. ':'This file is locked. ')+'Type its passphrase to open it.'
     :!crypt?'This browser cannot lock files. Open the tool from its web address, or in an up-to-date browser, to lock saved files.'
-    :client?'You can lock your answers with a passphrase. If you do, tell it to the person caring for you in person, never by email or text message.'
     :'Choose a passphrase for this person\'s file. You will need it every time you open the file. A short sentence of four or more words is strong and easy to remember.';
   document.getElementById('lockWarn').textContent=kind==='open'?'If the passphrase is lost, the file cannot be opened by anyone.':'There is no way to recover a forgotten passphrase, so keep it somewhere safe and separate from the files.';
   document.getElementById('lockPwWrap').hidden=!crypt&&kind!=='open';document.getElementById('lockShowWrap').hidden=!crypt&&kind!=='open';
   document.getElementById('lockPw2Wrap').hidden=kind==='open'||!crypt;
   ok.hidden=!crypt&&kind!=='open';ok.textContent=kind==='open'?'Unlock':'Lock and save';
-  plain.hidden=kind==='open'||(!client&&crypt&&!opt.allowPlain);plain.textContent=client||!crypt?'Save without a passphrase':'Save without a passphrase (not recommended)';
+  plain.hidden=kind==='open'||(crypt&&!opt.allowPlain);plain.textContent=crypt?'Save without a passphrase (not recommended)':'Save without a passphrase';
   pw.value='';pw2.value='';show.checked=false;pw.type=pw2.type='password';err.hidden=true;M.hidden=false;setTimeout(()=>{(crypt||kind==='open')?pw.focus():plain.focus();},30);
   const close=v=>{M.hidden=true;ok.onclick=cancel.onclick=plain.onclick=show.onchange=pw.onkeydown=pw2.onkeydown=null;M.onkeydown=null;resolve(v);};
   const fail=m=>{err.textContent=m;err.hidden=false;ok.disabled=false;ok.textContent=kind==='open'?'Unlock':'Lock and save';};
@@ -1352,12 +1296,11 @@ function askPass(kind,opt){opt=opt||{};return new Promise(resolve=>{
 function downloadJSON(obj,fname){const blob=new Blob([JSON.stringify(obj,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=fname;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);}
 async function saveSession(){
   data.savedAt=new Date().toISOString();
-  const who=(data.p_name||data.c_name||'session').replace(/[^a-z0-9]/gi,'_');
-  const tag=data.mode==='client'?'intake':'session';
-  const fname=`spiritual_care_${tag}_${who}.json`;
+  const who=(data.p_name||'session').replace(/[^a-z0-9]/gi,'_');
+  const fname=`spiritual_care_session_${who}.json`;
   let pass=sessionPass;
   if(!pass||!canLock()){const r=await askPass('set');if(!r)return;
-    if(r.plain){downloadJSON(data,fname);lastSave='plain';markClean();toast(data.mode==='client'?'Your answers are saved. Hand or send the file to the person caring for you.':'Saved without a passphrase. Anyone with the file can read it.');return;}
+    if(r.plain){downloadJSON(data,fname);lastSave='plain';markClean();toast('Saved without a passphrase. Anyone with the file can read it.');return;}
     pass=r.pass;sessionPass=pass;updateLockBtn();}
   try{const env=await sctEncrypt(data,pass);downloadJSON(env,fname);lastSave='locked';markClean();toast('Saved and locked: '+fname);}
   catch(e){toast('The file could not be locked, so nothing was saved. Try again.');}
@@ -1379,26 +1322,14 @@ function applyLoaded(L,wasLocked){
   try{const prep=data.pr_prep;Object.keys(data).forEach(k=>delete data[k]);Object.assign(data,L);if(prep&&!data.pr_prep)data.pr_prep=prep;
     ['safety','triage','opp','inv','tests','ministry'].forEach(b=>data[b]=data[b]||{});
     data.history=Array.isArray(data.history)?data.history:[];
-    // a loaded client file goes into minister mode so the pastor can work from it
-    mode = (data.mode==='client') ? 'minister' : (data.mode||'minister');
-    data.mode=mode; cur=0;
-    enterMode(mode);
+    startSession();
     rehydrate();
     renderHist();renderPriorMarks();lastSave=wasLocked?'locked':'plain';markClean();updateLockBtn();
-    toast((L.mode==='client'?'Intake loaded. The person\'s answers are now in your Intake tab.':'Session restored.')+(wasLocked?'':' This file was not locked; the next save will lock it.'));
+    toast('Session restored.'+(wasLocked?'':' This file was not locked; the next save will lock it.'));
   }catch(err){alert('Could not read that file.');}
 }
 function rehydrate(){
   document.querySelectorAll('[data-k]').forEach(el=>{if(data[el.dataset.k]!=null)el.value=data[el.dataset.k];});
-  // map client intake fields into minister intake fields if present
-  if(data.c_reason&&!data.i_reason){const t=document.querySelector('[data-k="i_reason"]');if(t){t.value=data.c_reason;data.i_reason=data.c_reason;}}
-  if(data.c_family&&!data.i_family){const t=document.querySelector('[data-k="i_family"]');if(t){t.value=data.c_family;data.i_family=data.c_family;}}
-  if(data.c_pain&&!data.i_pain){const t=document.querySelector('[data-k="i_pain"]');if(t){t.value=data.c_pain;data.i_pain=data.c_pain;}}
-  if(data.c_joy&&!data.i_joy){const t=document.querySelector('[data-k="i_joy"]');if(t){t.value=data.c_joy;data.i_joy=data.c_joy;}}
-  if(data.c_faith&&!data.i_spirhist){const t=document.querySelector('[data-k="i_spirhist"]');if(t){t.value=data.c_faith;data.i_spirhist=data.c_faith;}}
-  if(data.c_close&&!data.i_consol){const t=document.querySelector('[data-k="i_consol"]');if(t){t.value=data.c_close;data.i_consol=data.c_close;}}
-  if(data.c_far&&!data.i_desol){const t=document.querySelector('[data-k="i_desol"]');if(t){t.value=data.c_far;data.i_desol=data.c_far;}}
-  if(data.c_name&&!data.p_name){const t=document.querySelector('[data-k="p_name"]');if(t){t.value=data.c_name;data.p_name=data.c_name;}}
   document.querySelectorAll('[data-radio]').forEach(grp=>{const v=data[grp.dataset.radio];grp.querySelectorAll('input[type=radio]').forEach(rb=>{if(rb.value===v){rb.checked=true;rb.closest('.choice').classList.add('on');}});});
   Object.keys(data.safety||{}).forEach(i=>{if(data.safety[i]){const b=document.querySelector(`#safe_${i} input`);if(b){b.checked=true;document.getElementById('safe_'+i).classList.add('on');}}});
   Object.keys(data.triage||{}).forEach(i=>{if(data.triage[i]){const b=document.querySelector(`#tri_${i} input`);if(b){b.checked=true;document.getElementById('tri_'+i).classList.add('on');}}});
@@ -1822,7 +1753,7 @@ function gnReportHTML(){
 }
 
 /* init dynamic content once */
-const LESSON_HTML={"intake": "<p>This step is for listening. You don't need to fill every box. Let the person tell their story, and note what matters as you go.</p><p>The lines in italics are questions you can ask aloud. Use them or your own. If the person filled out an intake at home, open their file from the Menu and their answers will already be in these boxes. Then listen for what lies underneath.</p><p class=\"look\">Listen for three things: the wound beneath the problem they came with, the spiritual climate they grew up in, and when God feels near or far to them.</p><p><b>Family genogram:</b> further down this step you can draw the family across three generations and mark where patterns repeat. It stays with the person's file for every later session.</p><p><b>Seeing someone over several weeks:</b> open their last file, look it over, then choose <b>New session, same person</b> from the Menu. The last session is kept in the file as part of their course of care. Their background, genogram, and marked doors carry over, and the session steps start fresh. Keep one file per person so the whole journey stays together.</p>", "genogram": "<p>A genogram is a family diagram covering at least three generations. It shows where patterns repeat: down the line from grandparent to parent, across from aunt to aunt or cousin to cousin, and sometimes skipping a generation.</p><p><b>Guided questions</b> takes you through the family one question at a time, in words you can ask aloud. <b>Edit a person</b> opens when you tap someone on the diagram, so you can correct details or add relatives the questions did not cover, such as great-grandparents, aunts, cousins, remarriages, or adopted children.</p><p>Mark patterns with the coloured chips on each person. The findings count blood relatives only. People who married into the family are shown, but they are part of their children's line rather than this person's. You are looking for patterns that repeat, not single events.</p><p>When a pattern repeats across generations, the findings offer a button to mark the matching Generational door. Nothing is marked unless you press it.</p><p class=\"look\">Use the genogram to see patterns, never to blame family members. Stop for prayer at the last question before praying over anything you have found.</p>", "safety": "<p>Safety always comes first. None of these items means a person needs deliverance. Each one means they may need protection, medical help, or a professional before anything else.</p><p>If you tick any item, the printed plan opens with a referral note. Referring someone is wise. Going beyond your training can cause harm.</p><p class=\"look\">Watch for any present danger to the person or to others. If you are unsure, ask plainly and gently, and believe what you are told.</p>", "triage": "<p>This step is for thinking, before any action. You are deciding what you are really dealing with, so the rest of the session takes the right path. The most important caution in the whole tool is here: don't treat an ordinary struggle as a demon, and don't miss a real one.</p><p><b>Step 1</b> lets you mark more than one kind of problem, because most situations have layers. <b>Step 2</b> asks one question: if a spirit may be involved, how deep does it go? A believer cannot be possessed, but can be oppressed or give the enemy a foothold in one area. A person is more than one room.</p><p>The list of signs under the third box gives clues, not proof. They are a reason to look more closely.</p><p class=\"look\">Take your time. Most problems are ordinary or come from a wound, and genuine demonic trouble is the less common case.</p>", "doors": "<p>These are possible entry points, places where the enemy may have gained access. They are not a diagnosis. A long list does not mean a heavy case; the discernment step decides what any of it means.</p><p>Mark only what applies, and use the note under each item for details, names, or how long. An asterisk marks a door that can open from a single occurrence, so it matters even if it happened once.</p><p>The <b>Wounds</b> group is different. These are things done to the person, not sins they committed. They need healing rather than confession, and the plan treats them that way.</p><p>Generational doors can be marked straight from the genogram on the Intake step. Count blood relatives only, and look for patterns that repeat.</p><p class=\"look\">Look for doors that line up with the wounds and family history you have already heard. A door rarely stands alone.</p>", "discern": "<p>The seven tests rest on one principle: the form of a thing is not its identity. Saul prophesied under the Holy Spirit and later under an evil spirit, and demons can quote true theology. So look at where something comes from and what it produces, rather than how impressive it seems.</p><p>Each test is a question with a Scripture reference and three buttons: Passes, Concern, or Fails. Two tests, fruit and the direction of a life, are marked \"over time\" because they can't be judged fairly in one sitting. Leave those for later sessions.</p><p>Below the tests are three short reads, then your pastoral assessment. That assessment decides the shape of the plan: repentance, healing, professional help, deliverance, or a mix.</p><p class=\"look\">Look for several tests agreeing. One unusual sign proves little; a pattern across several tests, confirmed over time and weighed with others, is far more reliable.</p>", "ministry": "<p>Use this step only when you have discerned a demonic element and the person is willing. Go at their pace. If your assessment was sin, trauma, or a mental-health concern, skip this step.</p><p>The five steps go in order: establish authority, address the spirit rather than the person, break the agreements that gave it ground, command it to leave, and fill the house. Tick each one as you do it so there is a record of what happened.</p><p>Always fill the house. A house swept clean and left empty ends up worse than before (Luke 11:24-26). After deliverance, discipleship and community keep it filled.</p><p class=\"look\">Keep the guardrails in mind; they are easy to forget in the moment. Give commands rather than holding a conversation. No theatrics. Protect the person's dignity. Never minister alone.</p>", "plan": "<p>Everything you entered is gathered here into one plan: what they came with, the triage, the discernment, the entry points, Scripture and prayers, any ministry, and the follow-up. If a safety concern was marked, the plan opens with it.</p><p>The lower part is a <b>handout</b> with Scripture and prayers for the person to take home. Print the whole plan for your file, or print only the handout for them. Read each prayer before you pray it, and make it your own.</p><p>To change anything, go back to that step and edit it. The plan updates itself.</p>"};
+const LESSON_HTML={"intake": "<p>This step is for listening. You don't need to fill every box. Let the person tell their story, and note what matters as you go.</p><p>The lines in italics are questions you can ask aloud. Use them or your own, and listen for what lies underneath.</p><p class=\"look\">Listen for three things: the wound beneath the problem they came with, the spiritual climate they grew up in, and when God feels near or far to them.</p><p><b>Family genogram:</b> further down this step you can draw the family across three generations and mark where patterns repeat. It stays with the person's file for every later session.</p><p><b>Seeing someone over several weeks:</b> open their last file, look it over, then choose <b>New session, same person</b> from the Menu. The last session is kept in the file as part of their course of care. Their background, genogram, and marked doors carry over, and the session steps start fresh. Keep one file per person so the whole journey stays together.</p>", "genogram": "<p>A genogram is a family diagram covering at least three generations. It shows where patterns repeat: down the line from grandparent to parent, across from aunt to aunt or cousin to cousin, and sometimes skipping a generation.</p><p><b>Guided questions</b> takes you through the family one question at a time, in words you can ask aloud. <b>Edit a person</b> opens when you tap someone on the diagram, so you can correct details or add relatives the questions did not cover, such as great-grandparents, aunts, cousins, remarriages, or adopted children.</p><p>Mark patterns with the coloured chips on each person. The findings count blood relatives only. People who married into the family are shown, but they are part of their children's line rather than this person's. You are looking for patterns that repeat, not single events.</p><p>When a pattern repeats across generations, the findings offer a button to mark the matching Generational door. Nothing is marked unless you press it.</p><p class=\"look\">Use the genogram to see patterns, never to blame family members. Stop for prayer at the last question before praying over anything you have found.</p>", "safety": "<p>Safety always comes first. None of these items means a person needs deliverance. Each one means they may need protection, medical help, or a professional before anything else.</p><p>If you tick any item, the printed plan opens with a referral note. Referring someone is wise. Going beyond your training can cause harm.</p><p class=\"look\">Watch for any present danger to the person or to others. If you are unsure, ask plainly and gently, and believe what you are told.</p>", "triage": "<p>This step is for thinking, before any action. You are deciding what you are really dealing with, so the rest of the session takes the right path. The most important caution in the whole tool is here: don't treat an ordinary struggle as a demon, and don't miss a real one.</p><p><b>Step 1</b> lets you mark more than one kind of problem, because most situations have layers. <b>Step 2</b> asks one question: if a spirit may be involved, how deep does it go? A believer cannot be possessed, but can be oppressed or give the enemy a foothold in one area. A person is more than one room.</p><p>The list of signs under the third box gives clues, not proof. They are a reason to look more closely.</p><p class=\"look\">Take your time. Most problems are ordinary or come from a wound, and genuine demonic trouble is the less common case.</p>", "doors": "<p>These are possible entry points, places where the enemy may have gained access. They are not a diagnosis. A long list does not mean a heavy case; the discernment step decides what any of it means.</p><p>Mark only what applies, and use the note under each item for details, names, or how long. An asterisk marks a door that can open from a single occurrence, so it matters even if it happened once.</p><p>The <b>Wounds</b> group is different. These are things done to the person, not sins they committed. They need healing rather than confession, and the plan treats them that way.</p><p>Generational doors can be marked straight from the genogram on the Intake step. Count blood relatives only, and look for patterns that repeat.</p><p class=\"look\">Look for doors that line up with the wounds and family history you have already heard. A door rarely stands alone.</p>", "discern": "<p>The seven tests rest on one principle: the form of a thing is not its identity. Saul prophesied under the Holy Spirit and later under an evil spirit, and demons can quote true theology. So look at where something comes from and what it produces, rather than how impressive it seems.</p><p>Each test is a question with a Scripture reference and three buttons: Passes, Concern, or Fails. Two tests, fruit and the direction of a life, are marked \"over time\" because they can't be judged fairly in one sitting. Leave those for later sessions.</p><p>Below the tests are three short reads, then your pastoral assessment. That assessment decides the shape of the plan: repentance, healing, professional help, deliverance, or a mix.</p><p class=\"look\">Look for several tests agreeing. One unusual sign proves little; a pattern across several tests, confirmed over time and weighed with others, is far more reliable.</p>", "ministry": "<p>Use this step only when you have discerned a demonic element and the person is willing. Go at their pace. If your assessment was sin, trauma, or a mental-health concern, skip this step.</p><p>The five steps go in order: establish authority, address the spirit rather than the person, break the agreements that gave it ground, command it to leave, and fill the house. Tick each one as you do it so there is a record of what happened.</p><p>Always fill the house. A house swept clean and left empty ends up worse than before (Luke 11:24-26). After deliverance, discipleship and community keep it filled.</p><p class=\"look\">Keep the guardrails in mind; they are easy to forget in the moment. Give commands rather than holding a conversation. No theatrics. Protect the person's dignity. Never minister alone.</p>", "plan": "<p>Everything you entered is gathered here into one plan: what they came with, the triage, the discernment, the entry points, Scripture and prayers, any ministry, and the follow-up. If a safety concern was marked, the plan opens with it.</p><p>The lower part is a <b>handout</b> with Scripture and prayers for the person to take home. Print the whole plan for your file, or print only the handout for them. Read each prayer before you pray it, and make it your own.</p><p>To change anything, go back to that step and edit it. The plan updates itself.</p>"};
 LESSON_BODY=LESSON_HTML;
 renderSafety();renderTriage();renderInv();renderTests();renderMinistry();bindFields();gnInit();updateSafetyVerdict();updateDoorCounts();applyPrayerPref();renderTop();onHash();
 </script>
