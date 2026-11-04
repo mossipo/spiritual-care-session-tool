@@ -144,7 +144,9 @@
 
   /* learn */
   details.lesson{background:var(--sheet);border:1px solid var(--rule);border-radius:12px;box-shadow:var(--shadow)}
-  details.lesson > summary{list-style:none;cursor:pointer;padding:14px 16px;display:grid;grid-template-columns:auto minmax(0,1fr);gap:14px;align-items:center}
+  details.lesson > summary{list-style:none;cursor:pointer;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;gap:14px}
+  details.lesson > summary::after{content:"+";color:var(--blue);font-size:1.35rem;line-height:1;flex:none}
+  details.lesson[open] > summary::after{content:"\2212"}
   details.lesson > summary::-webkit-details-marker{display:none}
   .lnum{font-family:var(--f-display);font-weight:700;font-size:1.9rem;line-height:1;color:var(--amber);width:1.1em;text-align:center}
   .ltitle b{display:block;font-family:var(--f-display);font-size:1.15rem;line-height:1.25}
@@ -1014,8 +1016,8 @@ function renderGuides(){
 function renderLearn(){
   const f=document.getElementById('learnFoundations');
   if(!f.dataset.done){
-    f.innerHTML=`<span id="lesson-foundations"></span>`+FOUNDATIONS.map(([k,t,q,ideas,bal],i)=>`<details class="lesson" id="lesson-${k}"><summary><span class="lnum">${i+1}</span><span class="ltitle"><b>${t}</b><span>${q}</span></span></summary><div class="lbody"><ul>${ideas.map(x=>`<li>${x}</li>`).join('')}</ul><div class="balance"><b>Hold the balance.</b> ${bal}</div></div></details>`).join('');
-    document.getElementById('learnSteps').innerHTML=STEP_LESSONS.map(([k,t,q],i)=>`<details class="lesson" id="lesson-${k}"><summary><span class="lnum">${i+1}</span><span class="ltitle"><b>${t}</b><span>${q}</span></span></summary><div class="lbody">${LESSON_BODY[k]||''}</div></details>`).join('');
+    f.innerHTML=`<span id="lesson-foundations"></span>`+FOUNDATIONS.map(([k,t,q,ideas,bal],i)=>`<details class="lesson" id="lesson-${k}"><summary><span class="ltitle"><b>${t}</b><span>${q}</span></span></summary><div class="lbody"><ul>${ideas.map(x=>`<li>${x}</li>`).join('')}</ul><div class="balance"><b>Hold the balance.</b> ${bal}</div></div></details>`).join('');
+    document.getElementById('learnSteps').innerHTML=STEP_LESSONS.map(([k,t,q],i)=>`<details class="lesson" id="lesson-${k}"><summary><span class="ltitle"><b>${t}</b><span>${q}</span></span></summary><div class="lbody">${LESSON_BODY[k]||''}</div></details>`).join('');
     f.dataset.done='1';
   }
 }

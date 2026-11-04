@@ -1,5 +1,9 @@
 # Changelog
 
+## v4.1.1: Learn page tidy (2026-11-03)
+
+- Removed the large numbers from the Learn lessons; each lesson now opens with a plus sign, like the door groups.
+
 ## v4.1: Prayer pauses (2026-11-03)
 
 Seven places to stop and pray, each with a suggested prayer (folded away; "use your own words" comes first), a listening prompt, and a place to note what you sensed.
